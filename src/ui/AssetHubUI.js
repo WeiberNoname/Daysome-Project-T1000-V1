@@ -1,5 +1,6 @@
 import { AssetRegistryManager } from '../managers/AssetRegistryManager.js';
 import { ModelThumbnailGenerator } from '../core/ModelThumbnailGenerator.js';
+import { formatHumanLabel } from './uiUtils.js';
 
 export function setupAssetHubUI(deps = {}) {
   const {
@@ -130,7 +131,9 @@ export function setupAssetHubUI(deps = {}) {
       card.setAttribute('data-id', asset.id);
 
       let thumbnailInner = '';
-      if (asset.type === 'texture' && asset.objectUrl) {
+      if (asset.ext === 'gif' && asset.objectUrl) {
+        thumbnailInner = `<img src="${asset.objectUrl}" class="asset-thumbnail-img" alt="${asset.name}">`;
+      } else if (asset.type === 'texture' && asset.objectUrl) {
         thumbnailInner = `<img src="${asset.objectUrl}" class="asset-thumbnail-img" alt="${asset.name}">`;
       } else if (asset.type === 'model') {
         const hasThumb = !!asset.thumbnailUrl;
@@ -177,7 +180,7 @@ export function setupAssetHubUI(deps = {}) {
           ${thumbnailInner}
           <button class="asset-card-del-btn" data-action="delete" data-id="${asset.id}" title="Remove Asset">×</button>
         </div>
-        <div class="studio-select-label asset-card-label" title="${asset.name}">${asset.name}</div>
+        <div class="studio-select-label asset-card-label" title="${asset.name}">${formatHumanLabel(asset.name)}</div>
         <div class="studio-select-sub asset-card-sub">${asset.category} • ${asset.sizeFormatted}</div>
       `;
 

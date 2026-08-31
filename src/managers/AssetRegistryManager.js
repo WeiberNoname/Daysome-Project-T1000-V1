@@ -24,6 +24,9 @@ export class AssetRegistryManager {
 
   detectFileType(file) {
     const ext = file.name.split('.').pop().toLowerCase();
+    if (ext === 'gif') {
+      return { type: 'model', category: 'GIF Mascot', icon: '🎞️', format: 'gif', ext };
+    }
     if (['glb', 'gltf', 'fbx', 'obj'].includes(ext)) {
       return { type: 'model', category: '3D Model', icon: '🧊', ext };
     }
@@ -32,6 +35,9 @@ export class AssetRegistryManager {
     }
     if (['mp3', 'wav', 'ogg'].includes(ext)) {
       return { type: 'audio', category: 'Audio Clip', icon: '🎵', format: 'audio', ext };
+    }
+    if (['mid', 'midi', 'musicxml', 'xml'].includes(ext)) {
+      return { type: 'score', category: 'Musical Score', icon: '🎼', format: 'score', ext };
     }
     return { type: 'unknown', category: 'General Asset', icon: '📁', ext };
   }

@@ -29,15 +29,6 @@ export function updateXYZVisibility({ axesHelper, gridHelper, currentSettings, i
   if (axesHelper) axesHelper.visible = !!currentSettings.showXYZCoords;
   if (gridHelper) gridHelper.visible = !!currentSettings.showGroundGrid;
 
-  const hud = document.getElementById('xyz-hud-overlay');
-  if (hud) {
-    if (currentSettings.showXYZCoords) {
-      hud.classList.remove('hidden');
-    } else {
-      hud.classList.add('hidden');
-    }
-  }
-
   const crosshair = document.getElementById('fps-crosshair');
   if (crosshair) {
     if (currentSettings.enableFPSMode && !isSettingsOpen) {

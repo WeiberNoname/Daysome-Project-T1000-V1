@@ -8,7 +8,7 @@
 import { createProceduralMascot } from '../core/MascotBuilder.js';
 import { createFlagMesh, createPresetFlagTexture, updateFlagWave } from '../core/FlagMeshBuilder.js';
 import { ModelThumbnailGenerator } from '../core/ModelThumbnailGenerator.js';
-import { disposeHierarchy, disposeMixer } from '../core/GPUAssetManager.js';
+import { formatHumanLabel } from './uiUtils.js';
 
 export const DEFAULT_FALLBACK_ICON = "data:image/svg+xml;utf8," + encodeURIComponent(`
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
@@ -134,9 +134,14 @@ export function populateModelDropdown(ctx) {
 
     const matchingAsset = customModelAssets.find(a => a.name === modelKey);
     const previewPath = path.join(assetsDir, '.previews', `${modelKey}.png`);
+    const isGif = modelKey.toLowerCase().endsWith('.gif') || (matchingAsset && matchingAsset.ext === 'gif');
 
-    if (matchingAsset && matchingAsset.thumbnailUrl) {
+    if (matchingAsset && matchingAsset.ext === 'gif' && matchingAsset.objectUrl) {
+      img.src = matchingAsset.objectUrl;
+    } else if (matchingAsset && matchingAsset.thumbnailUrl) {
       img.src = matchingAsset.thumbnailUrl;
+    } else if (isGif && fs.existsSync(path.join(assetsDir, modelKey))) {
+      img.src = pathToFileURL(path.join(assetsDir, modelKey)).href + "?t=" + Date.now();
     } else if (fs.existsSync(previewPath)) {
       img.src = pathToFileURL(previewPath).href + "?t=" + Date.now();
     } else if (modelKey === 'flag') {
@@ -173,8 +178,8 @@ export function populateModelDropdown(ctx) {
       label.textContent = (typeof t === 'function') ? t('model_flag', 'Country Flag 🎌') : 'Country Flag 🎌';
       subText = 'Interactive Cloth';
     } else {
-      label.textContent = modelKey.replace(/\.(glb|gltf|fbx|obj)$/i, '');
-      subText = matchingAsset ? `${matchingAsset.category} • ${matchingAsset.sizeFormatted}` : 'Custom GLTF';
+      label.textContent = formatHumanLabel(modelKey);
+      subText = matchingAsset ? `${matchingAsset.category} • ${matchingAsset.sizeFormatted}` : 'Custom 3D Model';
     }
 
     const sub = document.createElement('div');
