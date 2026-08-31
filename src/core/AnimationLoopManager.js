@@ -49,6 +49,11 @@ export function updateAnimationFrame(deps) {
     );
   }
 
+  // 1.3 Update Animated GIF Mascot frame if active
+  if (innerModelGroup && innerModelGroup.userData && typeof innerModelGroup.userData.updateGifFrame === 'function') {
+    innerModelGroup.userData.updateGifFrame();
+  }
+
   // 1.5 Update 3D Atmosphere Effects (Sakura Petals & Snow Fall)
   if (sakuraRainManager) {
     sakuraRainManager.setEnabled(currentSettings.sakuraRain !== false);
@@ -145,45 +150,9 @@ export function updateAnimationFrame(deps) {
     updateFPSCamera(delta);
   }
 
-  // 5. Update XYZ Spatial Helper & HUD readout
+  // 5. Update XYZ Spatial 3D Helper axes position
   if (axesHelper && characterGroup) {
     axesHelper.position.copy(characterGroup.position);
-  }
-
-  if (currentSettings.showXYZCoords) {
-    let posX, posY, posZ, rotX, rotY, rotZ;
-
-    if (currentSettings.enableFPSMode && camera) {
-      posX = camera.position.x.toFixed(2);
-      posY = camera.position.y.toFixed(2);
-      posZ = camera.position.z.toFixed(2);
-      rotX = Math.round(THREE.MathUtils.radToDeg(camera.rotation.x));
-      rotY = Math.round(THREE.MathUtils.radToDeg(camera.rotation.y));
-      rotZ = Math.round(THREE.MathUtils.radToDeg(camera.rotation.z));
-    } else {
-      posX = (characterGroup ? characterGroup.position.x : 0).toFixed(2);
-      posY = (characterGroup ? characterGroup.position.y : 0).toFixed(2);
-      posZ = (characterGroup ? characterGroup.position.z : 0).toFixed(2);
-
-      const rotMesh = innerModelGroup || characterGroup;
-      rotX = rotMesh ? Math.round(THREE.MathUtils.radToDeg(rotMesh.rotation.x)) : 0;
-      rotY = rotMesh ? Math.round(THREE.MathUtils.radToDeg(rotMesh.rotation.y)) : 0;
-      rotZ = rotMesh ? Math.round(THREE.MathUtils.radToDeg(rotMesh.rotation.z)) : 0;
-    }
-
-    const valX = document.getElementById('xyz-val-x');
-    const valY = document.getElementById('xyz-val-y');
-    const valZ = document.getElementById('xyz-val-z');
-    const valRx = document.getElementById('xyz-val-rx');
-    const valRy = document.getElementById('xyz-val-ry');
-    const valRz = document.getElementById('xyz-val-rz');
-
-    if (valX) valX.innerText = posX;
-    if (valY) valY.innerText = posY;
-    if (valZ) valZ.innerText = posZ;
-    if (valRx) valRx.innerText = `${rotX}°`;
-    if (valRy) valRy.innerText = `${rotY}°`;
-    if (valRz) valRz.innerText = `${rotZ}°`;
   }
 
   // 6. Render WebGL Scene

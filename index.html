@@ -90,7 +90,7 @@
             <span class="studio-card-title" data-i18n="asset_hub_title">📦 Universal Asset Importer</span>
           </div>
 
-          <input type="file" id="asset-hub-file-input" multiple accept=".glb,.gltf,.fbx,.obj,.png,.jpg,.jpeg,.webp,.svg" style="display: none;">
+          <input type="file" id="asset-hub-file-input" multiple accept=".glb,.gltf,.fbx,.obj,.gif,.png,.jpg,.jpeg,.webp,.svg,.mid,.midi,.musicxml,.xml" style="display: none;">
           <div id="asset-hub-dropzone" class="studio-dropzone">
             <span style="font-size: 1.6em;">📥</span>
             <div style="font-size: 0.95em; font-weight: 600; color: #ffffff; margin-top: 4px;" data-i18n="asset_drop_title">Drag & Drop Any Asset File Here</div>
@@ -144,7 +144,7 @@
         <!-- 3. Weather & Atmospheric Ambience Card -->
         <div class="studio-card">
           <div class="studio-card-header">
-            <span class="studio-card-title" data-i18n="atmosphere_weather_presets">🌸 Weather & Atmospheric Ambience</span>
+            <span class="studio-card-title" data-i18n="atmosphere_title">🌸 Weather & Atmospheric Ambience</span>
             <span id="weather-count-badge" class="studio-badge studio-badge-amber">3 Weathers</span>
           </div>
 
@@ -184,7 +184,7 @@
 
         <!-- Hidden checkbox triggers for state management compatibility -->
         <input type="checkbox" id="sakura-rain" style="display: none;">
-        <input type="checkbox" id="snowfall-enable" style="display: none;">
+        <input type="checkbox" id="snow-fall" style="display: none;">
 
         <!-- 4. Flag Styles, Textures & Cloth Wave Physics Card -->
         <div class="studio-card">
@@ -858,30 +858,11 @@
       <button id="save-btn" class="studio-btn-primary" style="width: 100%; font-size: 1.05em; padding: 8px;" data-i18n="save_btn">Save & Refresh</button>
     </div>
   </div>
-  <!-- Live XYZ Spatial Coordinates HUD Overlay -->
-  <div id="xyz-hud-overlay" class="xyz-hud hidden" style="pointer-events: none;">
-    <div class="xyz-hud-header">
-      <span class="xyz-hud-title" data-i18n="xyz_hud_title">📐 XYZ Coordinates (Plan 001)</span>
-      <span class="xyz-hud-shortcut">Ctrl+Shift+C</span>
-    </div>
-    <div class="xyz-hud-body">
-      <div class="xyz-hud-row">
-        <span class="xyz-badge axis-x">X: <strong id="xyz-val-x">0.00</strong></span>
-        <span class="xyz-badge axis-y">Y: <strong id="xyz-val-y">0.00</strong></span>
-        <span class="xyz-badge axis-z">Z: <strong id="xyz-val-z">0.00</strong></span>
-      </div>
-      <div class="xyz-hud-row rot-row">
-        <span class="rot-label">Rot:</span>
-        <span class="rot-val">RX: <strong id="xyz-val-rx">0°</strong></span>
-        <span class="rot-val">RY: <strong id="xyz-val-ry">0°</strong></span>
-        <span class="rot-val">RZ: <strong id="xyz-val-rz">0°</strong></span>
-      </div>
-    </div>
 
-    <!-- FPS Mode Center Crosshair Target Overlay -->
-    <div id="fps-crosshair" class="fps-crosshair hidden" style="pointer-events: none;">+</div>
+  <!-- FPS Mode Center Crosshair Target Overlay -->
+  <div id="fps-crosshair" class="fps-crosshair hidden" style="pointer-events: none;">+</div>
 
-    <script type="module" src="renderer.js"></script>
+  <script type="module" src="renderer.js"></script>
 </body>
 
 </html>

@@ -5,13 +5,14 @@
  */
 
 import { eventBus } from '../managers/EventBus.js';
+import { soundManager } from '../core/SoundManager.js';
 
 export function setupAtmosphereTabUI(deps) {
   const { currentSettings, saveSettingsFile, t, showSpeechBubble, sakuraRainManager, snowFallManager } = deps;
 
   const masterEnableCheck = document.getElementById('atmosphere-master-enable');
   const soundSyncCheck = document.getElementById('atmosphere-sound-sync');
-  const grid = document.getElementById('atmosphere-select-grid');
+  const grid = document.getElementById('weather-select-grid') || document.getElementById('atmosphere-select-grid');
 
   const getActiveWeatherMode = () => {
     const isSakura = currentSettings.sakuraRain !== false;
@@ -19,13 +20,17 @@ export function setupAtmosphereTabUI(deps) {
     if (isSakura && isSnow) return 'both';
     if (isSakura) return 'sakura';
     if (isSnow) return 'snow';
-    return 'none';
+    return 'clear';
   };
 
   const updateCardSelection = (mode) => {
     if (!grid) return;
     grid.querySelectorAll('.weather-card').forEach(card => {
-      card.classList.toggle('selected', card.getAttribute('data-weather') === mode);
+      const cardWeather = card.getAttribute('data-weather');
+      const isSelected = cardWeather === mode || 
+        (mode === 'clear' && cardWeather === 'none') || 
+        (mode === 'none' && cardWeather === 'clear');
+      card.classList.toggle('selected', isSelected);
     });
   };
 
@@ -39,7 +44,7 @@ export function setupAtmosphereTabUI(deps) {
     } else if (mode === 'both') {
       currentSettings.sakuraRain = true;
       currentSettings.snowFall = true;
-    } else if (mode === 'none') {
+    } else if (mode === 'clear' || mode === 'none') {
       currentSettings.sakuraRain = false;
       currentSettings.snowFall = false;
     }
@@ -47,10 +52,16 @@ export function setupAtmosphereTabUI(deps) {
     if (sakuraRainManager) sakuraRainManager.setEnabled(currentSettings.sakuraRain);
     if (snowFallManager) snowFallManager.setEnabled(currentSettings.snowFall);
 
+    const sakuraRainCheck = document.getElementById('sakura-rain');
+    const snowFallCheck = document.getElementById('snow-fall');
+    if (sakuraRainCheck) sakuraRainCheck.checked = currentSettings.sakuraRain;
+    if (snowFallCheck) snowFallCheck.checked = currentSettings.snowFall;
+
     if (masterEnableCheck) {
-      masterEnableCheck.checked = mode !== 'none';
+      masterEnableCheck.checked = (mode !== 'clear' && mode !== 'none');
     }
 
+    soundManager.syncAtmosphere(currentSettings);
     updateCardSelection(mode);
     eventBus.emit('atmosphere:changed', { mode, settings: currentSettings });
 
@@ -61,6 +72,7 @@ export function setupAtmosphereTabUI(deps) {
         sakura: '🌸 Sakura Petal Rain Active!',
         snow: '❄️ Winter Snowfall Active!',
         both: '🌸❄️ Sakura & Snow Storm Active!',
+        clear: '☀️ Weather Cleared (Calm Skies)',
         none: '☀️ Weather Cleared (Calm Skies)'
       };
       showSpeechBubble(names[mode] || 'Weather updated');
@@ -85,7 +97,7 @@ export function setupAtmosphereTabUI(deps) {
       if (masterEnableCheck.checked) {
         applyWeather('sakura', true);
       } else {
-        applyWeather('none', true);
+        applyWeather('clear', true);
       }
     });
   }

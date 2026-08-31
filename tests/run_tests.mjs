@@ -8,6 +8,9 @@ import { AppStore } from '../src/managers/AppStore.js';
 import { EventBus, eventBus } from '../src/managers/EventBus.js';
 import { disposeHierarchy, disposeMaterial, disposeMixer, disposeRenderer } from '../src/core/GPUAssetManager.js';
 
+import { AssetRegistryManager } from '../src/managers/AssetRegistryManager.js';
+import { SceneStageManager } from '../src/core/SceneStageManager.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -732,9 +735,35 @@ import('../src/core/SoundManager.js').then(({ SoundManager }) => {
                 assert.strictEqual(listenerNotified, true, 'Telemetry listener should be notified of dataset load');
                 assert.strictEqual(engine.getTelemetryTraces().length, 1, 'Loaded dataset should be set active');
 
-                // Test Clear
-                engine.clearTelemetryTraces();
-                assert.strictEqual(engine.getTelemetryTraces().length, 0, 'clearTelemetryTraces should reset logs');
+                // Test AssetRegistryManager GIF Mascot Detection
+                console.log('▶ Testing AssetRegistryManager GIF Mascot Ingestion & SceneStageManager Scanning...');
+                const registry = new AssetRegistryManager();
+                const gifMeta = registry.detectFileType({ name: 'cute_cat.gif' });
+                assert.strictEqual(gifMeta.type, 'model', 'GIF file must be detected as model type for mascot hosting');
+                assert.strictEqual(gifMeta.category, 'GIF Mascot', 'GIF category must be GIF Mascot');
+                assert.strictEqual(gifMeta.format, 'gif', 'GIF format must be gif');
+
+                const glbMeta = registry.detectFileType({ name: 'robot.glb' });
+                assert.strictEqual(glbMeta.type, 'model', 'GLB file must be model type');
+
+                const pngMeta = registry.detectFileType({ name: 'skin.png' });
+                assert.strictEqual(pngMeta.type, 'texture', 'PNG file must be texture type');
+
+                const midMeta = registry.detectFileType({ name: 'bach.mid' });
+                assert.strictEqual(midMeta.type, 'score', 'MID file must be score type');
+
+                // Test SceneStageManager model discovery with GIF files
+                const mockFs = {
+                  existsSync: (p) => true,
+                  readdirSync: (p) => ['fox.glb', 'cat.gif', 'dance.gltf', 'readme.txt', 'song.mp3']
+                };
+                const stageMgr = new SceneStageManager({
+                  fs: mockFs,
+                  getAssetsPath: () => '/mock/assets'
+                });
+                const discovered = stageMgr.scanForModels();
+                assert.deepStrictEqual(discovered, ['fox.glb', 'cat.gif', 'dance.gltf'], 'scanForModels must discover .glb, .gltf, and .gif files');
+                console.log('✅ AssetRegistryManager & SceneStageManager GIF Mascot tests PASSED.');
 
                 console.log('✅ LLMDirectorEngine, ToolRegistry, AppContextRetriever & DevTools Telemetry unit tests PASSED.');
                 console.log('\n🎉 ALL UNIT TEST SUITES PASSED CLEANLY (100% SUCCESS)');

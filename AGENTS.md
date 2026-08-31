@@ -24,3 +24,6 @@
   ```powershell
   Start-Process "DesktopPet-win32-x64\DesktopPet.exe"
   ```
+* **Clean State Testing**:
+  Remove the `assets/` folder after rebuilds (`Remove-Item -Recurse -Force assets`) to test cold boots; the application automatically recreates default assets and configurations on launch.
+

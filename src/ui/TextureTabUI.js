@@ -5,6 +5,7 @@
  */
 
 import { createPresetFlagTexture } from '../core/FlagMeshBuilder.js';
+import { formatHumanLabel } from './uiUtils.js';
 
 export function setupTextureTabUI(deps) {
   const { currentSettings, saveSettingsFile, t, THREE, getInnerModelGroup, forceRefreshAllPreviews } = deps;
@@ -96,7 +97,10 @@ export function setupTextureTabUI(deps) {
     previewImg.src = initialTexUrl;
   }
   if (filenameLabel) {
-    filenameLabel.innerText = currentSettings.customTexturePath ? (t('custom_image_loaded') || 'Custom Image Loaded') : (`Preset: ${currentSettings.flagPreset || 'default'}`);
+    const presetLabel = currentSettings.flagPreset === 'model_default' 
+      ? (t ? t('preset_model_default', 'Model Original Skin') : 'Model Original Skin')
+      : `Preset: ${formatHumanLabel(currentSettings.flagPreset || 'Default')}`;
+    filenameLabel.innerText = currentSettings.customTexturePath ? (t ? (t('custom_image_loaded') || 'Custom Image Loaded') : 'Custom Image Loaded') : presetLabel;
   }
 
   if (windSpeedSlider) {

@@ -1,7 +1,4 @@
-/**
- * Settings Panel UI Synchronizer & Component Module (<160 lines)
- * Handles animation dropdown population, UI form sliders state syncing, and readout label updates.
- */
+import { formatHumanLabel } from './uiUtils.js';
 
 export function populateAnimationDropdown({ animSelect, modelSelect, availableAnimations, currentSettings }) {
   const container = document.getElementById('anim-select-container');
@@ -32,7 +29,8 @@ export function populateAnimationDropdown({ animSelect, modelSelect, availableAn
     const option = document.createElement('option');
     const val = clipName || String(idx);
     option.value = val;
-    option.textContent = clipName ? `${idx + 1}. ${clipName}` : `Animation ${idx + 1}`;
+    const humanName = formatHumanLabel(clipName);
+    option.textContent = clipName ? `${idx + 1}. ${humanName || clipName}` : `Animation ${idx + 1}`;
     animSelect.appendChild(option);
   });
 

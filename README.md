@@ -32,13 +32,14 @@ graph TD
 * **Auto-Start Local LLM Daemon**: Automatically launches the local Ollama background service on boot (`127.0.0.1:11434` with `llama3.2`).
 
 ### 2. 📦 Universal Asset Hub & Ingestion (Tab 2)
-* **Central Drag-and-Drop Ingestion**: Universal dropzone supporting 3D Models (`.glb`, `.gltf`, `.fbx`, `.obj`), Textures (`.png`, `.jpg`, `.webp`, `.svg`), and Audio Scores (`.mid`, `.midi`, `.musicxml`, `.xml`).
-* **Pooled 3D Snapshot Renderer**: Automatically captures beauty-angle thumbnail snapshots for 3D models with zero VRAM leaks.
+* **Central Drag-and-Drop Ingestion**: Universal dropzone supporting 3D Models (`.glb`, `.gltf`, `.fbx`, `.obj`), Animated 2D Mascots (`.gif`), Textures (`.png`, `.jpg`, `.webp`, `.svg`), and Audio Scores (`.mid`, `.midi`, `.musicxml`, `.xml`).
+* **Live Animated & Snapshot Previews**: Automatically renders live animated GIF previews and captures beauty-angle snapshots for 3D GLTF models with zero VRAM leaks.
 * **Cross-Tab Ingestion**: Automatically propagates imported assets into Mascot, Texture, Atmosphere, and Music file holder grids.
 
-### 3. 🐰 3D Mascot & Model Studio (Tab 3)
-* **Standardized File Holder Grid**: Instant 1-click selection across procedural models (🐰 Bunny, 🎌 Country Flag) and custom GLTF/GLB models.
-* **Skeletal Animation Selector**: Live animation clip dropdown with smooth cross-fading, interactive SFX reactions, and idle bobbing dynamics.
+### 3. 🐰 3D & 2D Animated Mascot Studio (Tab 3)
+* **Standardized File Holder Grid**: Instant 1-click selection across procedural models (🐰 Bunny, 🎌 Country Flag), custom 3D GLTF/GLB models, and **Animated GIF Mascots (`.gif`)**.
+* **Spatial GIF Billboard Engine**: Animated GIFs render on a crisp, transparent spatial plane with auto-detected aspect ratio, alpha clipping, and stage spotlight reactions.
+* **Physics & Skeletal Animation**: Live animation clip dropdown with smooth cross-fading, interactive SFX reactions, idle bobbing dynamics, and 3D physics tossing (Hold `D` + Drag).
 
 ### 4. 🌸 Atmosphere & Ambient Weather (Tab 4)
 * **Single-Draw-Call Instanced Particles**: Single-pass GPU instanced particle systems for 3D cherry blossom petals and crystalline snowfall.
@@ -113,60 +114,42 @@ flowchart TD
 npm install
 ```
 
-### 2. Launch Development Environment
+### 2. Launch Development Mode
 ```powershell
 npm start
 ```
 
-### 3. Run Automated Unit Test Suite (14 Suites)
+### 3. Run Automated Unit Tests (15 Suites)
 ```powershell
-node tests/run_tests.mjs
+npm test
 ```
-
----
-
-## 🧪 Automated Testing & Verification Suite
-
-The repository features **14 comprehensive unit test suites** validating all critical subsystems:
-
-```powershell
-node tests/run_tests.mjs
-```
-
-### Test Coverage:
-1. `SettingsManager` defaults, serialization & config healing
-2. `PhysicsEngine` velocity, momentum & floor collision math
-3. `12-Locale Key Parity` (135/135 keys verified across 12 languages)
-4. `AppStore` reactive proxy state & subscriber notifications
-5. `EventBus` channels, wildcards & reactive settings proxy
-6. `GPUAssetManager` recursive VRAM & WebGL texture disposal
-7. `Preload Security Bridge` & process isolation
-8. `SoundManager` volume clamping & state snapshots
-9. `FlagMeshBuilder` harmonic cloth wave equations
-10. `TextureManager` PBR shader configurations
-11. `PianoAudioEngine` frequency conversions & polyphonic note scheduling
-12. `MidiParserEngine` binary parser & tick math
-13. `MusicXmlEngine` score extraction & notation parsing
-14. `LLMDirectorEngine` tool executions, guardrails & 10 real-world prompt scenarios
+*Coverage: SettingsManager, PhysicsEngine, 12-Locale Parity, AppStore, EventBus, GPU VRAM disposal, Preload Security, SoundManager, FlagMeshBuilder, TextureManager, Web Audio Piano, MidiParser, MusicXml, AssetRegistryManager (GIF Mascot Detection), and LLMDirectorEngine.*
 
 ---
 
 ## 📦 Building the Standalone Executable
 
-To package the standalone Windows binary with Steam overlay support:
+To package the standalone Windows binary into the single canonical folder:
 
 ```powershell
-# Build Windows x64 binary to dist and copy output
-node ./node_modules/electron-packager/bin/electron-packager.js . DesktopPet --platform=win32 --arch=x64 --out=dist --overwrite; Copy-Item -Path "dist\DesktopPet-win32-x64\*" -Destination "DesktopPet-win32-x64\" -Recurse -Force; Copy-Item steam_appid.txt -Destination "DesktopPet-win32-x64\"; Copy-Item steam_appid.txt -Destination "dist\DesktopPet-win32-x64\"
+npm run build
 ```
 
-The output executable is generated at:
+The output executable is packaged directly at:
 ```
 DesktopPet-win32-x64/
   ├── DesktopPet.exe         <-- Standalone Executable
   ├── steam_appid.txt        <-- Steam Overlay Support
   └── resources/app/         <-- Bundled Engine Assets
 ```
+
+To run the standalone application:
+```powershell
+Start-Process "DesktopPet-win32-x64\DesktopPet.exe"
+```
+
+> [!TIP]
+> **Testing Cold Boots & Clean State**: Remember to remove the `assets/` folder after rebuild if you want a clean test environment (`Remove-Item -Recurse -Force assets`). The application automatically regenerates all required default assets, textures, and configs on launch, making this ideal for verifying fresh installations.
 
 ---
 
@@ -209,7 +192,7 @@ DesktopPet-win32-x64/
 ├── physicsEngine.js              <-- 3D Physics Engine
 ├── i18nManager.js                <-- 12-Language Localization Engine
 └── tests/
-    └── run_tests.mjs             <-- 14-Suite Automated Unit Test Runner
+    └── run_tests.mjs             <-- 15-Suite Automated Unit Test Runner
 ```
 
 ---

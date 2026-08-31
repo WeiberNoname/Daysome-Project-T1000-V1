@@ -62,3 +62,17 @@ export function showSpeechBubble(text, duration = 2000) {
     }, 200);
   }, duration);
 }
+
+/**
+ * Converts raw code identifiers, file names, or snake_case/kebab-case strings
+ * into clean, beautifully formatted human-readable UI titles.
+ * e.g. "model_default" -> "Model Default", "fur_elise.mid" -> "Fur Elise"
+ * @param {string} str - Raw string or identifier.
+ * @returns {string} Clean title string without underscores or file extensions.
+ */
+export function formatHumanLabel(str) {
+  if (!str || typeof str !== 'string') return '';
+  let clean = str.replace(/\.(glb|gltf|fbx|obj|png|jpg|jpeg|webp|svg|mid|midi|musicxml|xml)$/i, '');
+  clean = clean.replace(/[_-]+/g, ' ').trim();
+  return clean.replace(/\b\w/g, (char) => char.toUpperCase());
+}
