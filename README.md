@@ -38,7 +38,7 @@ graph TD
 
 ### 3. 🐰 3D Mascot & Model Studio (Tab 3)
 * **Standardized File Holder Grid**: Instant 1-click selection across procedural models (🐰 Bunny, 🎌 Country Flag) and custom GLTF/GLB models.
-* **Skeletal Animation Selector**: Live animation clip dropdown with smooth cross-fading and idle bobbing dynamics.
+* **Skeletal Animation Selector**: Live animation clip dropdown with smooth cross-fading, interactive SFX reactions, and idle bobbing dynamics.
 
 ### 4. 🌸 Atmosphere & Ambient Weather (Tab 4)
 * **Single-Draw-Call Instanced Particles**: Single-pass GPU instanced particle systems for 3D cherry blossom petals and crystalline snowfall.
@@ -49,20 +49,16 @@ graph TD
   * ☀️ **Clear Skies** (`.CLEAR` • Pure Clean View)
 * **Audio-Atmosphere Sync**: Automatically activates weather storms when corresponding ambient music plays.
 
-### 5. 🔦 Stage Lighting & 3D Viewport (Tab 5)
-* **Multi-Source Stage Spotlights**: Up to 10 customizable spotlight beams with custom RGB hues, beam angles, and Dark Stage Mode.
-* **Interactive 3D Viewport**: Full Blender-style orbit, pan, and zoom controls.
-
-### 6. 🎨 Texture & Flag Cloth Dynamics (Tab 6)
+### 5. 🎨 Texture & Flag Cloth Dynamics (Tab 5)
 * **Harmonic Cloth Wave Simulation**: Procedural waving flag with Verlet integration and real-time wind equations.
 * **PBR Material Presets**: 9 built-in shader styles (Solar Eclipse, Geometric Prism, Zen Harmony, Mythic Dragon, Cyber Neon, Cosmic Nebula, Sakura Blossom, Nordic Aurora, Abyssal Wave) and custom texture image mapping.
 
-### 7. 🎵 Sound & Classical Music Studio (Tab 7)
+### 6. 🎵 Sound & Classical Music Studio (Tab 6)
 * **Universal Instrument Grid**: Standardized selectable cards for Grand Piano (`.MIDI`), Sheet Reader (`.XML`), Snow Wind (`.SYNTH`), Sakura Melody (`.SYNTH`), and Lo-Fi Drum Beat (`.SYNTH`).
 * **Score & Track Library**: Pure Web Audio synthesis of Für Elise, Bach Minuet in G, Ode to Joy, Mozart Twinkle Variations, and imported `.mid` / `.xml` files.
 * **Minimalist Transport**: Streamlined down to **Active Song Banner**, **Loop Toggle**, and **Play Button**.
 
-### 8. ⚙️ System & Preferences Configuration Hub (Tab 8)
+### 7. ⚙️ System & Preferences Configuration Hub (Tab 7)
 * **Centralized Neural LLM Settings**: Provider presets, endpoint URLs, model names, API keys, and connection testing.
 * **Global Parameters**: Window width/height ($30\text{px}$ to $3840\text{px}$), model scale ($0.1\times$ to $5.0\times$), target frame rate ($15\text{–}240\text{ FPS}$), dynamic battery saver, and idle frame rate caps.
 * **100% Zero-Missing 12-Language Localization**: Full translation parity across English, Chinese (Simplified/Traditional), Japanese, Korean, French, German, Spanish (EU/LATAM), Italian, Portuguese, and Russian.
@@ -110,6 +106,25 @@ flowchart TD
 
 ---
 
+## 🚀 Quick Start & Development
+
+### 1. Install Dependencies
+```powershell
+npm install
+```
+
+### 2. Launch Development Environment
+```powershell
+npm start
+```
+
+### 3. Run Automated Unit Test Suite (14 Suites)
+```powershell
+node tests/run_tests.mjs
+```
+
+---
+
 ## 🧪 Automated Testing & Verification Suite
 
 The repository features **14 comprehensive unit test suites** validating all critical subsystems:
@@ -136,13 +151,13 @@ node tests/run_tests.mjs
 
 ---
 
-## 📦 Building the Standalone Application
+## 📦 Building the Standalone Executable
 
-To package the standalone Windows binary:
+To package the standalone Windows binary with Steam overlay support:
 
 ```powershell
-# Stop running instances & build binary package
-Get-Process -Name DesktopPet -ErrorAction SilentlyContinue | Stop-Process -Force; Start-Sleep -Seconds 1; node ./node_modules/electron-packager/bin/electron-packager.js . DesktopPet --platform=win32 --arch=x64 --overwrite; Copy-Item steam_appid.txt -Destination DesktopPet-win32-x64\
+# Build Windows x64 binary to dist and copy output
+node ./node_modules/electron-packager/bin/electron-packager.js . DesktopPet --platform=win32 --arch=x64 --out=dist --overwrite; Copy-Item -Path "dist\DesktopPet-win32-x64\*" -Destination "DesktopPet-win32-x64\" -Recurse -Force; Copy-Item steam_appid.txt -Destination "DesktopPet-win32-x64\"; Copy-Item steam_appid.txt -Destination "dist\DesktopPet-win32-x64\"
 ```
 
 The output executable is generated at:
@@ -158,37 +173,41 @@ DesktopPet-win32-x64/
 ## 📁 Repository Structure
 
 ```
-├── .agents/
-│   └── rules/
-│       └── PROJECT_KNOWLEDGE.md  <-- Persistent Antigravity session knowledge
-├── assets/                       <-- Settings JSON & model assets
-├── locales/                      <-- 12 Language translation dictionaries
+├── .agents/                      <-- Persistent AI coding rules & context
+├── assets/                       <-- Assets directory & default model files
+├── locales/                      <-- 12 Language translation dictionaries (en, zh, ja, ko, etc.)
 ├── src/
 │   ├── core/                     <-- 3D WebGL, Audio & Physics Engines
-│   │   ├── director/             <-- AI Director tools & RAG telemetry
-│   │   ├── piano/                <-- MIDI, MusicXML & Audio synthesis
+│   │   ├── director/             <-- AI Director tools, domains & telemetry
 │   │   ├── AnimationLoopManager.js
+│   │   ├── AppInitializer.js
 │   │   ├── FlagMeshBuilder.js
 │   │   ├── GPUAssetManager.js
+│   │   ├── InteractionManager.js
 │   │   ├── LLMDirectorEngine.js
+│   │   ├── MascotInteractionHandler.js
 │   │   ├── SakuraRainManager.js
 │   │   ├── SceneStageManager.js
 │   │   ├── SnowFallManager.js
 │   │   └── SoundManager.js
-│   ├── managers/                 <-- State & EventBus Managers
+│   ├── managers/                 <-- AppStore, SettingsManager & EventBus
 │   └── ui/                       <-- Studio UI & Viewport Controllers
 │       ├── AIDirectorTabUI.js
 │       ├── AssetHubUI.js
 │       ├── AtmosphereTabUI.js
-│       ├── PianoStudioUI.js
+│       ├── FormSyncManager.js
+│       ├── PreviewGenerator.js
 │       ├── SettingsPanelUI.js
+│       ├── SettingsPanelResizeHandler.js
 │       ├── SoundTabUI.js
-│       ├── SpotlightCardsUI.js
 │       └── TextureTabUI.js
 ├── index.html                    <-- Studio UI Markup
+├── style.css                     <-- Modern Studio CSS & Animations
 ├── main.js                       <-- Electron Main & Ollama Auto-Start Daemon
 ├── preload.js                    <-- Sandboxed Security Bridge
 ├── renderer.js                   <-- Application Bootstrap & Orchestrator
+├── physicsEngine.js              <-- 3D Physics Engine
+├── i18nManager.js                <-- 12-Language Localization Engine
 └── tests/
     └── run_tests.mjs             <-- 14-Suite Automated Unit Test Runner
 ```
@@ -197,3 +216,4 @@ DesktopPet-win32-x64/
 
 ## 📄 License
 MIT License. Created with ❤️ for advanced 3D spatial computing and desktop companionship.
+
