@@ -30,6 +30,8 @@ import { setupAtmosphereTabUI } from './src/ui/AtmosphereTabUI.js';
 import { setupSoundTabUI } from './src/ui/SoundTabUI.js';
 import { setupTextureTabUI } from './src/ui/TextureTabUI.js';
 import { setupAIDirectorTabUI } from './src/ui/AIDirectorTabUI.js';
+import { setupLiveChatSimulatorUI } from './src/ui/LiveChatSimulatorUI.js';
+import { setupScreenVisionBetaUI } from './src/ui/ScreenVisionBetaUI.js';
 import { soundManager } from './src/core/SoundManager.js';
 import { renderSpotlightCardsUI as renderSpotlightCardsUIUtil, hexToRgb, rgbToHex } from './src/ui/SpotlightCardsUI.js';
 import {
@@ -485,10 +487,10 @@ function setupSettingsUI() {
           modelSelect.value = asset.name;
           modelSelect.dispatchEvent(new Event('change'));
         }
-        if (callbacks && callbacks.populateModelDropdown) {
-          callbacks.populateModelDropdown();
+        if (typeof populateModelDropdown === 'function') {
+          populateModelDropdown();
         }
-        showSpeechBubble(`Selected 3D Mascot: ${asset.name}`);
+        showSpeechBubble(`Selected Mascot: ${asset.name}`);
       }
     },
     onApplyTexture: (asset) => {
@@ -528,6 +530,11 @@ function setupSettingsUI() {
     getInnerModelGroup: () => innerModelGroup,
     forceRefreshAllPreviews
   });
+  setupLiveChatSimulatorUI({
+    currentSettings,
+    saveSettingsFile
+  });
+  setupScreenVisionBetaUI();
   const directorEngine = setupAIDirectorTabUI({
     currentSettings,
     saveSettingsFile,

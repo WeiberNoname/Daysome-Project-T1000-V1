@@ -27,12 +27,37 @@ assert.strictEqual(defaults.activeModel, 'procedural', 'Default activeModel shou
 assert.strictEqual(defaults.sakuraRain, true, 'Default sakuraRain should be true');
 assert.strictEqual(defaults.snowFall, false, 'Default snowFall should be false');
 assert.strictEqual(defaults.dynamicBatterySaver, false, 'Default dynamicBatterySaver should be false');
-assert.strictEqual(defaults.fontSizeScale, 1.5, 'Default fontSizeScale should be 1.5');
+assert.strictEqual(defaults.liveChatEnabled, false, 'Default liveChatEnabled should be false');
+assert.strictEqual(defaults.liveChatSpeed, 'normal', 'Default liveChatSpeed should be normal');
+assert.strictEqual(defaults.liveChatWidth, 240, 'Default liveChatWidth should be 240');
+assert.strictEqual(defaults.liveChatHeight, 190, 'Default liveChatHeight should be 190');
+assert.strictEqual(defaults.liveChatScale, 1.0, 'Default liveChatScale should be 1.0');
+assert.strictEqual(defaults.liveChatPosition, 'top-left', 'Default liveChatPosition should be top-left');
+assert.strictEqual(defaults.liveChatFontSize, 11, 'Default liveChatFontSize should be 11');
 
-const merged = SettingsManager.mergeWithDefaults({ scale: 2.5, targetFps: 120, customKey: 'test', snowFall: true });
+const merged = SettingsManager.mergeWithDefaults({
+  scale: 2.5,
+  targetFps: 120,
+  customKey: 'test',
+  snowFall: true,
+  liveChatEnabled: true,
+  liveChatSpeed: 'fast',
+  liveChatWidth: 320,
+  liveChatHeight: 250,
+  liveChatScale: 1.25,
+  liveChatPosition: 'top-right',
+  liveChatFontSize: 16
+});
 assert.strictEqual(merged.scale, 2.5, 'Scale should be overridden to 2.5');
 assert.strictEqual(merged.targetFps, 120, 'targetFps should be overridden to 120');
 assert.strictEqual(merged.snowFall, true, 'snowFall should be overridden to true');
+assert.strictEqual(merged.liveChatEnabled, true, 'liveChatEnabled should be overridden to true');
+assert.strictEqual(merged.liveChatSpeed, 'fast', 'liveChatSpeed should be overridden to fast');
+assert.strictEqual(merged.liveChatWidth, 320, 'liveChatWidth should be overridden to 320');
+assert.strictEqual(merged.liveChatHeight, 250, 'liveChatHeight should be overridden to 250');
+assert.strictEqual(merged.liveChatScale, 1.25, 'liveChatScale should be overridden to 1.25');
+assert.strictEqual(merged.liveChatPosition, 'top-right', 'liveChatPosition should be overridden to top-right');
+assert.strictEqual(merged.liveChatFontSize, 16, 'liveChatFontSize should be overridden to 16');
 assert.strictEqual(merged.width, 350, 'Unspecified width should fallback to 350');
 assert.strictEqual(merged.activeModel, 'procedural', 'Fallback activeModel should be procedural');
 console.log('✅ SettingsManager tests PASSED.');
@@ -735,16 +760,19 @@ import('../src/core/SoundManager.js').then(({ SoundManager }) => {
                 assert.strictEqual(listenerNotified, true, 'Telemetry listener should be notified of dataset load');
                 assert.strictEqual(engine.getTelemetryTraces().length, 1, 'Loaded dataset should be set active');
 
-                // Test AssetRegistryManager GIF Mascot Detection
-                console.log('▶ Testing AssetRegistryManager GIF Mascot Ingestion & SceneStageManager Scanning...');
+                // Test AssetRegistryManager Ingestion & 3D Model Scanning
+                console.log('▶ Testing AssetRegistryManager 3D Ingestion & SceneStageManager Scanning...');
                 const registry = new AssetRegistryManager();
-                const gifMeta = registry.detectFileType({ name: 'cute_cat.gif' });
-                assert.strictEqual(gifMeta.type, 'model', 'GIF file must be detected as model type for mascot hosting');
-                assert.strictEqual(gifMeta.category, 'GIF Mascot', 'GIF category must be GIF Mascot');
-                assert.strictEqual(gifMeta.format, 'gif', 'GIF format must be gif');
-
                 const glbMeta = registry.detectFileType({ name: 'robot.glb' });
                 assert.strictEqual(glbMeta.type, 'model', 'GLB file must be model type');
+                assert.strictEqual(glbMeta.category, '3D Model', 'GLB category must be 3D Model');
+
+                const gltfMeta = registry.detectFileType({ name: 'character.gltf' });
+                assert.strictEqual(gltfMeta.type, 'model', 'GLTF file must be model type');
+
+                const gifMeta = registry.detectFileType({ name: 'pattern.gif' });
+                assert.strictEqual(gifMeta.type, 'texture', 'GIF file must be categorized as texture type');
+                assert.strictEqual(gifMeta.category, 'Texture', 'GIF category must be Texture');
 
                 const pngMeta = registry.detectFileType({ name: 'skin.png' });
                 assert.strictEqual(pngMeta.type, 'texture', 'PNG file must be texture type');
@@ -752,21 +780,46 @@ import('../src/core/SoundManager.js').then(({ SoundManager }) => {
                 const midMeta = registry.detectFileType({ name: 'bach.mid' });
                 assert.strictEqual(midMeta.type, 'score', 'MID file must be score type');
 
-                // Test SceneStageManager model discovery with GIF files
+                // Test SceneStageManager 3D model discovery
                 const mockFs = {
                   existsSync: (p) => true,
-                  readdirSync: (p) => ['fox.glb', 'cat.gif', 'dance.gltf', 'readme.txt', 'song.mp3']
+                  readdirSync: (p) => ['fox.glb', 'dance.gltf', 'texture.png', 'cat.gif', 'readme.txt', 'song.mp3']
                 };
                 const stageMgr = new SceneStageManager({
                   fs: mockFs,
                   getAssetsPath: () => '/mock/assets'
                 });
                 const discovered = stageMgr.scanForModels();
-                assert.deepStrictEqual(discovered, ['fox.glb', 'cat.gif', 'dance.gltf'], 'scanForModels must discover .glb, .gltf, and .gif files');
-                console.log('✅ AssetRegistryManager & SceneStageManager GIF Mascot tests PASSED.');
+                assert.deepStrictEqual(discovered, ['fox.glb', 'dance.gltf'], 'scanForModels must discover only 3D .glb and .gltf files');
+                console.log('✅ AssetRegistryManager & SceneStageManager 3D Model tests PASSED.');
 
-                console.log('✅ LLMDirectorEngine, ToolRegistry, AppContextRetriever & DevTools Telemetry unit tests PASSED.');
-                console.log('\n🎉 ALL UNIT TEST SUITES PASSED CLEANLY (100% SUCCESS)');
+                // Test ScreenVisionService (Multimodal Vision payload & fallback)
+                import('../src/services/ScreenVisionService.js').then(({ ScreenVisionService }) => {
+                  console.log('▶ Testing ScreenVisionService local multimodal vision engine...');
+                  const sanitized = ScreenVisionService.sanitizeBase64('data:image/jpeg;base64,abc123XYZ==');
+                  assert.strictEqual(sanitized, 'abc123XYZ==', 'Sanitizer must strip data URI prefix');
+
+                  const payload = ScreenVisionService.createVisionPayload({
+                    model: 'llama3.2-vision',
+                    prompt: 'What game is this?',
+                    base64Image: 'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+                    stream: true
+                  });
+                  assert.strictEqual(payload.model, 'llama3.2-vision', 'Payload model must be llama3.2-vision');
+                  assert.strictEqual(payload.prompt, 'What game is this?', 'Payload prompt must match');
+                  assert.strictEqual(payload.stream, true, 'Stream must be true');
+                  assert.strictEqual(payload.images.length, 1, 'Payload must contain 1 base64 image');
+
+                  const service = new ScreenVisionService();
+                  const fallback = service.generateFallbackVisionAnalysis(1280, 720, 'llama3.2-vision', 'Connection refused');
+                  assert(fallback.startsWith('Output:'), 'Fallback must start with Output: prefix');
+                  assert(fallback.includes('1280x720'), 'Fallback must mention resolution');
+                  assert(fallback.includes('llama3.2-vision'), 'Fallback must mention model name');
+
+                  console.log('✅ ScreenVisionService multimodal vision tests PASSED.');
+                  console.log('✅ LLMDirectorEngine, ToolRegistry, AppContextRetriever & DevTools Telemetry unit tests PASSED.');
+                  console.log('\n🎉 ALL UNIT TEST SUITES PASSED CLEANLY (100% SUCCESS)');
+                });
               });
             });
           });

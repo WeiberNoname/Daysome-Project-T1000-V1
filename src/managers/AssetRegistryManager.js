@@ -24,13 +24,10 @@ export class AssetRegistryManager {
 
   detectFileType(file) {
     const ext = file.name.split('.').pop().toLowerCase();
-    if (ext === 'gif') {
-      return { type: 'model', category: 'GIF Mascot', icon: '🎞️', format: 'gif', ext };
-    }
     if (['glb', 'gltf', 'fbx', 'obj'].includes(ext)) {
       return { type: 'model', category: '3D Model', icon: '🧊', ext };
     }
-    if (['png', 'jpg', 'jpeg', 'webp', 'svg', 'bmp'].includes(ext)) {
+    if (['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif', 'bmp'].includes(ext)) {
       return { type: 'texture', category: 'Texture', icon: '🖼️', ext };
     }
     if (['mp3', 'wav', 'ogg'].includes(ext)) {

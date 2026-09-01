@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, screen } = require('electron');
+const { app, BrowserWindow, ipcMain, screen, desktopCapturer } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -392,5 +392,110 @@ ipcMain.on('reset-steam-stats', (event) => {
     event.returnValue = false;
   }
 });
+
+// ==========================================================================
+// Independent Live Chat Simulator Window (Pop-out Window)
+// ==========================================================================
+let liveChatWindow = null;
+
+function openLiveChatWindow() {
+  if (liveChatWindow && !liveChatWindow.isDestroyed()) {
+    liveChatWindow.focus();
+    return;
+  }
+
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize;
+  const winWidth = 320;
+  const winHeight = 440;
+
+  liveChatWindow = new BrowserWindow({
+    width: winWidth,
+    height: winHeight,
+    x: Math.max(20, screenWidth - winWidth - 420),
+    y: Math.max(20, screenHeight - winHeight - 60),
+    transparent: true,
+    frame: false,
+    alwaysOnTop: true,
+    resizable: true,
+    minWidth: 240,
+    minHeight: 220,
+    hasShadow: true,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      sandbox: false,
+      preload: path.join(__dirname, 'preload.js')
+    }
+  });
+
+  liveChatWindow.setAlwaysOnTop(true, 'screen-saver', 1);
+  liveChatWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+  liveChatWindow.loadFile('chat.html');
+
+  liveChatWindow.on('closed', () => {
+    liveChatWindow = null;
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('live-chat-window-closed');
+    }
+  });
+
+  logDiagnostic('[Live Chat] Independent live chat window launched.');
+}
+
+function closeLiveChatWindow() {
+  if (liveChatWindow && !liveChatWindow.isDestroyed()) {
+    liveChatWindow.close();
+    liveChatWindow = null;
+  }
+}
+
+ipcMain.on('open-live-chat-window', () => {
+  openLiveChatWindow();
+});
+
+ipcMain.on('close-live-chat-window', () => {
+  closeLiveChatWindow();
+});
+
+ipcMain.on('toggle-live-chat-window', () => {
+  if (liveChatWindow && !liveChatWindow.isDestroyed()) {
+    closeLiveChatWindow();
+  } else {
+    openLiveChatWindow();
+  }
+});
+
+// ==========================================================================
+// Screen Vision Snapshot Capture (Local Multimodal Vision AI Bridge)
+// ==========================================================================
+ipcMain.handle('capture-screen-snapshot', async () => {
+  try {
+    const primaryDisplay = screen.getPrimaryDisplay();
+    const { width, height } = primaryDisplay.size;
+    
+    // Scale down to max 1280x720 for fast local inference and low VRAM footprint
+    const scale = Math.min(1.0, 1280 / width, 720 / height);
+    const targetW = Math.round(width * scale);
+    const targetH = Math.round(height * scale);
+
+    const sources = await desktopCapturer.getSources({
+      types: ['screen'],
+      thumbnailSize: { width: targetW, height: targetH }
+    });
+
+    if (sources && sources.length > 0) {
+      const base64Jpeg = sources[0].thumbnail.toJPEG(80).toString('base64');
+      logDiagnostic(`[Screen Vision] Captured screen snapshot (${targetW}x${targetH}, base64 len: ${base64Jpeg.length}).`);
+      return { success: true, base64: base64Jpeg, width: targetW, height: targetH };
+    }
+    return { success: false, error: 'No screen sources available' };
+  } catch (err) {
+    logDiagnostic(`[Screen Vision Error] ${err.message}`);
+    return { success: false, error: err.message };
+  }
+});
+
+
 
 

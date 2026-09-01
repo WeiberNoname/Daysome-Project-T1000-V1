@@ -131,9 +131,7 @@ export function setupAssetHubUI(deps = {}) {
       card.setAttribute('data-id', asset.id);
 
       let thumbnailInner = '';
-      if (asset.ext === 'gif' && asset.objectUrl) {
-        thumbnailInner = `<img src="${asset.objectUrl}" class="asset-thumbnail-img" alt="${asset.name}">`;
-      } else if (asset.type === 'texture' && asset.objectUrl) {
+      if (asset.type === 'texture' && asset.objectUrl) {
         thumbnailInner = `<img src="${asset.objectUrl}" class="asset-thumbnail-img" alt="${asset.name}">`;
       } else if (asset.type === 'model') {
         const hasThumb = !!asset.thumbnailUrl;

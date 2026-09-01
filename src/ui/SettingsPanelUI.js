@@ -242,6 +242,33 @@ export function syncSlidersUI(deps) {
     if (valTextureMetalnessDom) valTextureMetalnessDom.innerText = parseFloat(textureMetalnessDom.value).toFixed(2);
   }
 
+  // Beta Live Chat Overlay Sync
+  const betaChatToggle = document.getElementById('beta-live-chat-toggle');
+  const betaChatSpeed = document.getElementById('beta-chat-speed');
+  const betaChatFontSize = document.getElementById('beta-chat-fontsize');
+  const betaChatWidth = document.getElementById('beta-chat-width');
+  const betaChatHeight = document.getElementById('beta-chat-height');
+  const betaChatScale = document.getElementById('beta-chat-scale');
+  const betaChatPos = document.getElementById('beta-chat-position');
+
+  if (betaChatToggle) betaChatToggle.checked = !!currentSettings.liveChatEnabled;
+  if (betaChatSpeed) betaChatSpeed.value = currentSettings.liveChatSpeed || 'normal';
+  if (betaChatFontSize) betaChatFontSize.value = currentSettings.liveChatFontSize || 11;
+  if (betaChatWidth) betaChatWidth.value = currentSettings.liveChatWidth || 240;
+  if (betaChatHeight) betaChatHeight.value = currentSettings.liveChatHeight || 190;
+  if (betaChatScale) betaChatScale.value = (currentSettings.liveChatScale !== undefined ? currentSettings.liveChatScale : 1.0).toFixed(2);
+  if (betaChatPos) betaChatPos.value = currentSettings.liveChatPosition || 'top-left';
+
+  const liveChatOverlay = document.getElementById('live-chat-overlay');
+  if (liveChatOverlay) {
+    liveChatOverlay.style.setProperty('--live-chat-width', `${currentSettings.liveChatWidth || 240}px`);
+    liveChatOverlay.style.setProperty('--live-chat-height', `${currentSettings.liveChatHeight || 190}px`);
+    liveChatOverlay.style.setProperty('--live-chat-scale', currentSettings.liveChatScale !== undefined ? currentSettings.liveChatScale : 1.0);
+    liveChatOverlay.style.setProperty('--chat-font-size', `${currentSettings.liveChatFontSize || 11}px`);
+    liveChatOverlay.classList.remove('pos-top-left', 'pos-top-center', 'pos-top-right', 'pos-bottom-left', 'pos-bottom-right');
+    liveChatOverlay.classList.add(`pos-${currentSettings.liveChatPosition || 'top-left'}`);
+  }
+
   if (updateStageLighting) updateStageLighting();
   if (updateSpotlightPosition) updateSpotlightPosition();
 }

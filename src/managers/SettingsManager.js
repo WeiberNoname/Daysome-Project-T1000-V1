@@ -67,7 +67,14 @@ export class SettingsManager {
       aiProvider: 'ollama',
       aiContextRetrievalEnabled: true,
       aiRetrieverPreset: 'builtin_rag',
-      aiRetrieverEndpoint: 'http://localhost:11434/v1'
+      aiRetrieverEndpoint: 'http://localhost:11434/v1',
+      liveChatEnabled: false,
+      liveChatSpeed: 'normal',
+      liveChatWidth: 240,
+      liveChatHeight: 190,
+      liveChatScale: 1.0,
+      liveChatPosition: 'top-left',
+      liveChatFontSize: 11
     };
   }
 
@@ -262,6 +269,13 @@ language=en`;
             if (key === 'aiContextRetrievalEnabled') { currentSettings.aiContextRetrievalEnabled = (val !== 'false'); validKeysParsed++; }
             if (key === 'aiRetrieverPreset') { currentSettings.aiRetrieverPreset = val || 'builtin_rag'; validKeysParsed++; }
             if (key === 'aiRetrieverEndpoint') { currentSettings.aiRetrieverEndpoint = val || 'http://localhost:11434/v1'; validKeysParsed++; }
+            if (key === 'liveChatEnabled') { currentSettings.liveChatEnabled = (val === 'true'); validKeysParsed++; }
+            if (key === 'liveChatSpeed') { currentSettings.liveChatSpeed = val || 'normal'; validKeysParsed++; }
+            if (key === 'liveChatWidth') { currentSettings.liveChatWidth = parseInt(val, 10) || 240; validKeysParsed++; }
+            if (key === 'liveChatHeight') { currentSettings.liveChatHeight = parseInt(val, 10) || 190; validKeysParsed++; }
+            if (key === 'liveChatScale') { currentSettings.liveChatScale = parseFloat(val) || 1.0; validKeysParsed++; }
+            if (key === 'liveChatPosition') { currentSettings.liveChatPosition = val || 'top-left'; validKeysParsed++; }
+            if (key === 'liveChatFontSize') { currentSettings.liveChatFontSize = parseInt(val, 10) || 11; validKeysParsed++; }
             if (key === 'language') { currentSettings.language = val || 'en'; validKeysParsed++; }
           }
         });
@@ -364,6 +378,13 @@ aiProvider=${currentSettings.aiProvider || 'ollama'}
 aiContextRetrievalEnabled=${currentSettings.aiContextRetrievalEnabled !== false}
 aiRetrieverPreset=${currentSettings.aiRetrieverPreset || 'builtin_rag'}
 aiRetrieverEndpoint=${currentSettings.aiRetrieverEndpoint || 'http://localhost:11434/v1'}
+liveChatEnabled=${currentSettings.liveChatEnabled === true}
+liveChatSpeed=${currentSettings.liveChatSpeed || 'normal'}
+liveChatWidth=${currentSettings.liveChatWidth || 240}
+liveChatHeight=${currentSettings.liveChatHeight || 190}
+liveChatScale=${currentSettings.liveChatScale !== undefined ? currentSettings.liveChatScale : 1.0}
+liveChatPosition=${currentSettings.liveChatPosition || 'top-left'}
+liveChatFontSize=${currentSettings.liveChatFontSize || 11}
 language=${currentSettings.language}`;
 
     try {
