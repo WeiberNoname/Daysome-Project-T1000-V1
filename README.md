@@ -1,6 +1,6 @@
 # Desktop 3D Display & Spatial AI Companion (T02 V4) 🖥️🐰✨
 
-A high-performance, transparent, interactive **3D Desktop Spatial Companion & Atmosphere Hub** for Windows powered by **Electron**, **Three.js**, **Web Audio API**, and the **AI Function Director & Neural LLM Engine**.
+A high-performance, transparent, interactive **3D Desktop Spatial Companion & Atmosphere Hub** for Windows powered by **Electron**, **Three.js**, **Web Audio API**, **Local Multimodal Vision AI**, and the **AI Function Director & Neural LLM Engine**.
 
 > 📖 **Full User Manual:** For complete guides on Blender viewport navigation, custom 3D model loading, FPS camera flight, physics tossing, stage spotlights, dynamic battery saver mode, sakura rain particle simulation, and 12-language localization, please see **[USER_MANUAL.md](USER_MANUAL.md)**.
 
@@ -12,15 +12,18 @@ A high-performance, transparent, interactive **3D Desktop Spatial Companion & At
 graph TD
     User([👤 User]) -->|Natural Language / Chat| AI[🤖 AI Function Director]
     User -->|1-Click Manual Fallback| UI[📦 Universal File Holder Standard]
+    User -->|📸 1-Click Screen Snapshot| Vision[👁️ Local Multimodal Vision AI]
     
     subgraph Engine [✨ The Unified Desktop Core]
         AI --> Core[Interactive Controller & EventBus]
         UI --> Core
+        Vision --> Core
         
         Core --> P1[🐰 3D Spatial & Physics Engine]
         Core --> P2[🎼 Polyphonic Audio & Music Synthesizer]
         Core --> P3[🌸 Ambient 3D Particle Weather System]
         Core --> P4[🎨 Harmonic Cloth & Texture Dynamics]
+        Core --> P5[💬 Live Stream Chat Simulator & Pop-Out HUD]
     end
 ```
 
@@ -31,17 +34,27 @@ graph TD
   * `⚡ Fallback Mode` — Seamlessly active offline via the ultra-fast built-in heuristic semantic parser.
 * **Auto-Start Local LLM Daemon**: Automatically launches the local Ollama background service on boot (`127.0.0.1:11434` with `llama3.2`).
 
-### 2. 📦 Universal Asset Hub & Ingestion (Tab 2)
-* **Central Drag-and-Drop Ingestion**: Universal dropzone supporting 3D Models (`.glb`, `.gltf`, `.fbx`, `.obj`), Animated 2D Mascots (`.gif`), Textures (`.png`, `.jpg`, `.webp`, `.svg`), and Audio Scores (`.mid`, `.midi`, `.musicxml`, `.xml`).
-* **Live Animated & Snapshot Previews**: Automatically renders live animated GIF previews and captures beauty-angle snapshots for 3D GLTF models with zero VRAM leaks.
+### 2. 🧪 Beta Testing & Incubator Labs (Studio Tab)
+* **💬 Live Chat Stream Simulator & Standalone Pop-Out Window**:
+  * **On-Screen Mascot Overlay & Pop-Out Window**: Toggle an interactive stream chat overlay over the 3D companion or pop out an independent, draggable, resizable secondary window ([chat.html](chat.html)).
+  * **Hype Stream Dynamics**: Live viewer counter fluctuation, adjustable stream speed (Relaxed, Normal, Hype Train), procedural Web Audio sound synthesis (Twitch airhorns, golden superchat chimes, cartoon boings), and simulated reactive audience chat.
+  * **Multimedia Memes & Highlights**: Injects viral meme cards (*PopCat*, *GigaChad*, *Diamond Hands*, *Doge*) and video replay clips on demand.
+  * **Dynamic Font Scaling**: Real-time adjustable font sizing ($8\text{px}$ to $28\text{px}$) with instant toolbar steppers (`A-` / `A+`).
+* **👁️ Local Multimodal Screen Vision AI**:
+  * **1-Click Screen Snapshot Capture**: Uses native Electron `desktopCapturer` to capture clean $1280\times 720$ snapshots of your active game or desktop without interrupting gameplay.
+  * **100% Private Local Inference**: Connects directly to local open-source vision models (**`moondream`**, **`llama3.2-vision`**, **`llava`**) running offline in Ollama on your GPU.
+  * **`Output: ...` Reflection Pipeline**: Analyzes the scene and outputs detailed, formatted descriptions of what is on screen with optional `@VisionBot` auto-injection into the live chat stream.
+
+### 3. 📦 Universal Asset Hub & Ingestion (Tab 2)
+* **Central Drag-and-Drop Ingestion**: Universal dropzone supporting 3D Models (`.glb`, `.gltf`, `.fbx`, `.obj`), Textures & Skin Images (`.png`, `.jpg`, `.webp`, `.svg`, `.gif`), and Audio Scores (`.mid`, `.midi`, `.musicxml`, `.xml`).
+* **Pooled 3D Snapshot Renderer**: Automatically captures beauty-angle thumbnail snapshots for 3D GLTF models with zero VRAM leaks.
 * **Cross-Tab Ingestion**: Automatically propagates imported assets into Mascot, Texture, Atmosphere, and Music file holder grids.
 
-### 3. 🐰 3D & 2D Animated Mascot Studio (Tab 3)
-* **Standardized File Holder Grid**: Instant 1-click selection across procedural models (🐰 Bunny, 🎌 Country Flag), custom 3D GLTF/GLB models, and **Animated GIF Mascots (`.gif`)**.
-* **Spatial GIF Billboard Engine**: Animated GIFs render on a crisp, transparent spatial plane with auto-detected aspect ratio, alpha clipping, and stage spotlight reactions.
-* **Physics & Skeletal Animation**: Live animation clip dropdown with smooth cross-fading, interactive SFX reactions, idle bobbing dynamics, and 3D physics tossing (Hold `D` + Drag).
+### 4. 🐰 3D Mascot & Model Studio (Tab 3)
+* **Standardized File Holder Grid**: Instant 1-click selection across procedural 3D models (🐰 Bunny, 🎌 Country Flag) and custom imported 3D GLTF/GLB models.
+* **Skeletal Animation Selector**: Live animation clip dropdown with smooth cross-fading, interactive SFX reactions, idle bobbing dynamics, and 3D physics tossing (Hold `D` + Drag).
 
-### 4. 🌸 Atmosphere & Ambient Weather (Tab 4)
+### 5. 🌸 Atmosphere & Ambient Weather (Tab 4)
 * **Single-Draw-Call Instanced Particles**: Single-pass GPU instanced particle systems for 3D cherry blossom petals and crystalline snowfall.
 * **Standardized Weather Grid**:
   * 🌸 **Sakura Rain** (`.WEATHER` • Spring Blossom Petals)
@@ -50,16 +63,16 @@ graph TD
   * ☀️ **Clear Skies** (`.CLEAR` • Pure Clean View)
 * **Audio-Atmosphere Sync**: Automatically activates weather storms when corresponding ambient music plays.
 
-### 5. 🎨 Texture & Flag Cloth Dynamics (Tab 5)
+### 6. 🎨 Texture & Flag Cloth Dynamics (Tab 5)
 * **Harmonic Cloth Wave Simulation**: Procedural waving flag with Verlet integration and real-time wind equations.
 * **PBR Material Presets**: 9 built-in shader styles (Solar Eclipse, Geometric Prism, Zen Harmony, Mythic Dragon, Cyber Neon, Cosmic Nebula, Sakura Blossom, Nordic Aurora, Abyssal Wave) and custom texture image mapping.
 
-### 6. 🎵 Sound & Classical Music Studio (Tab 6)
+### 7. 🎵 Sound & Classical Music Studio (Tab 6)
 * **Universal Instrument Grid**: Standardized selectable cards for Grand Piano (`.MIDI`), Sheet Reader (`.XML`), Snow Wind (`.SYNTH`), Sakura Melody (`.SYNTH`), and Lo-Fi Drum Beat (`.SYNTH`).
 * **Score & Track Library**: Pure Web Audio synthesis of Für Elise, Bach Minuet in G, Ode to Joy, Mozart Twinkle Variations, and imported `.mid` / `.xml` files.
 * **Minimalist Transport**: Streamlined down to **Active Song Banner**, **Loop Toggle**, and **Play Button**.
 
-### 7. ⚙️ System & Preferences Configuration Hub (Tab 7)
+### 8. ⚙️ System & Preferences Configuration Hub (Tab 7)
 * **Centralized Neural LLM Settings**: Provider presets, endpoint URLs, model names, API keys, and connection testing.
 * **Global Parameters**: Window width/height ($30\text{px}$ to $3840\text{px}$), model scale ($0.1\times$ to $5.0\times$), target frame rate ($15\text{–}240\text{ FPS}$), dynamic battery saver, and idle frame rate caps.
 * **100% Zero-Missing 12-Language Localization**: Full translation parity across English, Chinese (Simplified/Traditional), Japanese, Korean, French, German, Spanish (EU/LATAM), Italian, Portuguese, and Russian.
@@ -76,34 +89,40 @@ This app implements the **Universal File Holder Standard (`.studio-select-card`)
 
 ---
 
-## 🤖 Neural LLM Setup & Modes
+## 🤖 Local Neural LLM & Vision Setup
 
 ```mermaid
 flowchart TD
-    User([👤 User Command]) --> Chat[🤖 AI Director Chat]
-    Chat --> Router{Endpoint Reachable?}
+    User([👤 User Command / Snapshot]) --> Router{Input Type?}
     
-    Router -->|Yes: Ollama / Cloud| Neural[🟢 Local Neural LLM]
-    Neural --> ToolDispatch[🛡️ Guardrail Tool Dispatcher]
+    Router -->|Text Command| Chat[🤖 AI Director Engine]
+    Router -->|📸 Screen Snapshot| Vision[👁️ Screen Vision Service]
     
-    Router -->|No / Offline| Heuristic[⚡ Rule-Based NLP Fallback]
-    Heuristic --> ToolDispatch
+    Chat --> LocalOllama[🦙 Ollama Local: llama3.2 / 127.0.0.1:11434]
+    Vision --> VisionModel[🌙 Ollama Vision: moondream / llama3.2-vision]
+    
+    LocalOllama --> ToolDispatch[🛡️ Guardrail Tool Dispatcher]
+    VisionModel --> OutputFormat[📝 Formatted Output: Scene Description]
     
     ToolDispatch --> AppState[⚡ 1:1 Live DOM & WebGL Execution]
+    OutputFormat --> ChatOverlay[💬 Live Chat Stream & UI Reflection]
 ```
 
-### Option 1: Built-in Local Ollama (Automatic)
+### 1. Built-in Local Text Model (Automatic)
 * On application launch, [`main.js`](main.js) automatically starts `ollama.exe serve` on `http://127.0.0.1:11434` with `llama3.2`.
-* Click **`🔄 Check`** under **⚙️ System Tab $\rightarrow$ Neural LLM Configuration** to verify.
 
-### Option 2: LM Studio (Local Port 1234)
-1. Open LM Studio, load any model, and click **Start Server**.
-2. In the app's **⚙️ System Tab**, choose **LM Studio Local** from the Provider dropdown.
+### 2. Local Vision AI Models (100% Private)
+To activate local multimodal screen vision, choose any open-source vision model in Ollama:
+```powershell
+# 🌙 Moondream (Recommended: Ultra-fast & lightweight, 800MB)
+ollama run moondream
 
-### Option 3: Free Fast Cloud Models (Groq / OpenRouter / DeepSeek / OpenAI)
-1. Open **⚙️ System Tab $\rightarrow$ Neural LLM Configuration**.
-2. Select **Groq Cloud** (Fast & Free) or **OpenRouter Cloud**.
-3. Paste your free API key and click **`🔄 Check`**.
+# 🦙 Meta Llama 3.2 Vision (High capability)
+ollama run llama3.2-vision
+
+# 👁️ LLaVA (Open-source visual instruction)
+ollama run llava
+```
 
 ---
 
@@ -116,14 +135,14 @@ npm install
 
 ### 2. Launch Development Mode
 ```powershell
-npm start
+node ./node_modules/electron/cli.js .
 ```
 
 ### 3. Run Automated Unit Tests (15 Suites)
 ```powershell
 npm test
 ```
-*Coverage: SettingsManager, PhysicsEngine, 12-Locale Parity, AppStore, EventBus, GPU VRAM disposal, Preload Security, SoundManager, FlagMeshBuilder, TextureManager, Web Audio Piano, MidiParser, MusicXml, AssetRegistryManager (GIF Mascot Detection), and LLMDirectorEngine.*
+*Coverage: SettingsManager, PhysicsEngine, 12-Locale Parity, AppStore, EventBus, GPU VRAM disposal, Preload Security, SoundManager, FlagMeshBuilder, TextureManager, Web Audio Piano, MidiParser, MusicXml, AssetRegistryManager, ScreenVisionService, and LLMDirectorEngine.*
 
 ---
 
@@ -148,9 +167,6 @@ To run the standalone application:
 Start-Process "DesktopPet-win32-x64\DesktopPet.exe"
 ```
 
-> [!TIP]
-> **Testing Cold Boots & Clean State**: Remember to remove the `assets/` folder after rebuild if you want a clean test environment (`Remove-Item -Recurse -Force assets`). The application automatically regenerates all required default assets, textures, and configs on launch, making this ideal for verifying fresh installations.
-
 ---
 
 ## 📁 Repository Structure
@@ -174,20 +190,26 @@ Start-Process "DesktopPet-win32-x64\DesktopPet.exe"
 │   │   ├── SnowFallManager.js
 │   │   └── SoundManager.js
 │   ├── managers/                 <-- AppStore, SettingsManager & EventBus
+│   ├── services/                 <-- Neural & Multimodal Services
+│   │   └── ScreenVisionService.js<-- Local Ollama Multimodal Vision Service
 │   └── ui/                       <-- Studio UI & Viewport Controllers
 │       ├── AIDirectorTabUI.js
 │       ├── AssetHubUI.js
 │       ├── AtmosphereTabUI.js
 │       ├── FormSyncManager.js
+│       ├── LiveChatSimulatorUI.js<-- Live Chat Overlay Controller
 │       ├── PreviewGenerator.js
+│       ├── ScreenVisionBetaUI.js  <-- Beta Screen Vision UI Controller
 │       ├── SettingsPanelUI.js
 │       ├── SettingsPanelResizeHandler.js
 │       ├── SoundTabUI.js
 │       └── TextureTabUI.js
-├── index.html                    <-- Studio UI Markup
-├── style.css                     <-- Modern Studio CSS & Animations
-├── main.js                       <-- Electron Main & Ollama Auto-Start Daemon
-├── preload.js                    <-- Sandboxed Security Bridge
+├── chat.html                     <-- Independent Live Chat Pop-Out Window
+├── chat.js                       <-- Standalone Live Chat Controller & Audio Synth
+├── index.html                    <-- Studio UI Markup & Beta Vision Card
+├── style.css                     <-- Modern Studio CSS, Glassmorphism & Animations
+├── main.js                       <-- Electron Main, Screen Capture & Ollama Daemon
+├── preload.js                    <-- Sandboxed Security & Screen Capture Bridge
 ├── renderer.js                   <-- Application Bootstrap & Orchestrator
 ├── physicsEngine.js              <-- 3D Physics Engine
 ├── i18nManager.js                <-- 12-Language Localization Engine
@@ -198,5 +220,4 @@ Start-Process "DesktopPet-win32-x64\DesktopPet.exe"
 ---
 
 ## 📄 License
-MIT License. Created with ❤️ for advanced 3D spatial computing and desktop companionship.
-
+MIT License. Created with ❤️ for advanced 3D spatial computing, local AI vision, and desktop companionship.

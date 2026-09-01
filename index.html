@@ -19,6 +19,18 @@
 
 <body>
   <div id="container"></div>
+  
+  <!-- Live Stream Chat Simulator Overlay (Floating over Mascot Viewport) -->
+  <div id="live-chat-overlay" class="live-chat-overlay hidden">
+    <div class="live-chat-header">
+      <div class="live-chat-status">
+        <span class="live-chat-pulse"></span>
+        <span class="live-chat-title">🔴 LIVE CHAT</span>
+      </div>
+      <span class="live-chat-viewers">👥 4.2K</span>
+    </div>
+    <div id="live-chat-messages" class="live-chat-messages-container"></div>
+  </div>
 
   <!-- Settings Cog & Close App Buttons -->
   <button id="settings-btn" class="settings-btn" title="Open Settings" data-i18n-title="open_settings"
@@ -346,6 +358,159 @@
                 <input type="number" id="sound-active-vol" class="studio-number-input" min="0.0" max="1.0" step="0.05" value="0.70">
                 <span class="studio-unit-suffix">vol</span>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 7. 🧪 Beta Testing: Live Chat Simulator Card -->
+        <div class="studio-card">
+          <div class="studio-card-header">
+            <span class="studio-card-title">🧪 Beta Testing: Live Chat Simulator</span>
+            <span class="studio-badge studio-badge-amber">BETA</span>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <span class="studio-row-title">Live Chat Overlay</span>
+              <span class="studio-row-sub">Simulate live stream chat over mascot</span>
+            </div>
+            <label class="studio-switch">
+              <input type="checkbox" id="beta-live-chat-toggle">
+              <span class="studio-slider-knob"></span>
+            </label>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <span class="studio-row-title">Stream Chat Speed</span>
+              <span class="studio-row-sub">Message delivery cadence</span>
+            </div>
+            <select id="beta-chat-speed" class="studio-select" style="width: 150px;">
+              <option value="slow">Relaxed (3.2s)</option>
+              <option value="normal" selected>Normal (1.8s)</option>
+              <option value="fast">Hype Train (0.8s)</option>
+            </select>
+          </div>
+
+          <!-- Ratio & Dimension Controls (Relative to Mascot Viewport) -->
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="beta-chat-width" class="studio-row-title">Chat Box Width</label>
+              <span class="studio-row-sub">Panel horizontal span</span>
+            </div>
+            <div class="studio-number-wrapper">
+              <input type="number" id="beta-chat-width" class="studio-number-input" min="120" max="800" step="10" value="240">
+              <span class="studio-unit-suffix">px</span>
+            </div>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="beta-chat-height" class="studio-row-title">Chat Box Height</label>
+              <span class="studio-row-sub">Panel vertical span</span>
+            </div>
+            <div class="studio-number-wrapper">
+              <input type="number" id="beta-chat-height" class="studio-number-input" min="80" max="600" step="10" value="190">
+              <span class="studio-unit-suffix">px</span>
+            </div>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="beta-chat-scale" class="studio-row-title">Ratio Scale Factor</label>
+              <span class="studio-row-sub">Relative scale (0.5x–2.5x)</span>
+            </div>
+            <div class="studio-number-wrapper">
+              <input type="number" id="beta-chat-scale" class="studio-number-input" min="0.5" max="2.5" step="0.05" value="1.00">
+              <span class="studio-unit-suffix">x</span>
+            </div>
+          </div>
+
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="beta-chat-fontsize" class="studio-row-title">Chat Font Size</label>
+              <span class="studio-row-sub">Readable text scale (8px–24px)</span>
+            </div>
+            <div class="studio-number-wrapper">
+              <input type="number" id="beta-chat-fontsize" class="studio-number-input" min="8" max="24" step="1" value="11">
+              <span class="studio-unit-suffix">px</span>
+            </div>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="beta-chat-position" class="studio-row-title">Screen Alignment</label>
+              <span class="studio-row-sub">Anchor over mascot</span>
+            </div>
+            <select id="beta-chat-position" class="studio-select" style="width: 150px;">
+              <option value="top-left" selected>Top-Left (Default)</option>
+              <option value="top-center">Top-Center</option>
+              <option value="top-right">Top-Right</option>
+              <option value="bottom-left">Bottom-Left</option>
+              <option value="bottom-right">Bottom-Right</option>
+            </select>
+          </div>
+
+          <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;">
+            <button id="btn-beta-popout-window" class="studio-btn-primary" style="width: 100%; font-size: 0.9em; padding: 6px 10px;">🪟 Pop Out Independent Live Chat Window</button>
+            <div style="display: flex; gap: 6px;">
+              <button id="btn-beta-send-superchat" class="studio-btn-ghost" style="flex: 1; font-size: 0.85em; padding: 4px 8px;">⭐ Trigger Superchat</button>
+              <button id="btn-beta-clear-chat" class="studio-btn-ghost" style="flex: 1; font-size: 0.85em; padding: 4px 8px;">🧹 Clear Chat</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Beta Testing: Screen Vision AI Card -->
+        <div class="studio-card">
+          <div class="studio-card-header">
+            <span class="studio-card-title">👁️ Beta Testing: Screen Vision AI</span>
+          </div>
+
+          <div style="font-size: 0.82em; color: #9ca3af; margin-bottom: 8px; line-height: 1.35;">
+            Local open-source multimodal vision AI that captures your screen snapshot, analyzes the visual scene (games, apps, windows), and reflects what is happening on screen in real time.
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="beta-vision-model" class="studio-row-title">Local Vision Model</label>
+              <span class="studio-row-sub">Ollama multimodal model</span>
+            </div>
+            <select id="beta-vision-model" class="studio-select" style="width: 175px;">
+              <option value="moondream" selected>🌙 Moondream (Fast 800MB)</option>
+              <option value="llava">👁️ LLaVA</option>
+              <option value="llama3.2-vision">🦙 Llama 3.2 Vision</option>
+            </select>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="beta-vision-post-chat" class="studio-row-title">Post to Live Chat</label>
+              <span class="studio-row-sub">Feed reflection to stream</span>
+            </div>
+            <input type="checkbox" id="beta-vision-post-chat" class="studio-checkbox" checked>
+          </div>
+
+          <!-- Capture Button -->
+          <div style="margin-top: 8px;">
+            <button id="btn-beta-capture-vision" class="studio-btn-primary" style="width: 100%; font-size: 0.9em; padding: 7px 10px;">📸 Capture & Analyze Screen</button>
+          </div>
+
+          <!-- Status & Vision Result Output Container -->
+          <div id="beta-vision-output-box" style="margin-top: 10px; display: none; flex-direction: column; gap: 6px; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 8px;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <span id="beta-vision-status-tag" style="font-size: 0.8em; font-weight: 700; color: #38bdf8;">📸 Snapshot Captured</span>
+              <span id="beta-vision-latency-tag" style="font-size: 0.75em; color: #9ca3af;">0ms</span>
+            </div>
+
+            <!-- Thumbnail Image Preview -->
+            <div style="width: 100%; height: 110px; background: #000; border-radius: 4px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.08);">
+              <img id="beta-vision-thumbnail" src="" alt="Screen Snapshot" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+            </div>
+
+            <!-- Reflection Text Output -->
+            <div style="font-size: 0.84em; line-height: 1.4; color: #f3f4f6; max-height: 120px; overflow-y: auto; background: rgba(255,255,255,0.03); padding: 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.06);">
+              <span id="beta-vision-text">Click "Capture & Analyze Screen" to begin.</span>
             </div>
           </div>
         </div>

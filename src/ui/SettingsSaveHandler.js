@@ -131,6 +131,21 @@ export async function handleSaveSettings(deps) {
   const textureMetalnessDom = deps.textureMetalnessSlider || document.getElementById('texture-metalness');
   if (textureMetalnessDom) currentSettings.textureMetalness = parseFloat(textureMetalnessDom.value);
 
+  const betaChatToggle = document.getElementById('beta-live-chat-toggle');
+  if (betaChatToggle) currentSettings.liveChatEnabled = betaChatToggle.checked;
+  const betaChatSpeed = document.getElementById('beta-chat-speed');
+  if (betaChatSpeed) currentSettings.liveChatSpeed = betaChatSpeed.value;
+  const betaChatFontSize = document.getElementById('beta-chat-fontsize');
+  if (betaChatFontSize) currentSettings.liveChatFontSize = parseInt(betaChatFontSize.value, 10) || 11;
+  const betaChatWidth = document.getElementById('beta-chat-width');
+  if (betaChatWidth) currentSettings.liveChatWidth = parseInt(betaChatWidth.value, 10) || 240;
+  const betaChatHeight = document.getElementById('beta-chat-height');
+  if (betaChatHeight) currentSettings.liveChatHeight = parseInt(betaChatHeight.value, 10) || 190;
+  const betaChatScale = document.getElementById('beta-chat-scale');
+  if (betaChatScale) currentSettings.liveChatScale = parseFloat(betaChatScale.value) || 1.0;
+  const betaChatPos = document.getElementById('beta-chat-position');
+  if (betaChatPos) currentSettings.liveChatPosition = betaChatPos.value || 'top-left';
+
   soundManager.syncAtmosphere(currentSettings);
 
   if (enablePhysicsCheck) currentSettings.enablePhysics = enablePhysicsCheck.checked;

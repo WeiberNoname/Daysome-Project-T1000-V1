@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob: file:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: file: *; font-src 'self' data:; connect-src 'self' data: blob: file: *;">
+  <title>Live Chat Simulator</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: transparent !important;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #ffffff;
+    }
+
+    .chat-window-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      background: rgba(18, 20, 28, 0.96);
+      backdrop-filter: blur(16px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.85), 0 0 15px rgba(230, 126, 34, 0.2);
+      overflow: hidden;
+      font-size: var(--chat-font-size, 11.5px);
+    }
+
+    /* Draggable Window Header */
+    .chat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      -webkit-app-region: drag;
+      cursor: grab;
+    }
+
+    .chat-header:active {
+      cursor: grabbing;
+    }
+
+    .chat-header-left {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .live-pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ef4444;
+      box-shadow: 0 0 8px #ef4444;
+      animation: pulse 1.4s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.9); opacity: 0.8; }
+      50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 12px #ef4444; }
+      100% { transform: scale(0.9); opacity: 0.8; }
+    }
+
+    .chat-header-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #f3f4f6;
+    }
+
+    .chat-header-viewers {
+      font-size: 10px;
+      color: #9ca3af;
+      font-weight: 600;
+    }
+
+    .chat-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      -webkit-app-region: no-drag;
+    }
+
+    .header-select {
+      background: #282834;
+      border: 1px solid #444454;
+      color: #e5e7eb;
+      font-size: 9.5px;
+      border-radius: 4px;
+      padding: 2px 4px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .header-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #e5e7eb;
+      font-size: 10px;
+      padding: 3px 6px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .header-btn:hover {
+      background: rgba(230, 126, 34, 0.3);
+      border-color: #e67e22;
+      color: #f39c12;
+    }
+
+    .header-btn.active {
+      background: rgba(230, 126, 34, 0.5);
+      border-color: #e67e22;
+      color: #ffffff;
+    }
+
+    .header-btn.close-btn:hover {
+      background: rgba(220, 38, 38, 0.8);
+      border-color: #ef4444;
+      color: #ffffff;
+    }
+
+    /* Multimedia Reaction & Controls Toolbar */
+    .chat-media-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      padding: 5px 8px;
+      background: rgba(0, 0, 0, 0.28);
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+      -webkit-app-region: no-drag;
+    }
+
+    .media-btn {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #d1d5db;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 5px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .media-btn:hover {
+      background: rgba(230, 126, 34, 0.25);
+      border-color: #e67e22;
+      color: #f39c12;
+      transform: translateY(-1px);
+    }
+
+    .font-size-control {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 1px 3px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .font-btn {
+      background: transparent;
+      border: none;
+      color: #9ca3af;
+      font-size: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      padding: 2px 4px;
+      border-radius: 2px;
+    }
+
+    .font-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .font-label {
+      font-size: 9px;
+      color: #d1d5db;
+      font-weight: 600;
+      min-width: 24px;
+      text-align: center;
+    }
+
+    /* Live Messages Stream Box */
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(230, 126, 34, 0.4) transparent;
+    }
+
+    .chat-messages::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .chat-messages::-webkit-scrollbar-thumb {
+      background: rgba(230, 126, 34, 0.4);
+      border-radius: 3px;
+    }
+
+    .msg-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 4px;
+      font-size: var(--chat-font-size, 11.5px);
+      line-height: 1.4;
+      animation: msgSlide 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      word-break: break-word;
+    }
+
+    @keyframes msgSlide {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg-badge {
+      font-size: 0.75em;
+      font-weight: 800;
+      padding: 1px 4px;
+      border-radius: 3px;
+      border: 1px solid;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .msg-user {
+      font-weight: 700;
+    }
+
+    .msg-text {
+      color: #f3f4f6;
+    }
+
+    .msg-superchat {
+      background: linear-gradient(135deg, rgba(230, 126, 34, 0.25) 0%, rgba(236, 72, 153, 0.25) 100%);
+      border: 1px solid rgba(230, 126, 34, 0.6);
+      border-radius: 6px;
+      padding: 6px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      box-shadow: 0 0 12px rgba(230, 126, 34, 0.3);
+    }
+
+    .msg-meme {
+      background: rgba(18, 24, 38, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      border-radius: 6px;
+      padding: 6px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+    }
+
+    .msg-video {
+      background: rgba(30, 18, 28, 0.85);
+      border: 1px solid rgba(236, 72, 153, 0.4);
+      border-radius: 6px;
+      padding: 6px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      box-shadow: 0 0 10px rgba(236, 72, 153, 0.2);
+    }
+
+    .superchat-top {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .superchat-amount {
+      margin-left: auto;
+      font-weight: 800;
+      font-size: 0.95em;
+    }
+
+    .superchat-content {
+      font-size: 0.95em;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    /* Bottom Input Bar */
+    .chat-input-bar {
+      display: flex;
+      gap: 6px;
+      padding: 8px 10px;
+      background: rgba(0, 0, 0, 0.35);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      -webkit-app-region: no-drag;
+    }
+
+    .chat-input {
+      flex: 1;
+      background: #24242e;
+      border: 1px solid #444456;
+      border-radius: 5px;
+      color: #ffffff;
+      font-size: 11px;
+      padding: 6px 8px;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .chat-input:focus {
+      border-color: #e67e22;
+      box-shadow: 0 0 8px rgba(230, 126, 34, 0.3);
+    }
+
+    .chat-send-btn {
+      background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+      border: 1px solid #e67e22;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .chat-send-btn:hover {
+      background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+      box-shadow: 0 0 10px rgba(243, 156, 18, 0.5);
+    }
+  </style>
+</head>
+<body>
+  <div id="chat-window-root" class="chat-window-container">
+    <!-- Draggable Header -->
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <span class="live-pulse"></span>
+        <span class="chat-header-title">LIVE CHAT SIMULATOR</span>
+        <span class="chat-header-viewers" id="viewer-count">👥 4.8K</span>
+      </div>
+      <div class="chat-header-actions">
+        <!-- Stream Speed Selector -->
+        <select id="chat-speed" class="header-select" title="Chat Speed">
+          <option value="slow">Relaxed (3.2s)</option>
+          <option value="normal" selected>Normal (1.8s)</option>
+          <option value="fast">Hype (0.8s)</option>
+        </select>
+        <button id="btn-sound-toggle" class="header-btn active" title="Toggle Sound SFX">🔊</button>
+        <button id="btn-clear" class="header-btn" title="Clear Messages">🧹</button>
+        <button id="btn-close" class="header-btn close-btn" title="Close Window">✖</button>
+      </div>
+    </div>
+
+    <!-- Multimedia Quick Reaction & Font Scaling Toolbar -->
+    <div class="chat-media-toolbar">
+      <button id="btn-meme" class="media-btn" title="Inject Meme Image">🖼️ Meme</button>
+      <button id="btn-video" class="media-btn" title="Inject Video Clip">🎬 Clip</button>
+      <button id="btn-airhorn" class="media-btn" title="Airhorn SFX">🎺 Airhorn</button>
+      <button id="btn-superchat" class="media-btn" title="Simulate Superchat">⭐ Tip</button>
+      <!-- Dynamic Font Size Control -->
+      <div class="font-size-control" title="Adjust Chat Font Size">
+        <button id="btn-font-dec" class="font-btn" title="Decrease Font Size">A-</button>
+        <span id="font-size-display" class="font-label">12px</span>
+        <button id="btn-font-inc" class="font-btn" title="Increase Font Size">A+</button>
+      </div>
+    </div>
+
+    <!-- Messages Container -->
+    <div id="messages-container" class="chat-messages"></div>
+
+    <!-- User Chat Input Bar -->
+    <div class="chat-input-bar">
+      <input type="text" id="user-msg-input" class="chat-input" placeholder="Send message, emoji or meme to live stream...">
+      <button id="btn-send" class="chat-send-btn">Send</button>
+    </div>
+  </div>
+
+  <script type="module" src="chat.js"></script>
+</body>
+</html>

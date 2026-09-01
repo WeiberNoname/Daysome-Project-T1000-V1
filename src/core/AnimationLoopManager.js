@@ -49,11 +49,6 @@ export function updateAnimationFrame(deps) {
     );
   }
 
-  // 1.3 Update Animated GIF Mascot frame if active
-  if (innerModelGroup && innerModelGroup.userData && typeof innerModelGroup.userData.updateGifFrame === 'function') {
-    innerModelGroup.userData.updateGifFrame();
-  }
-
   // 1.5 Update 3D Atmosphere Effects (Sakura Petals & Snow Fall)
   if (sakuraRainManager) {
     sakuraRainManager.setEnabled(currentSettings.sakuraRain !== false);

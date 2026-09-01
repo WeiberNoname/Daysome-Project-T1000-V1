@@ -28,6 +28,10 @@ const electronAPI = {
   logDiagnostic: (msg) => ipcRenderer.send('log-diagnostic', String(msg)),
   closeApp: () => ipcRenderer.send('close-app'),
   resetSteamStats: () => ipcRenderer.sendSync('reset-steam-stats'),
+  openLiveChatWindow: () => ipcRenderer.send('open-live-chat-window'),
+  closeLiveChatWindow: () => ipcRenderer.send('close-live-chat-window'),
+  toggleLiveChatWindow: () => ipcRenderer.send('toggle-live-chat-window'),
+  captureScreenSnapshot: () => ipcRenderer.invoke('capture-screen-snapshot'),
 
   // Safe IPC event listener
   on: (channel, callback) => {
@@ -35,7 +39,8 @@ const electronAPI = {
       'steam-overlay-active',
       'force-hover-exit',
       'settings-updated',
-      'model-imported'
+      'model-imported',
+      'live-chat-window-closed'
     ];
     if (validChannels.includes(channel) && typeof callback === 'function') {
       const subscription = (event, ...args) => callback(...args);
@@ -51,7 +56,10 @@ const electronAPI = {
       'move-window',
       'resize-window',
       'log-diagnostic',
-      'close-app'
+      'close-app',
+      'open-live-chat-window',
+      'close-live-chat-window',
+      'toggle-live-chat-window'
     ];
     if (validSendChannels.includes(channel)) {
       ipcRenderer.send(channel, data);

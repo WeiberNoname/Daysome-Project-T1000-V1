@@ -38,7 +38,7 @@ export class SceneStageManager {
   }
 
   /**
-   * Scans the assets folder for available .glb, .gltf, and .gif files.
+   * Scans the assets folder for available .glb and .gltf files.
    * @returns {Array<string>}
    */
   scanForModels() {
@@ -58,7 +58,7 @@ export class SceneStageManager {
       try {
         const files = this.fs.readdirSync(assetsDir);
         files.forEach(file => {
-          if (file.endsWith('.glb') || file.endsWith('.gltf') || file.endsWith('.gif')) {
+          if (file.endsWith('.glb') || file.endsWith('.gltf')) {
             discovered.push(file);
           }
         });
@@ -77,10 +77,6 @@ export class SceneStageManager {
    * Systematically cleans up VRAM, geoms, materials, textures, and mixer hooks.
    */
   disposeCurrentModel() {
-    if (this.gifImg) {
-      this.gifImg.src = '';
-      this.gifImg = null;
-    }
     if (this.mixer) {
       disposeMixer(this.mixer, this.characterGroup);
       this.mixer = null;
@@ -125,12 +121,6 @@ export class SceneStageManager {
 
     if (active === 'procedural') {
       this.loadProceduralModel();
-      return;
-    }
-
-    if (active.toLowerCase().endsWith('.gif')) {
-      const fullPath = this.path ? this.path.join(this.getAssetsPath(), active) : active;
-      this.loadGifMascot(fullPath);
       return;
     }
 
@@ -243,157 +233,10 @@ export class SceneStageManager {
   }
 
   /**
-   * Loads an animated GIF file as an interactive 3D spatial billboard mascot.
-   * @param {string} filePath - Path or object URL to GIF file.
-   */
-  loadGifMascot(filePath) {
-    const currentLoadId = ++this.loadToken;
-    this.disposeCurrentModel();
-
-    let fileUrl = filePath;
-    if (typeof filePath === 'string' && (filePath.startsWith('blob:') || filePath.startsWith('data:') || filePath.startsWith('http:') || filePath.startsWith('https:'))) {
-      fileUrl = filePath;
-    } else if (this.pathToFileURL && typeof filePath === 'string') {
-      try {
-        fileUrl = this.pathToFileURL(filePath).href;
-      } catch (e) {
-        console.warn('[SceneStageManager] Could not convert path to file URL:', e);
-      }
-    }
-
-    if (!this.THREE || !this.scene) {
-      this.loadProceduralModel();
-      return;
-    }
-
-    this.activeModelKey = filePath;
-    this.currentSettings.activeModel = filePath;
-
-    const targetW = this.currentSettings.width || 350;
-    const targetH = this.currentSettings.height || 350;
-    if (this.camera) {
-      this.camera.aspect = targetW / targetH;
-      this.camera.updateProjectionMatrix();
-      this.camera.position.set(0, 0, 4.8);
-      this.camera.lookAt(0, 0, 0);
-    }
-    if (this.renderer) {
-      this.renderer.setSize(targetW, targetH);
-    }
-
-    const charGroup = new this.THREE.Group();
-    const innerGroup = new this.THREE.Group();
-    charGroup.add(innerGroup);
-
-    const img = typeof Image !== 'undefined' ? new Image() : null;
-    if (img) {
-      img.crossOrigin = 'anonymous';
-      this.gifImg = img;
-    }
-
-    const canvas = (typeof document !== 'undefined') ? document.createElement('canvas') : { width: 512, height: 512, getContext: () => null };
-    canvas.width = 512;
-    canvas.height = 512;
-    const ctx2d = canvas.getContext ? canvas.getContext('2d') : null;
-
-    const canvasTexture = new this.THREE.CanvasTexture(canvas);
-    canvasTexture.generateMipmaps = false;
-    canvasTexture.minFilter = this.THREE.LinearFilter;
-    canvasTexture.magFilter = this.THREE.LinearFilter;
-
-    const mat = new this.THREE.MeshStandardMaterial({
-      map: canvasTexture,
-      transparent: true,
-      alphaTest: 0.02,
-      roughness: 0.45,
-      metalness: 0.05,
-      side: this.THREE.DoubleSide
-    });
-
-    const planeGeo = new this.THREE.PlaneGeometry(2.0, 2.0);
-    const mesh = new this.THREE.Mesh(planeGeo, mat);
-    mesh.position.set(0, 0, 0);
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
-    innerGroup.add(mesh);
-
-    const proxy = new this.THREE.Mesh(
-      new this.THREE.BoxGeometry(2.0, 2.0, 0.5),
-      new this.THREE.MeshBasicMaterial({ visible: false })
-    );
-    charGroup.add(proxy);
-
-    let lastFrameDraw = 0;
-    innerGroup.userData.updateGifFrame = () => {
-      if (img && img.complete && img.naturalWidth > 0 && ctx2d) {
-        const now = (typeof performance !== 'undefined') ? performance.now() : Date.now();
-        if (now - lastFrameDraw > 15) {
-          lastFrameDraw = now;
-          ctx2d.clearRect(0, 0, canvas.width, canvas.height);
-          ctx2d.drawImage(img, 0, 0, canvas.width, canvas.height);
-          canvasTexture.needsUpdate = true;
-        }
-      }
-    };
-
-    if (img) {
-      img.onload = () => {
-        if (currentLoadId !== this.loadToken) return;
-        const nw = img.naturalWidth || 512;
-        const nh = img.naturalHeight || 512;
-        canvas.width = nw;
-        canvas.height = nh;
-        const aspect = nw / nh;
-        if (mesh && mesh.geometry) {
-          mesh.geometry.dispose();
-          mesh.geometry = new this.THREE.PlaneGeometry(2.0 * aspect, 2.0);
-        }
-        if (proxy && proxy.geometry) {
-          proxy.geometry.dispose();
-          proxy.geometry = new this.THREE.BoxGeometry(2.0 * aspect, 2.0, 0.5);
-        }
-        if (ctx2d) {
-          ctx2d.drawImage(img, 0, 0, nw, nh);
-          canvasTexture.needsUpdate = true;
-        }
-      };
-      img.src = fileUrl;
-    }
-
-    const scale = this.currentSettings.scale || 1.0;
-    charGroup.scale.set(scale, scale, scale);
-    this.scene.add(charGroup);
-
-    this.characterGroup = charGroup;
-    this.innerModelGroup = innerGroup;
-    this.collisionProxy = proxy;
-    this.customModelLoaded = true;
-
-    if (this.state.setCharacterGroup) this.state.setCharacterGroup(charGroup);
-    if (this.state.setInnerModelGroup) this.state.setInnerModelGroup(innerGroup);
-    if (this.state.setCollisionProxy) this.state.setCollisionProxy(proxy);
-    if (this.state) this.state.customModelLoaded = true;
-
-    if (this.callbacks.populateAnimationDropdown) {
-      this.callbacks.populateAnimationDropdown();
-    }
-  }
-
-  /**
    * Loads custom GLTF/GLB model from file path, object URL, or blob.
    * @param {string} filePath - Path or URL string.
    */
   loadCustomModel(filePath) {
-    const isGif = typeof filePath === 'string' && (
-      filePath.toLowerCase().endsWith('.gif') ||
-      filePath.toLowerCase().includes('.gif') ||
-      (typeof window !== 'undefined' && window.__assetRegistryManager && window.__assetRegistryManager.getAssets('model').some(a => a.ext === 'gif' && (a.objectUrl === filePath || a.name === filePath || a.id === filePath)))
-    );
-    if (isGif) {
-      this.loadGifMascot(filePath);
-      return;
-    }
-
     const currentLoadId = ++this.loadToken;
     this.disposeCurrentModel();
 

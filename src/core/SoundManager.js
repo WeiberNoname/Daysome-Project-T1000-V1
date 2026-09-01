@@ -145,6 +145,96 @@ export class SoundManager {
     } catch (e) {}
   }
 
+  playSuperchatChime() {
+    if (this.isMuted || !this._initContext()) return;
+    try {
+      const ctx = this.audioCtx;
+      const now = ctx.currentTime;
+      const notes = [1046.50, 1318.51, 1567.98, 2093.00]; // C6, E6, G6, C7
+      notes.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.07);
+        gain.gain.setValueAtTime(0, now + idx * 0.07);
+        gain.gain.linearRampToValueAtTime(0.18, now + idx * 0.07 + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.07 + 0.8);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(now + idx * 0.07);
+        osc.stop(now + idx * 0.07 + 0.85);
+      });
+    } catch (e) {}
+  }
+
+  playAirhornSfx() {
+    if (this.isMuted || !this._initContext()) return;
+    try {
+      const ctx = this.audioCtx;
+      const now = ctx.currentTime;
+      const bursts = [0, 0.12, 0.24, 0.40];
+      bursts.forEach(offset => {
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc1.type = 'sawtooth';
+        osc2.type = 'square';
+        osc1.frequency.setValueAtTime(622.25, now + offset); // D#5
+        osc2.frequency.setValueAtTime(932.33, now + offset); // A#5
+        gain.gain.setValueAtTime(0.15, now + offset);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.10);
+        osc1.connect(gain);
+        osc2.connect(gain);
+        gain.connect(this.masterGain);
+        osc1.start(now + offset);
+        osc2.start(now + offset);
+        osc1.stop(now + offset + 0.11);
+        osc2.stop(now + offset + 0.11);
+      });
+    } catch (e) {}
+  }
+
+  playMemeBoing() {
+    if (this.isMuted || !this._initContext()) return;
+    try {
+      const ctx = this.audioCtx;
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(140, now);
+      osc.frequency.exponentialRampToValueAtTime(700, now + 0.18);
+      osc.frequency.exponentialRampToValueAtTime(260, now + 0.35);
+      gain.gain.setValueAtTime(0.22, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(now);
+      osc.stop(now + 0.40);
+    } catch (e) {}
+  }
+
+  playFanfareSfx() {
+    if (this.isMuted || !this._initContext()) return;
+    try {
+      const ctx = this.audioCtx;
+      const now = ctx.currentTime;
+      const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+      notes.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+        gain.gain.setValueAtTime(0.18, now + idx * 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.6);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(now + idx * 0.08);
+        osc.stop(now + idx * 0.08 + 0.65);
+      });
+    } catch (e) {}
+  }
+
   playBounceSfx(intensity = 1.0) {
     if (this.isMuted || !this._initContext()) return;
     try {
