@@ -107,17 +107,20 @@ export const DisplayTools = {
     },
     {
       name: 'setActiveModel',
-      description: 'Switch active 3D companion mascot (e.g. "procedural" bunny or "flag" waving banner).',
+      description: 'Switch active 3D companion mascot (e.g. "procedural" bunny, "humanoid" cyber android, or "flag" waving banner).',
       parameters: {
         type: 'object',
         properties: {
-          modelName: { type: 'string', description: 'Model identifier: "procedural" or "flag"' }
+          modelName: { type: 'string', description: 'Model identifier: "procedural", "humanoid", or "flag"' }
         },
         required: ['modelName']
       },
       sanitize: (args) => {
-        const valid = ['procedural', 'flag'];
+        const valid = ['procedural', 'humanoid', 'flag'];
         let name = (args.modelName || '').toLowerCase().trim();
+        if (name.includes('human') || name.includes('robot') || name.includes('android') || name.includes('cyborg') || name.includes('bot')) name = 'humanoid';
+        if (name.includes('bunny') || name.includes('rabbit') || name.includes('pet')) name = 'procedural';
+        if (name.includes('flag') || name.includes('banner')) name = 'flag';
         if (!valid.includes(name)) name = 'procedural';
         return { modelName: name };
       },

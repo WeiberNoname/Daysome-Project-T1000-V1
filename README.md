@@ -1,6 +1,6 @@
-# Desktop 3D Display & Spatial AI Companion (T02 V4) 🖥️🐰✨
+# MascotCaption 3D: Real-Time Screen Auto-Captioning with 3D Mascot Companion 🤖🐰💬
 
-A high-performance, transparent, interactive **3D Desktop Spatial Companion & Atmosphere Hub** for Windows powered by **Electron**, **Three.js**, **Web Audio API**, **Local Multimodal Vision AI**, and the **AI Function Director & Neural LLM Engine**.
+A high-performance, transparent, interactive **3D Desktop Mascot & Real-Time Screen Auto-Captioning Engine** for Windows powered by **Electron**, **Three.js**, **Web Audio API**, **Local Multimodal Vision AI**, and the **AI Function Director & Neural LLM Engine**.
 
 > 📖 **Full User Manual:** For complete guides on Blender viewport navigation, custom 3D model loading, FPS camera flight, physics tossing, stage spotlights, dynamic battery saver mode, sakura rain particle simulation, and 12-language localization, please see **[USER_MANUAL.md](USER_MANUAL.md)**.
 
@@ -10,20 +10,15 @@ A high-performance, transparent, interactive **3D Desktop Spatial Companion & At
 
 ```mermaid
 graph TD
-    User([👤 User]) -->|Natural Language / Chat| AI[🤖 AI Function Director]
-    User -->|1-Click Manual Fallback| UI[📦 Universal File Holder Standard]
-    User -->|📸 1-Click Screen Snapshot| Vision[👁️ Local Multimodal Vision AI]
+    User([👤 User / Active Screen]) -->|📸 Real-Time Screen Capture| Vision[👁️ Local Multimodal Vision AI: moondream]
+    Vision -->|Scene Description| LLM[🧠 Persona LLM Synthesizer: llama3.2]
+    LLM -->|Sequential Subtitle Stream| HUD[🪟 Live Caption HUD Overlay]
+    LLM -->|Speech Bubbles & Reactions| Mascot[🤖 3D Spatial Mascot Companion]
     
-    subgraph Engine [✨ The Unified Desktop Core]
-        AI --> Core[Interactive Controller & EventBus]
-        UI --> Core
-        Vision --> Core
-        
-        Core --> P1[🐰 3D Spatial & Physics Engine]
-        Core --> P2[🎼 Polyphonic Audio & Music Synthesizer]
-        Core --> P3[🌸 Ambient 3D Particle Weather System]
-        Core --> P4[🎨 Harmonic Cloth & Texture Dynamics]
-        Core --> P5[💬 Live Stream Chat Simulator & Pop-Out HUD]
+    subgraph Core [✨ The Unified Desktop Core]
+        Mascot --> P1[🐰 3D WebGL & Physics Engine]
+        Mascot --> P2[🎼 Web Audio Synthesizer & SFX]
+        Mascot --> P3[🌸 3D Instanced Particle Weather]
     end
 ```
 
@@ -59,8 +54,12 @@ graph TD
 * **Pooled 3D Snapshot Renderer**: Automatically captures beauty-angle thumbnail snapshots for 3D GLTF models with zero VRAM leaks.
 * **Cross-Tab Ingestion**: Automatically propagates imported assets into Mascot, Texture, Atmosphere, and Music file holder grids.
 
-### 4. 🐰 3D Mascot & Model Studio (Tab 3)
-* **Standardized File Holder Grid**: Instant 1-click selection across procedural 3D models (🐰 Bunny, 🎌 Country Flag) and custom imported 3D GLTF/GLB models.
+### 4. 🤖 3D Mascot & Model Studio (Tab 3)
+* **Standardized File Holder Grid**: Instant 1-click selection across procedural 3D models and custom imported GLTF/GLB models:
+  * 🤖 **Cyber Android** (`.HUMANOID` • 100% Original IP procedural humanoid with 4 skeletal animation cycles: `Idle Breathing`, `Cheering Wave`, `Victory Dance`, and `Look Around`).
+  * 🐰 **Default Bunny** (`.MASCOT` • Procedural cute clay vinyl bunny with physics reactions and toss physics).
+  * 🎌 **Country Flag** (`.CLOTH` • Interactive waving cloth simulation with custom texture mapping).
+  * 📦 **Custom 3D Models** (`.GLB` / `.GLTF` • Drop any custom rigged model into the asset hub).
 * **Skeletal Animation Selector**: Live animation clip dropdown with smooth cross-fading, interactive SFX reactions, idle bobbing dynamics, and 3D physics tossing (Hold `D` + Drag).
 
 ### 5. 🌸 Atmosphere & Ambient Weather (Tab 4)

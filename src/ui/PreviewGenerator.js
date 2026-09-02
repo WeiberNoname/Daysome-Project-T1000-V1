@@ -7,6 +7,7 @@
 
 import { createProceduralMascot } from '../core/MascotBuilder.js';
 import { createFlagMesh, createPresetFlagTexture, updateFlagWave } from '../core/FlagMeshBuilder.js';
+import { createProceduralHumanoid } from '../core/HumanoidMascotBuilder.js';
 import { ModelThumbnailGenerator } from '../core/ModelThumbnailGenerator.js';
 import { disposeHierarchy } from '../core/GPUAssetManager.js';
 import { formatHumanLabel } from './uiUtils.js';
@@ -106,7 +107,7 @@ export function populateModelDropdown(ctx) {
   const customModelAssets = window.__assetRegistryManager ? window.__assetRegistryManager.getAssets('model') : [];
   const customModelNames = customModelAssets.map(a => a.name);
 
-  const options = ['procedural', 'flag', ...discovered];
+  const options = ['procedural', 'humanoid', 'flag', ...discovered];
   customModelNames.forEach(name => {
     if (!options.includes(name)) {
       options.push(name);
@@ -143,6 +144,8 @@ export function populateModelDropdown(ctx) {
     } else if (modelKey === 'flag') {
       img.src = (currentSettings && currentSettings.customTexturePath) ? currentSettings.customTexturePath : createPresetFlagTexture((currentSettings && currentSettings.flagPreset) || 'default');
       generateMascotPreviewInBackground(ctx, 'flag');
+    } else if (modelKey === 'humanoid') {
+      generateMascotPreviewInBackground(ctx, 'humanoid');
     } else if (modelKey === 'procedural') {
       generateMascotPreviewInBackground(ctx, 'procedural');
     } else {
@@ -170,6 +173,9 @@ export function populateModelDropdown(ctx) {
     if (modelKey === 'procedural') {
       label.textContent = (typeof t === 'function') ? t('default_mascot', 'Default Bunny 🐰') : 'Default Bunny 🐰';
       subText = 'Procedural Mascot';
+    } else if (modelKey === 'humanoid') {
+      label.textContent = (typeof t === 'function') ? t('model_humanoid', 'Cyber Android 🤖') : 'Cyber Android 🤖';
+      subText = 'Procedural Rig';
     } else if (modelKey === 'flag') {
       label.textContent = (typeof t === 'function') ? t('model_flag', 'Country Flag 🎌') : 'Country Flag 🎌';
       subText = 'Interactive Cloth';
@@ -309,6 +315,36 @@ export function generateMascotPreviewInBackground(ctx, modelKey) {
       }
     } catch (e) {
       console.warn("Failed background capture for procedural mascot:", e);
+    } finally {
+      disposeHierarchy(previewScene);
+    }
+  } else if (modelKey === 'humanoid') {
+    const previewScene = new THREE.Scene();
+    const previewCamera = new THREE.PerspectiveCamera(45, 1.0, 0.1, 100);
+    previewCamera.position.set(0, 0.2, 5.0);
+    previewCamera.lookAt(0, 0.2, 0);
+
+    const ambLight = new THREE.AmbientLight(0xffffff, 0.95);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.4);
+    dirLight.position.set(3, 4, 5);
+    previewScene.add(ambLight);
+    previewScene.add(dirLight);
+
+    createProceduralHumanoid(THREE, previewScene);
+
+    try {
+      renderer.render(previewScene, previewCamera);
+      const dataUrl = renderer.domElement.toDataURL("image/png");
+      const base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
+      fs.writeFileSync(previewPath, base64Data, 'base64');
+      console.log(`Generated canonical preview for: humanoid`);
+
+      const imgEl = document.querySelector(`.mascot-thumbnail[data-mascot="humanoid"]`);
+      if (imgEl) {
+        imgEl.src = pathToFileURL(previewPath).href + "?t=" + Date.now();
+      }
+    } catch (e) {
+      console.warn("Failed background capture for humanoid mascot:", e);
     } finally {
       disposeHierarchy(previewScene);
     }

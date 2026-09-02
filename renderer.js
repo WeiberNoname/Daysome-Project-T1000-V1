@@ -14,6 +14,7 @@ import {
   detectAndLoadAsset as detectAndLoadAssetUtil,
   fallbackToProcedural as fallbackToProceduralUtil,
   loadFlagModel as loadFlagModelUtil,
+  loadHumanoidModel as loadHumanoidModelUtil,
   loadCustomModel as loadCustomModelUtil,
   applySelectedAnimation as applySelectedAnimationUtil
 } from './src/core/ModelLoader.js';
@@ -384,6 +385,7 @@ const scanForModels = modelDelegates.scanForModels;
 const detectAndLoadAsset = modelDelegates.detectAndLoadAsset;
 const fallbackToProcedural = modelDelegates.fallbackToProcedural;
 const loadFlagModel = () => loadFlagModelUtil(getModelLoaderCtx());
+const loadHumanoidModel = () => loadHumanoidModelUtil(getModelLoaderCtx());
 const loadCustomModel = modelDelegates.loadCustomModel;
 const applySelectedAnimation = modelDelegates.applySelectedAnimation;
 const generateModelPreview = modelDelegates.generateModelPreview;
@@ -395,7 +397,7 @@ const forceRefreshAllPreviews = modelDelegates.forceRefreshAllPreviews;
 function setupSettingsUI() {
   const { syncSlidersUI, populateAnimationDropdown, renderSpotlightCardsUI } = createFormSyncManager({
     currentSettings,
-    getAvailableAnimations: () => availableAnimations,
+    getAvailableAnimations: () => (currentSettings.activeModel === 'humanoid' ? ['Idle', 'Wave', 'Dance', 'Look_Around'] : availableAnimations),
     syncSlidersUIUtil,
     populateAnimationDropdownUtil,
     renderSpotlightCardsUIUtil,
@@ -424,6 +426,7 @@ function setupSettingsUI() {
     applySelectedAnimation,
     fallbackToProcedural,
     loadFlagModel,
+    loadHumanoidModel,
     loadCustomModel,
     getAssetsPath,
     path,
@@ -436,6 +439,7 @@ function setupSettingsUI() {
         updateSpotlightPosition,
         physicsEngine,
         saveSettingsFile,
+        loadHumanoidModel,
         state: {
           cameraPitch: appState.cameraPitch,
           cameraYaw: appState.cameraYaw,

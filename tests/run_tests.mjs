@@ -823,6 +823,38 @@ import('../src/core/SoundManager.js').then(({ SoundManager }) => {
                 assert.deepStrictEqual(discovered, ['fox.glb', 'dance.gltf'], 'scanForModels must discover only 3D .glb and .gltf files');
                 console.log('✅ AssetRegistryManager & SceneStageManager 3D Model tests PASSED.');
 
+                // Test HumanoidMascotBuilder & Procedural Humanoid Rig
+                console.log('▶ Testing HumanoidMascotBuilder procedural 3D humanoid & skeletal animations...');
+                import('../src/core/HumanoidMascotBuilder.js').then(({ createProceduralHumanoid }) => {
+                  const mockTHREE = {
+                    Group: class { constructor() { this.children = []; this.position = { set: () => {}, x: 0, y: 0, z: 0 }; this.rotation = { set: () => {}, x: 0, y: 0, z: 0 }; this.scale = { set: () => {} }; this.userData = {}; } add(c) { this.children.push(c); } },
+                    Mesh: class { constructor(g, m) { this.geom = g; this.mat = m; this.position = { set: () => {}, x: 0, y: 0, z: 0 }; this.rotation = { set: () => {}, x: 0, y: 0, z: 0 }; this.scale = { set: () => {} }; this.userData = {}; } },
+                    BoxGeometry: class { constructor() {} translate() {} rotateX() {} rotateY() {} rotateZ() {} },
+                    CylinderGeometry: class { constructor() {} translate() {} rotateX() {} rotateY() {} rotateZ() {} },
+                    SphereGeometry: class { constructor() {} translate() {} rotateX() {} rotateY() {} rotateZ() {} },
+                    MeshPhysicalMaterial: class { constructor(opts) { Object.assign(this, opts); } },
+                    MeshStandardMaterial: class { constructor(opts) { Object.assign(this, opts); } },
+                    MeshBasicMaterial: class { constructor(opts) { Object.assign(this, opts); } }
+                  };
+                  const mockScene = new mockTHREE.Group();
+                  const humanoidResult = createProceduralHumanoid(mockTHREE, mockScene);
+                  assert.ok(humanoidResult !== null, 'createProceduralHumanoid must return controller');
+                  assert.ok(humanoidResult.joints !== null, 'Humanoid must create joint hierarchy');
+                  assert.ok(humanoidResult.joints.head !== null, 'Humanoid must contain head node');
+                  assert.ok(humanoidResult.joints.torso !== null, 'Humanoid must contain torso node');
+                  assert.ok(humanoidResult.joints.leftArm !== null, 'Humanoid must contain leftArm node');
+                  assert.ok(humanoidResult.joints.rightArm !== null, 'Humanoid must contain rightArm node');
+                  assert.deepStrictEqual(humanoidResult.availableAnimations, ['Idle', 'Wave', 'Dance', 'Look_Around'], 'Humanoid must declare 4 animations');
+                  
+                  // Test animation updates across all clips
+                  humanoidResult.updateAnimation(1.0, 'idle');
+                  humanoidResult.updateAnimation(1.5, 'wave');
+                  humanoidResult.updateAnimation(2.0, 'dance');
+                  humanoidResult.updateAnimation(2.5, 'look_around');
+                  humanoidResult.resetJoints();
+                  console.log('✅ HumanoidMascotBuilder & skeletal animation tests PASSED.');
+                });
+
                 // Test ScreenVisionService (Multimodal Vision payload & fallback)
                 import('../src/services/ScreenVisionService.js').then(({ ScreenVisionService }) => {
                   console.log('▶ Testing ScreenVisionService local multimodal vision engine...');

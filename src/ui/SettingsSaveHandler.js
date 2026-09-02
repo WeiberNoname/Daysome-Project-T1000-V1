@@ -216,6 +216,8 @@ export async function handleSaveSettings(deps) {
 
     if (newModel === 'procedural') {
       if (fallbackToProcedural) fallbackToProcedural();
+    } else if (newModel === 'humanoid') {
+      if (deps.loadHumanoidModel) deps.loadHumanoidModel();
     } else if (newModel === 'flag') {
       if (deps.loadFlagModel) deps.loadFlagModel();
     } else {

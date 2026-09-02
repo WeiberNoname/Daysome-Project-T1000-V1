@@ -49,6 +49,12 @@ export function updateAnimationFrame(deps) {
     );
   }
 
+  // 1.3 Update Procedural Humanoid Skeletal Animation if active
+  if (innerModelGroup && innerModelGroup.userData && innerModelGroup.userData.humanoidController) {
+    const animName = currentSettings.activeAnimation || 'Idle';
+    innerModelGroup.userData.humanoidController.updateAnimation(elapsed, animName);
+  }
+
   // 1.5 Update 3D Atmosphere Effects (Sakura Petals & Snow Fall)
   if (sakuraRainManager) {
     sakuraRainManager.setEnabled(currentSettings.sakuraRain !== false);

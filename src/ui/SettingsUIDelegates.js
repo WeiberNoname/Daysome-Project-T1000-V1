@@ -52,6 +52,7 @@ export function createSettingsUIDelegates(deps) {
         applySelectedAnimation,
         fallbackToProcedural,
         loadFlagModel: deps.loadFlagModel,
+        loadHumanoidModel: deps.loadHumanoidModel,
         loadCustomModel,
         getAssetsPath,
         path,

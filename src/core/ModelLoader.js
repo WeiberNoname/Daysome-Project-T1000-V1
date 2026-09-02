@@ -58,6 +58,15 @@ export function loadFlagModel(ctx) {
 }
 
 /**
+ * Loads the native 3D Procedural Cyber Humanoid Mascot cleanly.
+ * @param {Object} ctx - Context dependencies.
+ */
+export function loadHumanoidModel(ctx) {
+  const manager = getStageManager(ctx);
+  manager.loadHumanoidModel();
+}
+
+/**
  * Loads custom GLTF/GLB model from file path cleanly with race condition protection.
  * @param {Object} ctx - Context dependencies.
  * @param {string} filePath - Absolute path or URL to GLTF/GLB file.
