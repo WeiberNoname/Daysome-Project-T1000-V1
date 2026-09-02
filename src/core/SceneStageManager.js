@@ -6,6 +6,7 @@
 
 import { createProceduralMascot } from './MascotBuilder.js';
 import { createFlagMesh } from './FlagMeshBuilder.js';
+import { createProceduralHumanoid } from './HumanoidMascotBuilder.js';
 import { disposeHierarchy, disposeMixer } from './GPUAssetManager.js';
 
 export class SceneStageManager {
@@ -28,6 +29,7 @@ export class SceneStageManager {
     this.characterGroup = null;
     this.innerModelGroup = null;
     this.collisionProxy = null;
+    this.humanoidController = null;
     this.mixer = null;
     this.idleAction = null;
     this.reactAction = null;
@@ -58,17 +60,17 @@ export class SceneStageManager {
       try {
         const files = this.fs.readdirSync(assetsDir);
         files.forEach(file => {
-          if (file.endsWith('.glb') || file.endsWith('.gltf')) {
+          if (file.toLowerCase().endsWith('.glb') || file.toLowerCase().endsWith('.gltf')) {
             discovered.push(file);
           }
         });
-      } catch (err) {
-        console.error('[SceneStageManager] Error scanning models:', err);
+      } catch (e) {
+        console.warn('[SceneStageManager] Error scanning models:', e);
       }
     }
 
-    if (this.state) {
-      this.state.discoveredModels = discovered;
+    if (this.state && typeof this.state.setDiscoveredModels === 'function') {
+      this.state.setDiscoveredModels(discovered);
     }
     return discovered;
   }
@@ -119,6 +121,11 @@ export class SceneStageManager {
       return;
     }
 
+    if (active === 'humanoid' || active === 'procedural_humanoid') {
+      this.loadHumanoidModel();
+      return;
+    }
+
     if (active === 'procedural') {
       this.loadProceduralModel();
       return;
@@ -140,6 +147,50 @@ export class SceneStageManager {
 
     this.currentSettings.activeModel = 'procedural';
     this.loadProceduralModel();
+  }
+
+  /**
+   * Loads the native Procedural Cyber Humanoid Mascot with Skeletal Joints.
+   */
+  loadHumanoidModel() {
+    this.loadToken++;
+    this.disposeCurrentModel();
+    this.activeModelKey = 'humanoid';
+    this.currentSettings.activeModel = 'humanoid';
+
+    const targetW = (typeof window !== 'undefined' && window.innerWidth) || this.currentSettings.width || 350;
+    const targetH = (typeof window !== 'undefined' && window.innerHeight) || this.currentSettings.height || 350;
+    if (this.camera) {
+      this.camera.aspect = targetW / targetH;
+      this.camera.updateProjectionMatrix();
+      this.camera.position.set(0, 0, 5.0);
+      this.camera.lookAt(0, 0, 0);
+    }
+    if (this.renderer) {
+      this.renderer.setSize(targetW, targetH);
+    }
+
+    if (this.THREE && this.scene) {
+      const result = createProceduralHumanoid(this.THREE, this.scene);
+      if (result) {
+        const scale = this.currentSettings.scale || 1.0;
+        result.characterGroup.scale.set(scale, scale, scale);
+        this.scene.add(result.characterGroup);
+        this.characterGroup = result.characterGroup;
+        this.innerModelGroup = result.innerModelGroup;
+        this.collisionProxy = result.collisionProxy;
+        this.humanoidController = result;
+        this.availableAnimations = result.availableAnimations || ['Idle', 'Wave', 'Dance', 'Look_Around'];
+
+        if (this.state.setCharacterGroup) this.state.setCharacterGroup(result.characterGroup);
+        if (this.state.setInnerModelGroup) this.state.setInnerModelGroup(result.innerModelGroup);
+        if (this.state.setCollisionProxy) this.state.setCollisionProxy(result.collisionProxy);
+      }
+    }
+
+    if (this.callbacks.populateAnimationDropdown) {
+      this.callbacks.populateAnimationDropdown();
+    }
   }
 
   /**

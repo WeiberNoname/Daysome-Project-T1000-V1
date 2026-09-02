@@ -181,6 +181,8 @@ export function setupSettingsUI(deps) {
 
       if (newModel === 'procedural') {
         if (deps.fallbackToProcedural) deps.fallbackToProcedural();
+      } else if (newModel === 'humanoid') {
+        if (deps.loadHumanoidModel) deps.loadHumanoidModel();
       } else if (newModel === 'flag') {
         if (deps.loadFlagModel) deps.loadFlagModel();
       } else if (deps.loadCustomModel) {

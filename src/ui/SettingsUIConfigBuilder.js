@@ -44,6 +44,7 @@ export function buildSaveSettingsConfig(deps) {
     ipcRenderer,
     fallbackToProcedural,
     loadFlagModel: deps.loadFlagModel,
+    loadHumanoidModel: deps.loadHumanoidModel,
     loadCustomModel,
     applySelectedAnimation,
     updateGearPosition,

@@ -13,7 +13,18 @@ export function populateAnimationDropdown({ animSelect, modelSelect, availableAn
     return;
   }
 
-  const clips = availableAnimations || [];
+  if (currentModel === 'flag') {
+    animSelect.innerHTML = '<option value="none">Procedural (Cloth Wave Loop)</option>';
+    animSelect.disabled = true;
+    if (container) container.style.opacity = '0.5';
+    return;
+  }
+
+  let clips = availableAnimations || [];
+  if (currentModel === 'humanoid') {
+    clips = ['Idle', 'Wave', 'Dance', 'Look_Around'];
+  }
+
   if (clips.length === 0) {
     animSelect.innerHTML = '<option value="none">No Animation Clips Found</option>';
     animSelect.disabled = true;
@@ -23,7 +34,7 @@ export function populateAnimationDropdown({ animSelect, modelSelect, availableAn
 
   animSelect.disabled = false;
   if (container) container.style.opacity = '1.0';
-  animSelect.innerHTML = '<option value="none">None (Static Pose)</option>';
+  animSelect.innerHTML = (currentModel === 'humanoid') ? '' : '<option value="none">None (Static Pose)</option>';
 
   clips.forEach((clipName, idx) => {
     const option = document.createElement('option');
@@ -34,13 +45,20 @@ export function populateAnimationDropdown({ animSelect, modelSelect, availableAn
     animSelect.appendChild(option);
   });
 
-  if (currentSettings.activeAnimation === 'none') {
-    animSelect.value = 'none';
-  } else if (!currentSettings.activeAnimation || currentSettings.activeAnimation === 'default') {
-    animSelect.value = clips[0] || 'none';
+  if (currentModel === 'humanoid') {
+    if (!currentSettings.activeAnimation || currentSettings.activeAnimation === 'none' || currentSettings.activeAnimation === 'default') {
+      currentSettings.activeAnimation = 'Idle';
+    }
+    animSelect.value = currentSettings.activeAnimation;
   } else {
-    const exists = Array.from(animSelect.options).some(opt => opt.value === currentSettings.activeAnimation);
-    animSelect.value = exists ? currentSettings.activeAnimation : (clips[0] || 'none');
+    if (currentSettings.activeAnimation === 'none') {
+      animSelect.value = 'none';
+    } else if (!currentSettings.activeAnimation || currentSettings.activeAnimation === 'default') {
+      animSelect.value = clips[0] || 'none';
+    } else {
+      const exists = Array.from(animSelect.options).some(opt => opt.value === currentSettings.activeAnimation);
+      animSelect.value = exists ? currentSettings.activeAnimation : (clips[0] || 'none');
+    }
   }
 }
 
