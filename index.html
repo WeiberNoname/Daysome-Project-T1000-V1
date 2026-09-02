@@ -20,18 +20,6 @@
 <body>
   <div id="container"></div>
   
-  <!-- Live Stream Chat Simulator Overlay (Floating over Mascot Viewport) -->
-  <div id="live-chat-overlay" class="live-chat-overlay hidden">
-    <div class="live-chat-header">
-      <div class="live-chat-status">
-        <span class="live-chat-pulse"></span>
-        <span class="live-chat-title">🔴 LIVE CHAT</span>
-      </div>
-      <span class="live-chat-viewers">👥 4.2K</span>
-    </div>
-    <div id="live-chat-messages" class="live-chat-messages-container"></div>
-  </div>
-
   <!-- Settings Cog & Close App Buttons -->
   <button id="settings-btn" class="settings-btn" title="Open Settings" data-i18n-title="open_settings"
     style="display: none;">⚙️</button>
@@ -362,135 +350,6 @@
           </div>
         </div>
 
-        <!-- 7. 🧪 Beta Testing: Live Chat Simulator Card -->
-        <div class="studio-card">
-          <div class="studio-card-header">
-            <span class="studio-card-title">🧪 Beta Testing: Live Chat Simulator</span>
-            <span class="studio-badge studio-badge-amber">BETA</span>
-          </div>
-
-          <div class="studio-row">
-            <div class="studio-row-label">
-              <span class="studio-row-title">Live Chat Overlay</span>
-              <span class="studio-row-sub">Simulate live stream chat over mascot</span>
-            </div>
-            <label class="studio-switch">
-              <input type="checkbox" id="beta-live-chat-toggle">
-              <span class="studio-slider-knob"></span>
-            </label>
-          </div>
-
-          <div class="studio-row">
-            <div class="studio-row-label">
-              <span class="studio-row-title">Stream Chat Speed</span>
-              <span class="studio-row-sub">Message delivery cadence</span>
-            </div>
-            <select id="beta-chat-speed" class="studio-select" style="width: 150px;">
-              <option value="slow">Relaxed (3.2s)</option>
-              <option value="normal" selected>Normal (1.8s)</option>
-              <option value="fast">Hype Train (0.8s)</option>
-            </select>
-          </div>
-
-          <!-- Ratio & Dimension Controls (Relative to Mascot Viewport) -->
-          <div class="studio-row">
-            <div class="studio-row-label">
-              <label for="beta-chat-width" class="studio-row-title">Chat Box Width</label>
-              <span class="studio-row-sub">Panel horizontal span</span>
-            </div>
-            <div class="studio-number-wrapper">
-              <input type="number" id="beta-chat-width" class="studio-number-input" min="120" max="800" step="10" value="240">
-              <span class="studio-unit-suffix">px</span>
-            </div>
-          </div>
-
-          <div class="studio-row">
-            <div class="studio-row-label">
-              <label for="beta-chat-height" class="studio-row-title">Chat Box Height</label>
-              <span class="studio-row-sub">Panel vertical span</span>
-            </div>
-            <div class="studio-number-wrapper">
-              <input type="number" id="beta-chat-height" class="studio-number-input" min="80" max="600" step="10" value="190">
-              <span class="studio-unit-suffix">px</span>
-            </div>
-          </div>
-
-          <div class="studio-row">
-            <div class="studio-row-label">
-              <label for="beta-chat-scale" class="studio-row-title">Ratio Scale Factor</label>
-              <span class="studio-row-sub">Relative scale (0.5x–2.5x)</span>
-            </div>
-            <div class="studio-number-wrapper">
-              <input type="number" id="beta-chat-scale" class="studio-number-input" min="0.5" max="2.5" step="0.05" value="1.00">
-              <span class="studio-unit-suffix">x</span>
-            </div>
-          </div>
-
-
-          <div class="studio-row">
-            <div class="studio-row-label">
-              <label for="beta-chat-fontsize" class="studio-row-title">Chat Font Size</label>
-              <span class="studio-row-sub">Readable text scale (8px–24px)</span>
-            </div>
-            <div class="studio-number-wrapper">
-              <input type="number" id="beta-chat-fontsize" class="studio-number-input" min="8" max="24" step="1" value="11">
-              <span class="studio-unit-suffix">px</span>
-            </div>
-          </div>
-
-          <div class="studio-row">
-            <div class="studio-row-label">
-              <label for="beta-chat-personas" class="studio-row-title">Audience Personas</label>
-              <span class="studio-row-sub">Cascade size & narrative diversity (1 to 10)</span>
-            </div>
-            <div class="studio-number-wrapper">
-              <input type="number" id="beta-chat-personas" class="studio-number-input" min="1" max="10" step="1" value="4">
-              <span class="studio-unit-suffix">users</span>
-            </div>
-          </div>
-
-          <div class="studio-row">
-            <div class="studio-row-label">
-              <label for="beta-chat-lang" class="studio-row-title">Primary Language</label>
-              <span class="studio-row-sub">Audience language preference</span>
-            </div>
-            <select id="beta-chat-lang" class="studio-select" style="width: 150px;">
-              <option value="auto" selected>🌐 Auto-Detect (Host)</option>
-              <option value="en">🇺🇸 English</option>
-              <option value="zh">🇨🇳 中文 (Chinese)</option>
-              <option value="ja">🇯🇵 日本語 (Japanese)</option>
-              <option value="es">🇪🇸 Español (Spanish)</option>
-              <option value="fr">🇫🇷 Français (French)</option>
-              <option value="de">🇩🇪 Deutsch (German)</option>
-              <option value="ko">🇰🇷 한국어 (Korean)</option>
-              <option value="pt">🇧🇷 Português</option>
-              <option value="ru">🇷🇺 Русский</option>
-            </select>
-          </div>
-
-          <div class="studio-row">
-            <div class="studio-row-label">
-              <label for="beta-chat-position" class="studio-row-title">Screen Alignment</label>
-              <span class="studio-row-sub">Anchor over mascot</span>
-            </div>
-            <select id="beta-chat-position" class="studio-select" style="width: 150px;">
-              <option value="top-left" selected>Top-Left (Default)</option>
-              <option value="top-center">Top-Center</option>
-              <option value="top-right">Top-Right</option>
-              <option value="bottom-left">Bottom-Left</option>
-              <option value="bottom-right">Bottom-Right</option>
-            </select>
-          </div>
-
-          <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;">
-            <button id="btn-beta-popout-window" class="studio-btn-primary" style="width: 100%; font-size: 0.9em; padding: 6px 10px;">🪟 Pop Out Independent Live Chat Window</button>
-            <div style="display: flex; gap: 6px;">
-              <button id="btn-beta-send-superchat" class="studio-btn-ghost" style="flex: 1; font-size: 0.85em; padding: 4px 8px;">⭐ Trigger Superchat</button>
-              <button id="btn-beta-clear-chat" class="studio-btn-ghost" style="flex: 1; font-size: 0.85em; padding: 4px 8px;">🧹 Clear Chat</button>
-            </div>
-          </div>
-        </div>
-
         <!-- Beta Testing: Screen Vision AI Card -->
         <div class="studio-card">
           <div class="studio-card-header">
@@ -524,14 +383,6 @@
               <option value="more">📝 More (Detailed Breakdown)</option>
               <option value="max">📚 Maximum (Exhaustive Analysis)</option>
             </select>
-          </div>
-
-          <div class="studio-row">
-            <div class="studio-row-label">
-              <label for="beta-vision-post-chat" class="studio-row-title">Post to Live Chat</label>
-              <span class="studio-row-sub">Feed reflection to stream</span>
-            </div>
-            <input type="checkbox" id="beta-vision-post-chat" class="studio-checkbox" checked>
           </div>
 
           <div class="studio-row">
@@ -681,11 +532,14 @@
             </div>
             <select id="beta-synth-style" class="studio-select" style="width: 175px;">
               <option value="streamer" selected>🎙️ Live Streamer (Hype)</option>
+              <option value="tw_streamer">🇹🇼 實況幹話腔 (Taiwan Slang)</option>
+              <option value="roast">🔥 玩梗吐槽 (Meme Roaster)</option>
+              <option value="gamer">🎮 Pro Gamer (Tactical APM)</option>
+              <option value="coach">🛡️ 戰術教練 (Tactical Coach)</option>
               <option value="funny">🤣 Funny &amp; Comedy (Jokes/Memes)</option>
               <option value="serious">🧐 Serious &amp; Analytical</option>
-              <option value="gamer">🎮 Pro Gamer (Tactical APM)</option>
-              <option value="poetic">🌌 Poetic &amp; Artistic</option>
               <option value="mascot">🐾 Cute Pet Companion</option>
+              <option value="poetic">🌌 Poetic &amp; Artistic</option>
               <option value="narrator">🍿 Cinematic Narrator</option>
               <option value="action">⚡ Fast Action Subtitles</option>
             </select>
@@ -714,14 +568,17 @@
             <select id="beta-synth-language" class="studio-select" style="width: 175px;">
               <option value="auto" selected>🌐 Auto-Detect</option>
               <option value="en">🇺🇸 English</option>
-              <option value="zh">🇨🇳 中文 (Chinese)</option>
+              <option value="zh">🇨🇳 中文 (简体中文)</option>
+              <option value="zh-TW">🇹🇼 中文 (繁體中文)</option>
               <option value="ja">🇯🇵 日本語 (Japanese)</option>
+              <option value="ko">🇰🇷 한국어 (Korean)</option>
               <option value="es">🇪🇸 Español (Spanish)</option>
+              <option value="es-419">🌎 Español (Latinoamérica)</option>
               <option value="fr">🇫🇷 Français (French)</option>
               <option value="de">🇩🇪 Deutsch (German)</option>
-              <option value="ko">🇰🇷 한국어 (Korean)</option>
-              <option value="pt">🇧🇷 Português</option>
-              <option value="ru">🇷🇺 Русский</option>
+              <option value="it">🇮🇹 Italiano (Italian)</option>
+              <option value="pt">🇧🇷 Português (Portuguese)</option>
+              <option value="ru">🇷🇺 Русский (Russian)</option>
             </select>
           </div>
 

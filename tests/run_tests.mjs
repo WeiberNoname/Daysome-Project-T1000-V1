@@ -885,9 +885,12 @@ import('../src/core/SoundManager.js').then(({ SoundManager }) => {
                   console.log('✅ ScreenVisionService multimodal vision tests PASSED.');
 
                   // Test VisionCaptionSynthesizerService (Vision -> LLM Caption Synthesizer)
-                  import('../src/services/VisionCaptionSynthesizerService.js').then(async ({ VisionCaptionSynthesizerService, SYNTH_STYLE_PERSONAS }) => {
-                    console.log('▶ Testing VisionCaptionSynthesizerService 2-stage AI pipeline & parser...');
+                  import('../src/services/VisionCaptionSynthesizerService.js').then(async ({ VisionCaptionSynthesizerService, SYNTH_STYLE_PERSONAS, convertToTraditionalChinese }) => {
+                    console.log('▶ Testing VisionCaptionSynthesizerService native multilingual variables, 11 personas & S2T converter...');
                     assert(SYNTH_STYLE_PERSONAS.streamer, 'Must define streamer persona');
+                    assert(SYNTH_STYLE_PERSONAS.tw_streamer, 'Must define tw_streamer persona');
+                    assert(SYNTH_STYLE_PERSONAS.roast, 'Must define roast/meme persona');
+                    assert(SYNTH_STYLE_PERSONAS.coach, 'Must define coach persona');
                     assert(SYNTH_STYLE_PERSONAS.funny, 'Must define funny/comedy persona');
                     assert(SYNTH_STYLE_PERSONAS.serious, 'Must define serious/analytical persona');
                     assert(SYNTH_STYLE_PERSONAS.gamer, 'Must define gamer persona');
@@ -896,16 +899,27 @@ import('../src/core/SoundManager.js').then(({ SoundManager }) => {
                     assert(SYNTH_STYLE_PERSONAS.narrator, 'Must define narrator persona');
                     assert(SYNTH_STYLE_PERSONAS.action, 'Must define action persona');
 
+                    // Test Native System Prompt Generation
+                    const zhTWPrompt = VisionCaptionSynthesizerService.buildNativeSystemPrompt('tw_streamer', 'zh-TW', 3);
+                    assert(zhTWPrompt.includes('實況'), 'Traditional Chinese prompt must use native Traditional terminology');
+                    assert(zhTWPrompt.includes('繁體中文'), 'Traditional Chinese prompt must enforce Traditional Chinese');
+
+                    const zhPrompt = VisionCaptionSynthesizerService.buildNativeSystemPrompt('streamer', 'zh', 4);
+                    assert(zhPrompt.includes('实况'), 'Simplified Chinese prompt must use Simplified terminology');
+                    assert(zhPrompt.includes('恰好 4'), 'Simplified Chinese prompt must scale count');
+
+                    // Test S2T Glyph Normalizer
+                    const simplifiedSample = '这个点发出动静，走位非常到位，破盾击杀！';
+                    const traditionalResult = convertToTraditionalChinese(simplifiedSample);
+                    assert.strictEqual(traditionalResult, '這個點發出動靜，走位非常到位，破盾擊殺！', 'Must correctly convert simplified characters to traditional');
+
                     const rawText = '1. First energetic subtitle!\n2. Second atmospheric sentence.\n- Third clean line.\n4. Fourth funny joke.';
-                    const parsed = VisionCaptionSynthesizerService.parseCaptionOutput(rawText);
+                    const parsed = VisionCaptionSynthesizerService.parseCaptionOutput(rawText, 'zh-TW');
                     assert.strictEqual(parsed.length, 4, 'Must parse 4 clean lines without numbers');
                     assert.strictEqual(parsed[0], 'First energetic subtitle!');
                     assert.strictEqual(parsed[1], 'Second atmospheric sentence.');
                     assert.strictEqual(parsed[2], 'Third clean line.');
                     assert.strictEqual(parsed[3], 'Fourth funny joke.');
-
-                    const zhLang = VisionCaptionSynthesizerService.getLanguageInstruction('zh');
-                    assert(zhLang.includes('Simplified Chinese'), 'Must include Chinese language directive');
 
                     console.log('✅ VisionCaptionSynthesizerService unit tests PASSED.');
 

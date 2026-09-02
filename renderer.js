@@ -31,7 +31,6 @@ import { setupAtmosphereTabUI } from './src/ui/AtmosphereTabUI.js';
 import { setupSoundTabUI } from './src/ui/SoundTabUI.js';
 import { setupTextureTabUI } from './src/ui/TextureTabUI.js';
 import { setupAIDirectorTabUI } from './src/ui/AIDirectorTabUI.js';
-import { setupLiveChatSimulatorUI } from './src/ui/LiveChatSimulatorUI.js';
 import { setupScreenVisionBetaUI } from './src/ui/ScreenVisionBetaUI.js';
 import { setupLiveCaptionBetaUI } from './src/ui/LiveCaptionBetaUI.js';
 import { setupVisionCaptionSynthesizerBetaUI } from './src/ui/VisionCaptionSynthesizerBetaUI.js';
@@ -536,12 +535,7 @@ function setupSettingsUI() {
     getInnerModelGroup: () => innerModelGroup,
     forceRefreshAllPreviews
   });
-  const liveChatSim = setupLiveChatSimulatorUI({
-    currentSettings,
-    saveSettingsFile
-  });
   setupScreenVisionBetaUI({
-    liveChatSim,
     currentSettings,
     saveSettingsFile
   });
