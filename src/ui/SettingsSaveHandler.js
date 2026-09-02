@@ -129,22 +129,24 @@ export async function handleSaveSettings(deps) {
   const textureRoughnessDom = deps.textureRoughnessSlider || document.getElementById('texture-roughness');
   if (textureRoughnessDom) currentSettings.textureRoughness = parseFloat(textureRoughnessDom.value);
   const textureMetalnessDom = deps.textureMetalnessSlider || document.getElementById('texture-metalness');
-  if (textureMetalnessDom) currentSettings.textureMetalness = parseFloat(textureMetalnessDom.value);
-
-  const betaChatToggle = document.getElementById('beta-live-chat-toggle');
-  if (betaChatToggle) currentSettings.liveChatEnabled = betaChatToggle.checked;
-  const betaChatSpeed = document.getElementById('beta-chat-speed');
-  if (betaChatSpeed) currentSettings.liveChatSpeed = betaChatSpeed.value;
-  const betaChatFontSize = document.getElementById('beta-chat-fontsize');
-  if (betaChatFontSize) currentSettings.liveChatFontSize = parseInt(betaChatFontSize.value, 10) || 11;
-  const betaChatWidth = document.getElementById('beta-chat-width');
-  if (betaChatWidth) currentSettings.liveChatWidth = parseInt(betaChatWidth.value, 10) || 240;
-  const betaChatHeight = document.getElementById('beta-chat-height');
-  if (betaChatHeight) currentSettings.liveChatHeight = parseInt(betaChatHeight.value, 10) || 190;
-  const betaChatScale = document.getElementById('beta-chat-scale');
-  if (betaChatScale) currentSettings.liveChatScale = parseFloat(betaChatScale.value) || 1.0;
-  const betaChatPos = document.getElementById('beta-chat-position');
-  if (betaChatPos) currentSettings.liveChatPosition = betaChatPos.value || 'top-left';
+  const synthVisionModelDom = document.getElementById('beta-synth-vision-model');
+  if (synthVisionModelDom) currentSettings.synthVisionModel = synthVisionModelDom.value;
+  const synthVisionDetailDom = document.getElementById('beta-synth-vision-detail');
+  if (synthVisionDetailDom) currentSettings.synthVisionDetail = synthVisionDetailDom.value;
+  const synthTextModelDom = document.getElementById('beta-synth-text-model');
+  if (synthTextModelDom) currentSettings.synthTextModel = synthTextModelDom.value;
+  const synthCountDom = document.getElementById('beta-synth-count');
+  if (synthCountDom) currentSettings.synthCaptionCount = parseInt(synthCountDom.value, 10) || 3;
+  const synthStyleDom = document.getElementById('beta-synth-style');
+  if (synthStyleDom) currentSettings.synthStyle = synthStyleDom.value;
+  const synthPacingDom = document.getElementById('beta-synth-pacing');
+  if (synthPacingDom) currentSettings.synthCaptionPacing = parseFloat(synthPacingDom.value) || 3.0;
+  const synthLangDom = document.getElementById('beta-synth-language');
+  if (synthLangDom) currentSettings.synthLanguage = synthLangDom.value;
+  const synthAutoLoopDom = document.getElementById('beta-synth-auto-loop');
+  if (synthAutoLoopDom) currentSettings.synthAutoLoop = synthAutoLoopDom.checked;
+  const synthAutoIntervalDom = document.getElementById('beta-synth-auto-interval');
+  if (synthAutoIntervalDom) currentSettings.synthAutoInterval = parseInt(synthAutoIntervalDom.value, 10) || 15;
 
   soundManager.syncAtmosphere(currentSettings);
 

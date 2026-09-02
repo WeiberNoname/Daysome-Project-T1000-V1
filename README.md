@@ -30,20 +30,15 @@ graph TD
 * **Auto-Start Local LLM Daemon**: Automatically launches the local Ollama background service on boot (`127.0.0.1:11434` with `llama3.2`).
 
 ### 2. 🧪 Beta Testing & Incubator Labs (Studio Tab)
-* **💬 Live Chat Stream Simulator & Standalone Pop-Out Window**:
-  * **On-Screen Mascot Overlay & Pop-Out Window**: Toggle an interactive stream chat overlay over the 3D companion or pop out an independent, draggable, resizable secondary window ([chat.html](chat.html)).
-  * **Hype Stream Dynamics**: Live viewer counter fluctuation, adjustable stream speed (Relaxed, Normal, Hype Train), procedural Web Audio sound synthesis (Twitch airhorns, golden superchat chimes, cartoon boings), and simulated reactive audience chat.
-  * **Multimedia Memes & Highlights**: Injects viral meme cards (*PopCat*, *GigaChad*, *Diamond Hands*, *Doge*) and video replay clips on demand.
-  * **Dynamic Font Scaling**: Real-time adjustable font sizing ($8\text{px}$ to $28\text{px}$) with instant toolbar steppers (`A-` / `A+`).
-
 * **🪟 Independent Live Caption HUD Window ([caption.html](caption.html))**:
   * **Clean Floating Subtitle Overlay**: Draggable, frameless, transparent, always-on-top HUD window for gaming, streaming, or video subtitles.
   * **On-Window Controls**: Instant font adjustments (`A-` / `A+`), opacity toggling (`90%`, `65%`, `100%`), and color theme cycling (Sky Blue, Cyberpunk Pink, Amber Gold, Emerald Green, High-Contrast Black/White).
   * **Smooth Sequence Wiping**: Seamlessly fades in new subtitle sentences while cleanly wiping out previous text with live progress tracking (`[1/3]`, `[2/3]`, `[3/3]`).
 
 * **🧠 2-Stage Vision &rarr; LLM Caption Synthesizer**:
-  * **2-Stage Neural Pipeline**: Captures screen snapshots &rarr; Stage 1 Multimodal Vision (**`moondream`**) perceives natural scene &rarr; Stage 2 Text LLM (**`llama3.2`**) synthesizes punchy subtitle sentences.
-  * **8 Commentary Persona Styles**: `🎙️ Live Streamer`, `🤣 Funny & Comedy`, `🧐 Serious & Analytical`, `🎮 Pro Gamer`, `🌌 Poetic & Artistic`, `🐾 Cute Pet Companion`, `🍿 Cinematic Narrator`, and `⚡ Fast Action`.
+  * **2-Stage Neural Pipeline**: Captures screen snapshots &rarr; Stage 1 Multimodal Vision (**`moondream`**) perceives natural scene &rarr; Stage 2 Text LLM (**`llama3.2`**) synthesizes punchy subtitle sentences with native multilingual prompt variables.
+  * **11 Commentary Persona Styles**: `🎙️ Live Streamer (Hype)`, `🇹🇼 實況幹話腔 (Taiwan Slang)`, `🔥 玩梗吐槽 (Meme Roaster)`, `🎮 Pro Gamer (Tactical APM)`, `🛡️ 戰術教練 (Tactical Coach)`, `🤣 Funny & Comedy`, `🧐 Serious & Analytical`, `🐾 Cute Pet Companion`, `🌌 Poetic & Artistic`, `🍿 Cinematic Narrator`, and `⚡ Fast Action`.
+  * **12-Language Target Selection**: Explicit native output directives across English, Chinese (Simplified/Traditional), Japanese, Korean, Spanish (EU/LATAM), French, German, Italian, Portuguese, and Russian with built-in zero-English bleed-through guardrails and Traditional Chinese glyph normalizer.
   * **Sentence Count Variable**: Select from `1` (quick alert) to `6` (extended story) captions.
   * **Caption Speed / Pacing**: Configure display duration per subtitle sentence (`1.0s` to `8.0s`).
   * **🔄 Auto-Loop Gaming Mode**: Continuous background capture & synthesis loop (`8s`, `15s`, `25s`, `45s`, `60s`) with **▶ Auto-Play to Subtitle HUD** for completely hands-free live stream commentary.
@@ -113,7 +108,7 @@ flowchart TD
     VisionModel --> OutputFormat[📝 Formatted Output: Scene Description]
     
     ToolDispatch --> AppState[⚡ 1:1 Live DOM & WebGL Execution]
-    OutputFormat --> ChatOverlay[💬 Live Chat Stream & UI Reflection]
+    OutputFormat --> SubtitleHUD[🪟 Live Caption HUD & Mascot Bubble]
 ```
 
 ### 1. Built-in Local Text Model (Automatic)
@@ -208,7 +203,6 @@ Start-Process "DesktopPet-win32-x64\DesktopPet.exe"
 │       ├── AtmosphereTabUI.js
 │       ├── FormSyncManager.js
 │       ├── LiveCaptionBetaUI.js                 <-- Floating Live Caption HUD UI Controller
-│       ├── LiveChatSimulatorUI.js               <-- Live Chat Overlay Controller
 │       ├── PreviewGenerator.js
 │       ├── ScreenVisionBetaUI.js                <-- Beta Screen Vision UI Controller
 │       ├── SettingsPanelUI.js
@@ -218,8 +212,6 @@ Start-Process "DesktopPet-win32-x64\DesktopPet.exe"
 │       └── VisionCaptionSynthesizerBetaUI.js    <-- Vision -> LLM Synthesizer UI Controller
 ├── caption.html                  <-- Standalone Floating Live Caption HUD Window
 ├── caption.js                    <-- Subtitle HUD Controller, Themes & Font Scaler
-├── chat.html                     <-- Independent Live Chat Pop-Out Window
-├── chat.js                       <-- Standalone Live Chat Controller & Audio Synth
 ├── index.html                    <-- Studio UI Markup & Beta Vision/Caption Cards
 ├── style.css                     <-- Modern Studio CSS, Glassmorphism & Animations
 ├── main.js                       <-- Electron Main, Window Manager & Screen Capturer

@@ -11,8 +11,7 @@ import { soundManager } from '../core/SoundManager.js';
 import { liveAudienceAIService } from '../services/LiveAudienceAIService.js';
 
 export class ScreenVisionBetaUI {
-  constructor({ liveChatSim = null, currentSettings = {}, saveSettingsFile = null } = {}) {
-    this.liveChatSim = liveChatSim;
+  constructor({ currentSettings = {}, saveSettingsFile = null } = {}) {
     this.currentSettings = currentSettings;
     this.saveSettingsFile = saveSettingsFile;
     this.autoIntervalId = null;
