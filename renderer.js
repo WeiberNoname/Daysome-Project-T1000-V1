@@ -32,6 +32,8 @@ import { setupTextureTabUI } from './src/ui/TextureTabUI.js';
 import { setupAIDirectorTabUI } from './src/ui/AIDirectorTabUI.js';
 import { setupLiveChatSimulatorUI } from './src/ui/LiveChatSimulatorUI.js';
 import { setupScreenVisionBetaUI } from './src/ui/ScreenVisionBetaUI.js';
+import { setupLiveCaptionBetaUI } from './src/ui/LiveCaptionBetaUI.js';
+import { setupVisionCaptionSynthesizerBetaUI } from './src/ui/VisionCaptionSynthesizerBetaUI.js';
 import { soundManager } from './src/core/SoundManager.js';
 import { renderSpotlightCardsUI as renderSpotlightCardsUIUtil, hexToRgb, rgbToHex } from './src/ui/SpotlightCardsUI.js';
 import {
@@ -530,11 +532,23 @@ function setupSettingsUI() {
     getInnerModelGroup: () => innerModelGroup,
     forceRefreshAllPreviews
   });
-  setupLiveChatSimulatorUI({
+  const liveChatSim = setupLiveChatSimulatorUI({
     currentSettings,
     saveSettingsFile
   });
-  setupScreenVisionBetaUI();
+  setupScreenVisionBetaUI({
+    liveChatSim,
+    currentSettings,
+    saveSettingsFile
+  });
+  setupLiveCaptionBetaUI({
+    currentSettings,
+    saveSettingsFile
+  });
+  setupVisionCaptionSynthesizerBetaUI({
+    currentSettings,
+    saveSettingsFile
+  });
   const directorEngine = setupAIDirectorTabUI({
     currentSettings,
     saveSettingsFile,

@@ -8,6 +8,8 @@
  * - Procedural Web Audio Sound Synthesizers (Superchat, Airhorn, Boing, Fanfare)
  */
 
+import { liveAudienceAIService } from './src/services/LiveAudienceAIService.js';
+
 const ipcRenderer = window.electronAPI || (typeof window.require === 'function' ? window.require('electron').ipcRenderer : {});
 
 // --- Procedural Web Audio SFX Synthesizer ---
@@ -194,6 +196,8 @@ class IndependentLiveChat {
     this.root = document.getElementById('chat-window-root');
     this.messagesContainer = document.getElementById('messages-container');
     this.speedSelect = document.getElementById('chat-speed');
+    this.personasSelect = document.getElementById('chat-personas');
+    this.langSelect = document.getElementById('chat-lang');
     this.soundToggleBtn = document.getElementById('btn-sound-toggle');
     this.memeBtn = document.getElementById('btn-meme');
     this.videoBtn = document.getElementById('btn-video');
@@ -211,11 +215,14 @@ class IndependentLiveChat {
     this.intervalId = null;
     this.speed = 'normal';
     this.fontSize = 12;
+    this.personaCount = 4;
+    this.language = 'auto';
     this.chatIndex = 0;
     this.viewerCount = 4820;
   }
 
   init() {
+    this.loadSettings();
     this.applyFontSize();
 
     if (this.fontDecBtn) {
@@ -240,6 +247,23 @@ class IndependentLiveChat {
       this.speedSelect.addEventListener('change', () => {
         this.speed = this.speedSelect.value;
         this.restartStream();
+      });
+    }
+
+    if (this.personasSelect) {
+      this.personasSelect.value = String(this.personaCount);
+      this.personasSelect.addEventListener('change', () => {
+        const val = parseInt(this.personasSelect.value, 10);
+        if (!isNaN(val) && val >= 1 && val <= 10) {
+          this.personaCount = val;
+        }
+      });
+    }
+
+    if (this.langSelect) {
+      this.langSelect.value = this.language;
+      this.langSelect.addEventListener('change', () => {
+        this.language = this.langSelect.value;
       });
     }
 
@@ -296,6 +320,42 @@ class IndependentLiveChat {
       });
     }
 
+    // Listen for Screen Vision AI broadcast reflections from main window
+    const api = window.electronAPI || (typeof window.require === 'function' ? window.require('electron').ipcRenderer : null);
+    if (api && typeof api.on === 'function') {
+      api.on('vision-commentary', (data) => {
+        if (!data || !data.text) return;
+        const cleanText = data.text.replace(/^Output:\s*/i, '').trim();
+        if (!cleanText) return;
+
+        this.addMessage({
+          badge: '👁️ VISION AI',
+          badgeColor: '#38bdf8',
+          name: '@VisionBot',
+          nameColor: '#38bdf8',
+          msg: cleanText
+        });
+
+        // Trigger AI audience cascade in pop-out window
+        liveAudienceAIService.generateAudienceCascade({
+          hostMessage: cleanText,
+          context: `Screen Vision snapshot (${data.model || 'local vision'})`,
+          speed: this.speed,
+          personaCount: this.personaCount,
+          primaryLanguage: this.language,
+          onMessage: (msgObj, idx) => {
+            this.addMessage({
+              badge: msgObj.badge || '💎 SUB',
+              badgeColor: msgObj.color || '#38bdf8',
+              name: msgObj.user || `@Fan_${idx + 1}`,
+              nameColor: msgObj.color || '#38bdf8',
+              msg: msgObj.msg
+            });
+          }
+        });
+      });
+    }
+
     const sendUserMessage = () => {
       const text = this.input ? this.input.value.trim() : '';
       if (!text) return;
@@ -308,18 +368,22 @@ class IndependentLiveChat {
       });
       if (this.input) this.input.value = '';
 
-      // Trigger audience reaction after user chats
-      setTimeout(() => {
-        const reactions = ['W host!! 👏', 'Let\'s goooo! 🔥', 'Valid point!', 'PogChamp', 'Hyped!! ✨'];
-        const reply = reactions[Math.floor(Math.random() * reactions.length)];
-        this.addMessage({
-          badge: '💎 SUB',
-          badgeColor: '#38bdf8',
-          name: '@Fan_' + Math.floor(Math.random() * 900 + 100),
-          nameColor: '#38bdf8',
-          msg: reply
-        });
-      }, 650);
+      // Trigger Real-Time Multi-Persona AI Audience Cascade
+      liveAudienceAIService.generateAudienceCascade({
+        hostMessage: text,
+        speed: this.speed,
+        personaCount: this.personaCount,
+        primaryLanguage: this.language,
+        onMessage: (msgObj, idx) => {
+          this.addMessage({
+            badge: msgObj.badge || '💎 SUB',
+            badgeColor: msgObj.color || '#38bdf8',
+            name: msgObj.user || `@Fan_${idx + 1}`,
+            nameColor: msgObj.color || '#38bdf8',
+            msg: msgObj.msg
+          });
+        }
+      });
     };
 
     if (this.sendBtn) this.sendBtn.addEventListener('click', sendUserMessage);
@@ -337,11 +401,14 @@ class IndependentLiveChat {
       }
     }, 3500);
 
-    // Initial messages
-    this.pushRandomMessage();
-    setTimeout(() => this.triggerMeme(), 500);
-
-    this.startStream();
+    // Initial AI Audience Ready banner
+    this.addMessage({
+      badge: '🤖 AI CORE',
+      badgeColor: '#10b981',
+      name: '@System',
+      nameColor: '#34d399',
+      msg: 'Live AI Audience is active. Type any message to start the audience reaction!'
+    });
   }
 
   applyFontSize() {
@@ -355,27 +422,11 @@ class IndependentLiveChat {
 
   getIntervalMs() {
     switch (this.speed) {
-      case 'fast': return 800;
-      case 'slow': return 3200;
+      case 'fast': return 650;
+      case 'slow': return 2200;
       case 'normal':
-      default: return 1800;
+      default: return 1200;
     }
-  }
-
-  startStream() {
-    this.stopStream();
-    this.intervalId = setInterval(() => {
-      const roll = Math.random();
-      if (roll < 0.12) {
-        this.triggerSuperchat();
-      } else if (roll < 0.22) {
-        this.triggerMeme();
-      } else if (roll < 0.30) {
-        this.triggerVideoClip();
-      } else {
-        this.pushRandomMessage();
-      }
-    }, this.getIntervalMs());
   }
 
   stopStream() {
@@ -383,24 +434,11 @@ class IndependentLiveChat {
       clearInterval(this.intervalId);
       this.intervalId = null;
     }
+    liveAudienceAIService.clearPendingDrips();
   }
 
   restartStream() {
     this.stopStream();
-    this.startStream();
-  }
-
-  pushRandomMessage() {
-    const c = CHATTERS[this.chatIndex % CHATTERS.length];
-    this.chatIndex++;
-
-    this.addMessage({
-      badge: c.badge,
-      badgeColor: c.color,
-      name: c.name,
-      nameColor: c.color,
-      msg: c.msg
-    });
   }
 
   addMessage({ badge, badgeColor, name, nameColor, msg }) {
@@ -435,6 +473,24 @@ class IndependentLiveChat {
 
     audioSynth.playBoing();
     this.appendMessage(row);
+
+    // Trigger AI Audience Reaction Cascade to Meme
+    liveAudienceAIService.generateAudienceCascade({
+      hostMessage: `Host dropped meme: ${meme.title} - ${meme.caption}`,
+      context: 'Meme dropped on live stream',
+      speed: this.speed,
+      personaCount: this.personaCount,
+      primaryLanguage: this.language,
+      onMessage: (msgObj, idx) => {
+        this.addMessage({
+          badge: msgObj.badge || '🔥 MEME',
+          badgeColor: msgObj.color || '#f43f5e',
+          name: msgObj.user || `@Viewer_${idx + 1}`,
+          nameColor: msgObj.color || '#f43f5e',
+          msg: msgObj.msg
+        });
+      }
+    });
   }
 
   triggerVideoClip() {
@@ -459,6 +515,24 @@ class IndependentLiveChat {
 
     audioSynth.playFanfare();
     this.appendMessage(row);
+
+    // Trigger AI Audience Reaction Cascade to Clip
+    liveAudienceAIService.generateAudienceCascade({
+      hostMessage: `Host played replay highlight: ${clip.title}`,
+      context: 'Clip replay triggered on stream',
+      speed: this.speed,
+      personaCount: this.personaCount,
+      primaryLanguage: this.language,
+      onMessage: (msgObj, idx) => {
+        this.addMessage({
+          badge: msgObj.badge || '💎 SUB',
+          badgeColor: msgObj.color || '#38bdf8',
+          name: msgObj.user || `@Fan_${idx + 1}`,
+          nameColor: msgObj.color || '#38bdf8',
+          msg: msgObj.msg
+        });
+      }
+    });
   }
 
   triggerAirhorn() {
@@ -470,6 +544,23 @@ class IndependentLiveChat {
       nameColor: '#fbbf24',
       msg: '📢📢📢 AIRHORN SPAM ACTIVE!! POGCHAMP 🎺🔥'
     });
+
+    liveAudienceAIService.generateAudienceCascade({
+      hostMessage: 'AIRHORN BLAST TRIGGERED!!',
+      context: 'Streamer activated airhorn soundboard',
+      speed: 'fast',
+      personaCount: this.personaCount,
+      primaryLanguage: this.language,
+      onMessage: (msgObj, idx) => {
+        this.addMessage({
+          badge: msgObj.badge || '🎺 HYPE',
+          badgeColor: msgObj.color || '#fbbf24',
+          name: msgObj.user || `@Hype_${idx + 1}`,
+          nameColor: msgObj.color || '#fbbf24',
+          msg: msgObj.msg
+        });
+      }
+    });
   }
 
   triggerSuperchat() {
@@ -480,7 +571,7 @@ class IndependentLiveChat {
     scRow.innerHTML = `
       <div class="superchat-top">
         <span class="msg-badge" style="background: ${sc.color}25; color: ${sc.color}; border-color: ${sc.color};">⭐ SUPERCHAT</span>
-        <span class="msg-user" style="color: #ffffff;">${sc.name}</span>
+        <span class="live-chat-user" style="color: #ffffff;">${sc.name}</span>
         <span class="superchat-amount" style="color: ${sc.color};">${sc.amount}</span>
       </div>
       <div class="superchat-content">${sc.text}</div>
@@ -488,6 +579,24 @@ class IndependentLiveChat {
 
     audioSynth.playSuperchat();
     this.appendMessage(scRow);
+
+    // Trigger AI Audience Reaction Cascade to Superchat
+    liveAudienceAIService.generateAudienceCascade({
+      hostMessage: `${sc.name} sent a ${sc.amount} Superchat: "${sc.text}"`,
+      context: 'Superchat donation received',
+      speed: this.speed,
+      personaCount: this.personaCount,
+      primaryLanguage: this.language,
+      onMessage: (msgObj, idx) => {
+        this.addMessage({
+          badge: msgObj.badge || '⭐ TIP',
+          badgeColor: msgObj.color || '#f59e0b',
+          name: msgObj.user || `@Supporter_${idx + 1}`,
+          nameColor: msgObj.color || '#f59e0b',
+          msg: msgObj.msg
+        });
+      }
+    });
   }
 
   appendMessage(el) {
@@ -497,6 +606,57 @@ class IndependentLiveChat {
       this.messagesContainer.removeChild(this.messagesContainer.firstChild);
     }
     this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+  }
+
+  loadSettings() {
+    try {
+      const api = window.electronAPI;
+      const fs = window.fsBridge;
+      const path = window.pathBridge;
+      if (api && fs && path && typeof api.getAssetsPath === 'function') {
+        const assetsDir = api.getAssetsPath();
+        const settingsFile = path.join(assetsDir, 'settings');
+        const settingsTxtFile = path.join(assetsDir, 'settings.txt');
+        let filePath = null;
+        if (fs.existsSync(settingsTxtFile)) filePath = settingsTxtFile;
+        else if (fs.existsSync(settingsFile)) filePath = settingsFile;
+        if (filePath && fs.existsSync(filePath)) {
+          const data = fs.readFileSync(filePath, 'utf8');
+          const lines = data.split('\n');
+          lines.forEach(line => {
+            const parts = line.split('=');
+            if (parts.length === 2) {
+              const key = parts[0].trim();
+              const val = parts[1].trim();
+              if (key === 'liveChatPersonaCount') {
+                const count = parseInt(val, 10);
+                if (!isNaN(count) && count >= 1 && count <= 10) {
+                  this.personaCount = count;
+                  if (this.personasSelect) this.personasSelect.value = String(count);
+                }
+              }
+              if (key === 'liveChatLanguage') {
+                this.language = val || 'auto';
+                if (this.langSelect) this.langSelect.value = this.language;
+              }
+              if (key === 'liveChatSpeed' && this.speedSelect) {
+                this.speed = val;
+                this.speedSelect.value = val;
+              }
+              if (key === 'liveChatFontSize') {
+                const fSize = parseInt(val, 10);
+                if (!isNaN(fSize) && fSize >= 8 && fSize <= 32) {
+                  this.fontSize = fSize;
+                  this.applyFontSize();
+                }
+              }
+            }
+          });
+        }
+      }
+    } catch (e) {
+      console.error('[Live Chat Window] Error loading settings from disk:', e);
+    }
   }
 }
 

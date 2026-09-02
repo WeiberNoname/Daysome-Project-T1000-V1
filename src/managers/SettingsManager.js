@@ -74,7 +74,26 @@ export class SettingsManager {
       liveChatHeight: 190,
       liveChatScale: 1.0,
       liveChatPosition: 'top-left',
-      liveChatFontSize: 11
+      liveChatFontSize: 11,
+      liveChatPersonaCount: 4,
+      liveChatLanguage: 'auto',
+      screenVisionAutoLoop: false,
+      screenVisionInterval: 10,
+      screenVisionModel: 'moondream',
+      screenVisionDetail: 'medium',
+      screenVisionPostChat: true,
+      liveCaptionMirrorVision: true,
+      liveCaptionAutoOpen: false,
+      synthVisionModel: 'moondream',
+      synthVisionDetail: 'medium',
+      synthTextModel: 'llama3.2',
+      synthStyle: 'streamer',
+      synthCaptionCount: 3,
+      synthCaptionPacing: 3.0,
+      synthAutoLoop: false,
+      synthAutoInterval: 15,
+      synthAutoPlayHUD: true,
+      synthLanguage: 'auto'
     };
   }
 
@@ -276,6 +295,12 @@ language=en`;
             if (key === 'liveChatScale') { currentSettings.liveChatScale = parseFloat(val) || 1.0; validKeysParsed++; }
             if (key === 'liveChatPosition') { currentSettings.liveChatPosition = val || 'top-left'; validKeysParsed++; }
             if (key === 'liveChatFontSize') { currentSettings.liveChatFontSize = parseInt(val, 10) || 11; validKeysParsed++; }
+            if (key === 'liveChatPersonaCount') { currentSettings.liveChatPersonaCount = Math.max(1, Math.min(10, parseInt(val, 10) || 4)); validKeysParsed++; }
+            if (key === 'liveChatLanguage') { currentSettings.liveChatLanguage = val || 'auto'; validKeysParsed++; }
+            if (key === 'screenVisionAutoLoop') { currentSettings.screenVisionAutoLoop = (val === 'true'); validKeysParsed++; }
+            if (key === 'screenVisionInterval') { currentSettings.screenVisionInterval = Math.max(5, Math.min(300, parseInt(val, 10) || 10)); validKeysParsed++; }
+            if (key === 'screenVisionModel') { currentSettings.screenVisionModel = val || 'llama3.2-vision'; validKeysParsed++; }
+            if (key === 'screenVisionPostChat') { currentSettings.screenVisionPostChat = (val !== 'false'); validKeysParsed++; }
             if (key === 'language') { currentSettings.language = val || 'en'; validKeysParsed++; }
           }
         });
@@ -385,6 +410,12 @@ liveChatHeight=${currentSettings.liveChatHeight || 190}
 liveChatScale=${currentSettings.liveChatScale !== undefined ? currentSettings.liveChatScale : 1.0}
 liveChatPosition=${currentSettings.liveChatPosition || 'top-left'}
 liveChatFontSize=${currentSettings.liveChatFontSize || 11}
+liveChatPersonaCount=${currentSettings.liveChatPersonaCount || 4}
+liveChatLanguage=${currentSettings.liveChatLanguage || 'auto'}
+screenVisionAutoLoop=${currentSettings.screenVisionAutoLoop === true}
+screenVisionInterval=${currentSettings.screenVisionInterval || 10}
+screenVisionModel=${currentSettings.screenVisionModel || 'llama3.2-vision'}
+screenVisionPostChat=${currentSettings.screenVisionPostChat !== false}
 language=${currentSettings.language}`;
 
     try {

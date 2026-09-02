@@ -8,7 +8,7 @@
     "test": "node tests/run_tests.mjs",
     "test:unit": "node tests/run_tests.mjs",
     "test:e2e": "node tests/e2e_visual_regression.js",
-    "build": "electron-packager . DesktopPet --platform=win32 --arch=x64 --overwrite && copy steam_appid.txt DesktopPet-win32-x64\\"
+    "build": "electron-packager . DesktopPet --platform=win32 --arch=x64 --ignore=\"DesktopPet-win32-x64|build_tmp|tests|\\.git\" --overwrite && copy steam_appid.txt DesktopPet-win32-x64\\"
   },
   "dependencies": {
     "@skyatnpm/steamworks-js": "^0.1.0",

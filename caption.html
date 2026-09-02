@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob: file:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: file: *; font-src 'self' data:; connect-src 'self' data: blob: file: *;">
+  <title>Live Caption Subtitles</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    :root {
+      --caption-font-size: 16px;
+      --caption-bg-opacity: 0.90;
+      --caption-accent-color: #38bdf8;
+      --caption-accent-glow: rgba(56, 189, 248, 0.4);
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: transparent !important;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans", sans-serif;
+      color: #ffffff;
+    }
+
+    .caption-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      background: rgba(11, 15, 25, var(--caption-bg-opacity));
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 10px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.85), 0 0 20px var(--caption-accent-glow);
+      overflow: hidden;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    /* Draggable Window Header */
+    .caption-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      -webkit-app-region: drag;
+      cursor: grab;
+    }
+
+    .caption-header:active {
+      cursor: grabbing;
+    }
+
+    .caption-header-left {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 10px #10b981;
+      animation: pulseLive 1.5s infinite ease-in-out;
+    }
+
+    @keyframes pulseLive {
+      0%, 100% { transform: scale(0.9); opacity: 0.7; }
+      50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 12px #10b981; }
+    }
+
+    .caption-title {
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      color: var(--caption-accent-color);
+      text-transform: uppercase;
+    }
+
+    .caption-badge {
+      font-size: 9px;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 3px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #38bdf8;
+    }
+
+    .caption-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      -webkit-app-region: no-drag;
+    }
+
+    .hdr-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #e5e7eb;
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .hdr-btn:hover {
+      background: rgba(56, 189, 248, 0.25);
+      border-color: #38bdf8;
+      color: #ffffff;
+    }
+
+    .hdr-btn-close {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #ef4444;
+    }
+
+    .hdr-btn-close:hover {
+      background: #ef4444;
+      color: #ffffff;
+    }
+
+    /* Subtitle Display Body */
+    .caption-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 12px 18px;
+      overflow-y: auto;
+      gap: 6px;
+    }
+
+    .caption-empty-placeholder {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.35);
+      font-style: italic;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    }
+
+    .caption-text-content {
+      font-size: var(--caption-font-size);
+      font-weight: 700;
+      line-height: 1.45;
+      color: #ffffff;
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95), 0 0 12px var(--caption-accent-glow);
+      word-break: break-word;
+      transition: all 0.2s ease;
+    }
+
+    .caption-pop-anim {
+      animation: captionPopIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes captionPopIn {
+      0% { opacity: 0; transform: translateY(5px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Footer Telemetry Strip */
+    .caption-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 3px 10px;
+      background: rgba(0, 0, 0, 0.35);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 9px;
+      color: #9ca3af;
+    }
+
+    .caption-footer-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .caption-counter {
+      color: #38bdf8;
+      font-weight: 700;
+    }
+
+    /* Theme Presets */
+    .theme-cyberpunk {
+      --caption-accent-color: #ec4899;
+      --caption-accent-glow: rgba(236, 72, 153, 0.45);
+      border-color: rgba(236, 72, 153, 0.45);
+    }
+
+    .theme-amber {
+      --caption-accent-color: #f59e0b;
+      --caption-accent-glow: rgba(245, 158, 11, 0.45);
+      border-color: rgba(245, 158, 11, 0.45);
+    }
+
+    .theme-emerald {
+      --caption-accent-color: #10b981;
+      --caption-accent-glow: rgba(16, 185, 129, 0.45);
+      border-color: rgba(16, 185, 129, 0.45);
+    }
+
+    .theme-highcontrast {
+      background: #000000 !important;
+      border: 2px solid #ffffff !important;
+      --caption-accent-color: #ffffff;
+      --caption-accent-glow: rgba(255, 255, 255, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <div id="caption-window-container" class="caption-container">
+    <!-- Header -->
+    <div class="caption-header">
+      <div class="caption-header-left">
+        <div class="live-dot"></div>
+        <span class="caption-title">LIVE CAPTION</span>
+        <span id="caption-source-badge" class="caption-badge">BETA</span>
+      </div>
+      <div class="caption-header-actions">
+        <button id="btn-font-minus" class="hdr-btn" title="Decrease Font Size">A-</button>
+        <button id="btn-font-plus" class="hdr-btn" title="Increase Font Size">A+</button>
+        <button id="btn-theme-cycle" class="hdr-btn" title="Cycle Color Theme">🎨</button>
+        <button id="btn-opacity-toggle" class="hdr-btn" title="Toggle Opacity">◐</button>
+        <button id="btn-caption-close" class="hdr-btn hdr-btn-close" title="Close Window">✕</button>
+      </div>
+    </div>
+
+    <!-- Subtitle Body (Empty on start) -->
+    <div class="caption-body">
+      <div id="caption-empty-hint" class="caption-empty-placeholder">
+        Awaiting live caption broadcast...
+      </div>
+      <div id="caption-text" class="caption-text-content caption-pop-anim" style="display: none;"></div>
+    </div>
+
+    <!-- Footer Telemetry -->
+    <div class="caption-footer">
+      <div class="caption-footer-left">
+        <span id="caption-seq-counter" class="caption-counter">--</span>
+        <span id="caption-model-tag">Live Subtitles HUD</span>
+      </div>
+      <div id="caption-time-tag">Ready</div>
+    </div>
+  </div>
+
+  <script src="caption.js"></script>
+</body>
+</html>

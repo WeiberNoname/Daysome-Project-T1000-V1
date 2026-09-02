@@ -40,10 +40,19 @@ graph TD
   * **Hype Stream Dynamics**: Live viewer counter fluctuation, adjustable stream speed (Relaxed, Normal, Hype Train), procedural Web Audio sound synthesis (Twitch airhorns, golden superchat chimes, cartoon boings), and simulated reactive audience chat.
   * **Multimedia Memes & Highlights**: Injects viral meme cards (*PopCat*, *GigaChad*, *Diamond Hands*, *Doge*) and video replay clips on demand.
   * **Dynamic Font Scaling**: Real-time adjustable font sizing ($8\text{px}$ to $28\text{px}$) with instant toolbar steppers (`A-` / `A+`).
-* **👁️ Local Multimodal Screen Vision AI**:
-  * **1-Click Screen Snapshot Capture**: Uses native Electron `desktopCapturer` to capture clean $1280\times 720$ snapshots of your active game or desktop without interrupting gameplay.
-  * **100% Private Local Inference**: Connects directly to local open-source vision models (**`moondream`**, **`llama3.2-vision`**, **`llava`**) running offline in Ollama on your GPU.
-  * **`Output: ...` Reflection Pipeline**: Analyzes the scene and outputs detailed, formatted descriptions of what is on screen with optional `@VisionBot` auto-injection into the live chat stream.
+
+* **🪟 Independent Live Caption HUD Window ([caption.html](caption.html))**:
+  * **Clean Floating Subtitle Overlay**: Draggable, frameless, transparent, always-on-top HUD window for gaming, streaming, or video subtitles.
+  * **On-Window Controls**: Instant font adjustments (`A-` / `A+`), opacity toggling (`90%`, `65%`, `100%`), and color theme cycling (Sky Blue, Cyberpunk Pink, Amber Gold, Emerald Green, High-Contrast Black/White).
+  * **Smooth Sequence Wiping**: Seamlessly fades in new subtitle sentences while cleanly wiping out previous text with live progress tracking (`[1/3]`, `[2/3]`, `[3/3]`).
+
+* **🧠 2-Stage Vision &rarr; LLM Caption Synthesizer**:
+  * **2-Stage Neural Pipeline**: Captures screen snapshots &rarr; Stage 1 Multimodal Vision (**`moondream`**) perceives natural scene &rarr; Stage 2 Text LLM (**`llama3.2`**) synthesizes punchy subtitle sentences.
+  * **8 Commentary Persona Styles**: `🎙️ Live Streamer`, `🤣 Funny & Comedy`, `🧐 Serious & Analytical`, `🎮 Pro Gamer`, `🌌 Poetic & Artistic`, `🐾 Cute Pet Companion`, `🍿 Cinematic Narrator`, and `⚡ Fast Action`.
+  * **Sentence Count Variable**: Select from `1` (quick alert) to `6` (extended story) captions.
+  * **Caption Speed / Pacing**: Configure display duration per subtitle sentence (`1.0s` to `8.0s`).
+  * **🔄 Auto-Loop Gaming Mode**: Continuous background capture & synthesis loop (`8s`, `15s`, `25s`, `45s`, `60s`) with **▶ Auto-Play to Subtitle HUD** for completely hands-free live stream commentary.
+  * **Editable Review Text Box**: Inspect, edit, copy, or dispatch generated subtitles directly to the 3D mascot speech bubble or floating caption HUD.
 
 ### 3. 📦 Universal Asset Hub & Ingestion (Tab 2)
 * **Central Drag-and-Drop Ingestion**: Universal dropzone supporting 3D Models (`.glb`, `.gltf`, `.fbx`, `.obj`), Textures & Skin Images (`.png`, `.jpg`, `.webp`, `.svg`, `.gif`), and Audio Scores (`.mid`, `.midi`, `.musicxml`, `.xml`).
@@ -138,11 +147,11 @@ npm install
 node ./node_modules/electron/cli.js .
 ```
 
-### 3. Run Automated Unit Tests (15 Suites)
+### 3. Run Automated Unit Tests (16 Suites)
 ```powershell
-npm test
+node tests/run_tests.mjs
 ```
-*Coverage: SettingsManager, PhysicsEngine, 12-Locale Parity, AppStore, EventBus, GPU VRAM disposal, Preload Security, SoundManager, FlagMeshBuilder, TextureManager, Web Audio Piano, MidiParser, MusicXml, AssetRegistryManager, ScreenVisionService, and LLMDirectorEngine.*
+*Coverage: SettingsManager, PhysicsEngine, 12-Locale Parity, AppStore, EventBus, GPU VRAM disposal, Preload Security, SoundManager, FlagMeshBuilder, TextureManager, Web Audio Piano, MidiParser, MusicXml, AssetRegistryManager, ScreenVisionService, and LiveAudienceAIService.*
 
 ---
 
@@ -151,7 +160,7 @@ npm test
 To package the standalone Windows binary into the single canonical folder:
 
 ```powershell
-npm run build
+Get-Process | Where-Object { $_.Path -like "*DesktopPet*" } | Stop-Process -Force; node ./node_modules/electron-packager/bin/electron-packager.js . DesktopPet --platform=win32 --arch=x64 --out=build_tmp --overwrite; Copy-Item -Recurse -Force build_tmp\DesktopPet-win32-x64\* DesktopPet-win32-x64\; Copy-Item steam_appid.txt -Destination DesktopPet-win32-x64\; Remove-Item -Recurse -Force build_tmp
 ```
 
 The output executable is packaged directly at:
@@ -191,30 +200,36 @@ Start-Process "DesktopPet-win32-x64\DesktopPet.exe"
 │   │   └── SoundManager.js
 │   ├── managers/                 <-- AppStore, SettingsManager & EventBus
 │   ├── services/                 <-- Neural & Multimodal Services
-│   │   └── ScreenVisionService.js<-- Local Ollama Multimodal Vision Service
+│   │   ├── LiveAudienceAIService.js             <-- Multi-Persona AI Live Stream Audience Engine
+│   │   ├── ScreenVisionService.js               <-- Local Multimodal Vision Service
+│   │   └── VisionCaptionSynthesizerService.js   <-- 2-Stage Vision -> LLM Caption Synthesizer
 │   └── ui/                       <-- Studio UI & Viewport Controllers
 │       ├── AIDirectorTabUI.js
 │       ├── AssetHubUI.js
 │       ├── AtmosphereTabUI.js
 │       ├── FormSyncManager.js
-│       ├── LiveChatSimulatorUI.js<-- Live Chat Overlay Controller
+│       ├── LiveCaptionBetaUI.js                 <-- Floating Live Caption HUD UI Controller
+│       ├── LiveChatSimulatorUI.js               <-- Live Chat Overlay Controller
 │       ├── PreviewGenerator.js
-│       ├── ScreenVisionBetaUI.js  <-- Beta Screen Vision UI Controller
+│       ├── ScreenVisionBetaUI.js                <-- Beta Screen Vision UI Controller
 │       ├── SettingsPanelUI.js
 │       ├── SettingsPanelResizeHandler.js
 │       ├── SoundTabUI.js
-│       └── TextureTabUI.js
+│       ├── TextureTabUI.js
+│       └── VisionCaptionSynthesizerBetaUI.js    <-- Vision -> LLM Synthesizer UI Controller
+├── caption.html                  <-- Standalone Floating Live Caption HUD Window
+├── caption.js                    <-- Subtitle HUD Controller, Themes & Font Scaler
 ├── chat.html                     <-- Independent Live Chat Pop-Out Window
 ├── chat.js                       <-- Standalone Live Chat Controller & Audio Synth
-├── index.html                    <-- Studio UI Markup & Beta Vision Card
+├── index.html                    <-- Studio UI Markup & Beta Vision/Caption Cards
 ├── style.css                     <-- Modern Studio CSS, Glassmorphism & Animations
-├── main.js                       <-- Electron Main, Screen Capture & Ollama Daemon
+├── main.js                       <-- Electron Main, Window Manager & Screen Capturer
 ├── preload.js                    <-- Sandboxed Security & Screen Capture Bridge
 ├── renderer.js                   <-- Application Bootstrap & Orchestrator
 ├── physicsEngine.js              <-- 3D Physics Engine
 ├── i18nManager.js                <-- 12-Language Localization Engine
 └── tests/
-    └── run_tests.mjs             <-- 15-Suite Automated Unit Test Runner
+    └── run_tests.mjs             <-- 16-Suite Automated Unit Test Runner
 ```
 
 ---

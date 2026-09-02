@@ -34,6 +34,24 @@ assert.strictEqual(defaults.liveChatHeight, 190, 'Default liveChatHeight should 
 assert.strictEqual(defaults.liveChatScale, 1.0, 'Default liveChatScale should be 1.0');
 assert.strictEqual(defaults.liveChatPosition, 'top-left', 'Default liveChatPosition should be top-left');
 assert.strictEqual(defaults.liveChatFontSize, 11, 'Default liveChatFontSize should be 11');
+assert.strictEqual(defaults.liveChatPersonaCount, 4, 'Default liveChatPersonaCount should be 4');
+assert.strictEqual(defaults.liveChatLanguage, 'auto', 'Default liveChatLanguage should be auto');
+assert.strictEqual(defaults.screenVisionAutoLoop, false, 'Default screenVisionAutoLoop should be false');
+assert.strictEqual(defaults.screenVisionModel, 'moondream', 'Default screenVisionModel should be moondream');
+assert.strictEqual(defaults.screenVisionDetail, 'medium', 'Default screenVisionDetail should be medium');
+assert.strictEqual(defaults.screenVisionPostChat, true, 'Default screenVisionPostChat should be true');
+assert.strictEqual(defaults.liveCaptionMirrorVision, true, 'Default liveCaptionMirrorVision should be true');
+assert.strictEqual(defaults.liveCaptionAutoOpen, false, 'Default liveCaptionAutoOpen should be false');
+assert.strictEqual(defaults.synthVisionModel, 'moondream', 'Default synthVisionModel should be moondream');
+assert.strictEqual(defaults.synthVisionDetail, 'medium', 'Default synthVisionDetail should be medium');
+assert.strictEqual(defaults.synthTextModel, 'llama3.2', 'Default synthTextModel should be llama3.2');
+assert.strictEqual(defaults.synthStyle, 'streamer', 'Default synthStyle should be streamer');
+assert.strictEqual(defaults.synthCaptionCount, 3, 'Default synthCaptionCount should be 3');
+assert.strictEqual(defaults.synthCaptionPacing, 3.0, 'Default synthCaptionPacing should be 3.0');
+assert.strictEqual(defaults.synthAutoLoop, false, 'Default synthAutoLoop should be false');
+assert.strictEqual(defaults.synthAutoInterval, 15, 'Default synthAutoInterval should be 15');
+assert.strictEqual(defaults.synthAutoPlayHUD, true, 'Default synthAutoPlayHUD should be true');
+assert.strictEqual(defaults.synthLanguage, 'auto', 'Default synthLanguage should be auto');
 
 const merged = SettingsManager.mergeWithDefaults({
   scale: 2.5,
@@ -46,7 +64,13 @@ const merged = SettingsManager.mergeWithDefaults({
   liveChatHeight: 250,
   liveChatScale: 1.25,
   liveChatPosition: 'top-right',
-  liveChatFontSize: 16
+  liveChatFontSize: 16,
+  liveChatPersonaCount: 8,
+  liveChatLanguage: 'ja',
+  screenVisionAutoLoop: true,
+  screenVisionInterval: 15,
+  screenVisionModel: 'moondream',
+  screenVisionPostChat: true
 });
 assert.strictEqual(merged.scale, 2.5, 'Scale should be overridden to 2.5');
 assert.strictEqual(merged.targetFps, 120, 'targetFps should be overridden to 120');
@@ -58,6 +82,12 @@ assert.strictEqual(merged.liveChatHeight, 250, 'liveChatHeight should be overrid
 assert.strictEqual(merged.liveChatScale, 1.25, 'liveChatScale should be overridden to 1.25');
 assert.strictEqual(merged.liveChatPosition, 'top-right', 'liveChatPosition should be overridden to top-right');
 assert.strictEqual(merged.liveChatFontSize, 16, 'liveChatFontSize should be overridden to 16');
+assert.strictEqual(merged.liveChatPersonaCount, 8, 'liveChatPersonaCount should be overridden to 8');
+assert.strictEqual(merged.liveChatLanguage, 'ja', 'liveChatLanguage should be overridden to ja');
+assert.strictEqual(merged.screenVisionAutoLoop, true, 'screenVisionAutoLoop should be overridden to true');
+assert.strictEqual(merged.screenVisionInterval, 15, 'screenVisionInterval should be overridden to 15');
+assert.strictEqual(merged.screenVisionModel, 'moondream', 'screenVisionModel should be overridden to moondream');
+assert.strictEqual(merged.screenVisionPostChat, true, 'screenVisionPostChat should be overridden to true');
 assert.strictEqual(merged.width, 350, 'Unspecified width should fallback to 350');
 assert.strictEqual(merged.activeModel, 'procedural', 'Fallback activeModel should be procedural');
 console.log('✅ SettingsManager tests PASSED.');
@@ -801,6 +831,7 @@ import('../src/core/SoundManager.js').then(({ SoundManager }) => {
 
                   const payload = ScreenVisionService.createVisionPayload({
                     model: 'llama3.2-vision',
+                    detail: 'more',
                     prompt: 'What game is this?',
                     base64Image: 'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
                     stream: true
@@ -809,22 +840,118 @@ import('../src/core/SoundManager.js').then(({ SoundManager }) => {
                   assert.strictEqual(payload.prompt, 'What game is this?', 'Payload prompt must match');
                   assert.strictEqual(payload.stream, true, 'Stream must be true');
                   assert.strictEqual(payload.images.length, 1, 'Payload must contain 1 base64 image');
+                  assert.strictEqual(payload.options.num_predict, 260, 'More detail preset should allocate 260 tokens');
+
+                  const payloadFew = ScreenVisionService.createVisionPayload({ detail: 'few', base64Image: 'abc' });
+                  assert.strictEqual(payloadFew.options.num_predict, 50, 'Few detail preset should allocate 50 tokens');
 
                   const service = new ScreenVisionService();
                   const fallback = service.generateFallbackVisionAnalysis(1280, 720, 'llama3.2-vision', 'Connection refused');
                   assert(fallback.startsWith('Output:'), 'Fallback must start with Output: prefix');
                   assert(fallback.includes('1280x720'), 'Fallback must mention resolution');
-                  assert(fallback.includes('llama3.2-vision'), 'Fallback must mention model name');
 
                   console.log('✅ ScreenVisionService multimodal vision tests PASSED.');
-                  console.log('✅ LLMDirectorEngine, ToolRegistry, AppContextRetriever & DevTools Telemetry unit tests PASSED.');
-                  console.log('\n🎉 ALL UNIT TEST SUITES PASSED CLEANLY (100% SUCCESS)');
+
+                  // Test VisionCaptionSynthesizerService (Vision -> LLM Caption Synthesizer)
+                  import('../src/services/VisionCaptionSynthesizerService.js').then(async ({ VisionCaptionSynthesizerService, SYNTH_STYLE_PERSONAS }) => {
+                    console.log('▶ Testing VisionCaptionSynthesizerService 2-stage AI pipeline & parser...');
+                    assert(SYNTH_STYLE_PERSONAS.streamer, 'Must define streamer persona');
+                    assert(SYNTH_STYLE_PERSONAS.funny, 'Must define funny/comedy persona');
+                    assert(SYNTH_STYLE_PERSONAS.serious, 'Must define serious/analytical persona');
+                    assert(SYNTH_STYLE_PERSONAS.gamer, 'Must define gamer persona');
+                    assert(SYNTH_STYLE_PERSONAS.poetic, 'Must define poetic persona');
+                    assert(SYNTH_STYLE_PERSONAS.mascot, 'Must define mascot persona');
+                    assert(SYNTH_STYLE_PERSONAS.narrator, 'Must define narrator persona');
+                    assert(SYNTH_STYLE_PERSONAS.action, 'Must define action persona');
+
+                    const rawText = '1. First energetic subtitle!\n2. Second atmospheric sentence.\n- Third clean line.\n4. Fourth funny joke.';
+                    const parsed = VisionCaptionSynthesizerService.parseCaptionOutput(rawText);
+                    assert.strictEqual(parsed.length, 4, 'Must parse 4 clean lines without numbers');
+                    assert.strictEqual(parsed[0], 'First energetic subtitle!');
+                    assert.strictEqual(parsed[1], 'Second atmospheric sentence.');
+                    assert.strictEqual(parsed[2], 'Third clean line.');
+                    assert.strictEqual(parsed[3], 'Fourth funny joke.');
+
+                    const zhLang = VisionCaptionSynthesizerService.getLanguageInstruction('zh');
+                    assert(zhLang.includes('Simplified Chinese'), 'Must include Chinese language directive');
+
+                    console.log('✅ VisionCaptionSynthesizerService unit tests PASSED.');
+
+                    // Test LiveAudienceAIService (Multi-Persona AI Live Stream Audience Engine)
+                    import('../src/services/LiveAudienceAIService.js').then(async ({ LiveAudienceAIService }) => {
+                    console.log('▶ Testing LiveAudienceAIService multi-persona AI audience cascades & drip delivery...');
+                    const audienceService = new LiveAudienceAIService();
+
+                    // 1. Test System Prompt Schema, Persona Scaling & Primary Language
+                    const enPrompt = LiveAudienceAIService.getSystemPrompt(8, 'en');
+                    assert(enPrompt.includes('Twitch'), 'English system prompt must mention streaming platforms');
+                    assert(enPrompt.includes('EXACTLY 8'), 'English system prompt must scale to requested count');
+
+                    const zhPrompt = LiveAudienceAIService.getSystemPrompt(8, 'zh');
+                    assert(zhPrompt.includes('直播间'), 'Chinese system prompt must use native Chinese instructions');
+                    assert(zhPrompt.includes('恰好 8'), 'Chinese system prompt must scale to requested count');
+
+                    const zhSuffix = LiveAudienceAIService.getPromptLanguageSuffix('zh');
+                    assert(zhSuffix.includes('简体中文'), 'Chinese prompt suffix must enforce Chinese output');
+
+                    // 2. Test JSON Parser with markdown fences and dirty formatting
+                    const dirtyJSON = '```json\n[{"user":"@HypeKing","badge":"💎 SUB","color":"#38bdf8","msg":"W play!"},{"user":"@Troll99","badge":"⚡ PRO","color":"#f43f5e","msg":"LMAO dead"}]\n```';
+                    const parsed = audienceService._parseJSONResponse(dirtyJSON);
+                    assert.strictEqual(parsed.length, 2, 'Must parse 2 JSON message objects');
+                    assert.strictEqual(parsed[0].user, '@HypeKing', 'Parsed user must match');
+                    assert.strictEqual(parsed[0].badge, '💎 SUB', 'Parsed badge must match');
+                    assert.strictEqual(parsed[1].msg, 'LMAO dead', 'Parsed msg must match');
+
+                    // 3. Test Heuristic Fallback Cascade with 10 Distinct Narrative Archetypes (English & Chinese)
+                    const tenPersonas = audienceService.generateFallbackCascade('We finally won and beat the boss!', '', 10);
+                    assert.strictEqual(tenPersonas.length, 10, 'Must produce exactly 10 distinct narrative persona messages');
+                    assert(tenPersonas.some(m => m.user.startsWith('@MetaBuilder')), 'Must include Tactical Strategist persona');
+                    assert(tenPersonas.some(m => m.user.startsWith('@DevilAdvocate')), 'Must include Contrarian/Critic persona');
+                    assert(tenPersonas.some(m => m.user === '@Sarah_Mod'), 'Must include Moderator persona');
+                    assert(tenPersonas.some(m => m.user === '@LoreScholar'), 'Must include Lore Analyst persona');
+                    assert(tenPersonas.some(m => m.user === '@FrameDataDan'), 'Must include Speedrun/FrameData persona');
+                    assert(tenPersonas.some(m => m.user === '@PatronPledge'), 'Must include Patron persona');
+                    assert(tenPersonas.some(m => m.user === '@MetaphorChef'), 'Must include Metaphor/Meme persona');
+                    assert(tenPersonas.some(m => m.user.startsWith('@CuriousMind')), 'Must include Curious Inquirer persona');
+                    assert(tenPersonas.some(m => m.user === '@OldSchoolGamer'), 'Must include Veteran persona');
+                    assert(tenPersonas.some(m => m.user === '@EagleEye'), 'Must include Background Detective persona');
+
+                    const zhPersonas = audienceService.generateFallbackCascade('通关成功', '', 5, 'zh');
+                    assert.strictEqual(zhPersonas.length, 5, 'Must produce exactly 5 Chinese persona messages');
+                    assert(zhPersonas.some(m => m.user.includes('战术大师') || m.user.includes('战术分析师')), 'Must include Chinese tactical persona');
+
+                    // 4. Test Single Persona Scaling (count = 1)
+                    const singlePersona = audienceService.generateFallbackCascade('Hello chat', '', 1);
+                    assert.strictEqual(singlePersona.length, 1, 'Must scale down to exactly 1 persona');
+
+                    // 5. Test Live Audience Cascade Execution & Drip delivery
+                    let receivedDripMessages = [];
+                    await audienceService.generateAudienceCascade({
+                      hostMessage: 'GG guys we clutched the match',
+                      speed: 'fast',
+                      personaCount: 5,
+                      onMessage: (msgObj) => {
+                        receivedDripMessages.push(msgObj);
+                      }
+                    });
+
+                    assert(receivedDripMessages.length === 0, 'Initial count before timer resolution should be 0');
+                    // Wait for fast drip delivery
+                    await new Promise(r => setTimeout(r, 600));
+                    assert(receivedDripMessages.length > 0, 'Drip queue must start delivering staggered messages');
+                    audienceService.clearPendingDrips();
+
+                    console.log('✅ LiveAudienceAIService multi-persona AI live chat tests PASSED.');
+                    console.log('✅ LLMDirectorEngine, ToolRegistry, AppContextRetriever & DevTools Telemetry unit tests PASSED.');
+                    console.log('\n🎉 ALL UNIT TEST SUITES PASSED CLEANLY (100% SUCCESS)');
+                  });
                 });
               });
             });
           });
         });
       });
+    });
 
 
 

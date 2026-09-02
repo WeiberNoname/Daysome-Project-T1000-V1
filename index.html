@@ -440,6 +440,36 @@
 
           <div class="studio-row">
             <div class="studio-row-label">
+              <label for="beta-chat-personas" class="studio-row-title">Audience Personas</label>
+              <span class="studio-row-sub">Cascade size & narrative diversity (1 to 10)</span>
+            </div>
+            <div class="studio-number-wrapper">
+              <input type="number" id="beta-chat-personas" class="studio-number-input" min="1" max="10" step="1" value="4">
+              <span class="studio-unit-suffix">users</span>
+            </div>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="beta-chat-lang" class="studio-row-title">Primary Language</label>
+              <span class="studio-row-sub">Audience language preference</span>
+            </div>
+            <select id="beta-chat-lang" class="studio-select" style="width: 150px;">
+              <option value="auto" selected>🌐 Auto-Detect (Host)</option>
+              <option value="en">🇺🇸 English</option>
+              <option value="zh">🇨🇳 中文 (Chinese)</option>
+              <option value="ja">🇯🇵 日本語 (Japanese)</option>
+              <option value="es">🇪🇸 Español (Spanish)</option>
+              <option value="fr">🇫🇷 Français (French)</option>
+              <option value="de">🇩🇪 Deutsch (German)</option>
+              <option value="ko">🇰🇷 한국어 (Korean)</option>
+              <option value="pt">🇧🇷 Português</option>
+              <option value="ru">🇷🇺 Русский</option>
+            </select>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
               <label for="beta-chat-position" class="studio-row-title">Screen Alignment</label>
               <span class="studio-row-sub">Anchor over mascot</span>
             </div>
@@ -485,10 +515,42 @@
 
           <div class="studio-row">
             <div class="studio-row-label">
+              <label for="beta-vision-detail" class="studio-row-title">Text Generation Range</label>
+              <span class="studio-row-sub">Output length (few to more)</span>
+            </div>
+            <select id="beta-vision-detail" class="studio-select" style="width: 175px;">
+              <option value="few">⚡ Few (Concise 1-Sentence)</option>
+              <option value="medium" selected>⚖️ Medium (Balanced 2-3 Sentences)</option>
+              <option value="more">📝 More (Detailed Breakdown)</option>
+              <option value="max">📚 Maximum (Exhaustive Analysis)</option>
+            </select>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
               <label for="beta-vision-post-chat" class="studio-row-title">Post to Live Chat</label>
               <span class="studio-row-sub">Feed reflection to stream</span>
             </div>
             <input type="checkbox" id="beta-vision-post-chat" class="studio-checkbox" checked>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="beta-vision-autoloop" class="studio-row-title">Auto Vision Watcher</label>
+              <span class="studio-row-sub">Periodic screen analysis loop</span>
+            </div>
+            <input type="checkbox" id="beta-vision-autoloop" class="studio-checkbox">
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="beta-vision-interval" class="studio-row-title">Auto-Capture Interval</label>
+              <span class="studio-row-sub">Trigger rate (&ge; 5s, range: 5s–300s)</span>
+            </div>
+            <div class="studio-number-wrapper">
+              <input type="number" id="beta-vision-interval" class="studio-number-input" min="5" max="300" step="1" value="10">
+              <span class="studio-unit-suffix">sec</span>
+            </div>
           </div>
 
           <!-- Capture Button -->
@@ -514,6 +576,224 @@
             </div>
           </div>
         </div>
+
+        <!-- 8. 🎬 Beta Testing: Live Caption HUD Window -->
+        <div class="studio-card">
+          <div class="studio-card-header">
+            <span class="studio-card-title">🎬 Beta Testing: Live Caption Window</span>
+            <span class="studio-badge studio-badge-amber">BETA</span>
+          </div>
+
+          <div style="font-size: 0.82em; color: #9ca3af; margin-bottom: 8px; line-height: 1.35;">
+            Independent floating transparent subtitle HUD window. Draggable, resizable, and streams realtime AI subtitles, commentary, and vision scene observations.
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <span class="studio-row-title">Mirror Screen Vision</span>
+              <span class="studio-row-sub">Auto-stream vision AI reflections</span>
+            </div>
+            <input type="checkbox" id="beta-caption-mirror-vision" class="studio-checkbox" checked>
+          </div>
+
+          <!-- Action Buttons -->
+          <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;">
+            <button id="btn-beta-launch-caption-window" class="studio-btn-primary" style="width: 100%; font-size: 0.9em; padding: 7px 10px; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);">🪟 Launch Independent Caption Window</button>
+            <div style="display: flex; gap: 6px;">
+              <button id="btn-beta-test-caption" class="studio-btn-ghost" style="flex: 1; font-size: 0.85em; padding: 5px 8px;">💬 Send Test Subtitle</button>
+              <button id="btn-beta-clear-caption-window" class="studio-btn-ghost" style="flex: 1; font-size: 0.85em; padding: 5px 8px;">🧹 Clear Window</button>
+            </div>
+          </div>
+
+          <div id="beta-caption-hud-status" style="margin-top: 6px; font-size: 0.78em; color: #38bdf8; font-weight: 600; text-align: center;">
+            Ready to launch
+          </div>
+        </div>
+
+        <!-- 9. 🎬 Beta Testing: Vision -> LLM Caption Synthesizer Card -->
+        <div class="studio-card">
+          <div class="studio-card-header">
+            <span class="studio-card-title">🎬 Beta Testing: Vision &rarr; LLM Captions</span>
+            <span class="studio-badge studio-badge-amber">BETA</span>
+          </div>
+
+          <div style="font-size: 0.82em; color: #9ca3af; margin-bottom: 8px; line-height: 1.35;">
+            2-Stage AI Pipeline: Captures screen &rarr; Neural Vision extracts visual scenes &rarr; Local LLM synthesizes styled subtitle captions into an editable output text box for your review.
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="beta-synth-vision-model" class="studio-row-title">Stage 1: Vision AI</label>
+              <span class="studio-row-sub">Visual feature encoder</span>
+            </div>
+            <select id="beta-synth-vision-model" class="studio-select" style="width: 175px;">
+              <option value="moondream" selected>🌙 Moondream (Fast 800MB)</option>
+              <option value="llava">👁️ LLaVA</option>
+              <option value="llama3.2-vision">🦙 Llama 3.2 Vision</option>
+            </select>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="beta-synth-vision-detail" class="studio-row-title">Vision Detail</label>
+              <span class="studio-row-sub">Scene detail level</span>
+            </div>
+            <select id="beta-synth-vision-detail" class="studio-select" style="width: 175px;">
+              <option value="few">⚡ Few (Brief)</option>
+              <option value="medium" selected>⚖️ Medium (Balanced)</option>
+              <option value="more">📝 More (Detailed)</option>
+              <option value="max">📚 Maximum (Exhaustive)</option>
+            </select>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="beta-synth-text-model" class="studio-row-title">Stage 2: Text LLM</label>
+              <span class="studio-row-sub">Caption synthesis model</span>
+            </div>
+            <select id="beta-synth-text-model" class="studio-select" style="width: 175px;">
+              <option value="llama3.2" selected>🦙 Llama 3.2 (Default)</option>
+              <option value="mistral">⚡ Mistral</option>
+              <option value="qwen2.5">💫 Qwen 2.5</option>
+              <option value="gemma2">💎 Gemma 2</option>
+            </select>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="beta-synth-count" class="studio-row-title">Number of Captions</label>
+              <span class="studio-row-sub">Sentence count to generate</span>
+            </div>
+            <select id="beta-synth-count" class="studio-select" style="width: 175px;">
+              <option value="1">1 Caption (Quick Alert)</option>
+              <option value="2">2 Captions</option>
+              <option value="3" selected>3 Captions (Balanced)</option>
+              <option value="4">4 Captions</option>
+              <option value="5">5 Captions (Detailed)</option>
+              <option value="6">6 Captions (Maximum)</option>
+            </select>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="beta-synth-style" class="studio-row-title">Caption Style Persona</label>
+              <span class="studio-row-sub">Commentary voice/tone</span>
+            </div>
+            <select id="beta-synth-style" class="studio-select" style="width: 175px;">
+              <option value="streamer" selected>🎙️ Live Streamer (Hype)</option>
+              <option value="funny">🤣 Funny &amp; Comedy (Jokes/Memes)</option>
+              <option value="serious">🧐 Serious &amp; Analytical</option>
+              <option value="gamer">🎮 Pro Gamer (Tactical APM)</option>
+              <option value="poetic">🌌 Poetic &amp; Artistic</option>
+              <option value="mascot">🐾 Cute Pet Companion</option>
+              <option value="narrator">🍿 Cinematic Narrator</option>
+              <option value="action">⚡ Fast Action Subtitles</option>
+            </select>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="beta-synth-pacing" class="studio-row-title">Caption Speed / Pacing</label>
+              <span class="studio-row-sub">Display time per subtitle</span>
+            </div>
+            <select id="beta-synth-pacing" class="studio-select" style="width: 175px;">
+              <option value="1.0">⚡ Ultra Fast (1.0s)</option>
+              <option value="2.0">🚀 Fast (2.0s)</option>
+              <option value="3.0" selected>⚖️ Normal (3.0s)</option>
+              <option value="4.5">☕ Relaxed (4.5s)</option>
+              <option value="6.0">🐢 Slow (6.0s)</option>
+              <option value="8.0">📚 Extended (8.0s)</option>
+            </select>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="beta-synth-language" class="studio-row-title">Target Language</label>
+              <span class="studio-row-sub">Output translation</span>
+            </div>
+            <select id="beta-synth-language" class="studio-select" style="width: 175px;">
+              <option value="auto" selected>🌐 Auto-Detect</option>
+              <option value="en">🇺🇸 English</option>
+              <option value="zh">🇨🇳 中文 (Chinese)</option>
+              <option value="ja">🇯🇵 日本語 (Japanese)</option>
+              <option value="es">🇪🇸 Español (Spanish)</option>
+              <option value="fr">🇫🇷 Français (French)</option>
+              <option value="de">🇩🇪 Deutsch (German)</option>
+              <option value="ko">🇰🇷 한국어 (Korean)</option>
+              <option value="pt">🇧🇷 Português</option>
+              <option value="ru">🇷🇺 Русский</option>
+            </select>
+          </div>
+
+          <!-- Auto-Pilot Gaming / Streamer Loop Controls -->
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="beta-synth-auto-loop" class="studio-row-title">🔄 Auto-Loop Caption Engine</label>
+              <span class="studio-row-sub">Hands-free gaming / streaming loop</span>
+            </div>
+            <input type="checkbox" id="beta-synth-auto-loop" class="studio-checkbox">
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="beta-synth-auto-interval" class="studio-row-title">Auto-Loop Interval</label>
+              <span class="studio-row-sub">Cycle frequency timer</span>
+            </div>
+            <select id="beta-synth-auto-interval" class="studio-select" style="width: 175px;">
+              <option value="8">⚡ Every 8s (Fast Action)</option>
+              <option value="15" selected>⚖️ Every 15s (Balanced)</option>
+              <option value="25">☕ Every 25s (Story Mode)</option>
+              <option value="45">🐢 Every 45s (Relaxed)</option>
+              <option value="60">📚 Every 60s (Periodic)</option>
+            </select>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="beta-synth-auto-stream-hud" class="studio-row-title">▶ Auto-Play to Subtitle HUD</label>
+              <span class="studio-row-sub">Auto-stream sequential captions</span>
+            </div>
+            <input type="checkbox" id="beta-synth-auto-stream-hud" class="studio-checkbox" checked>
+          </div>
+
+          <!-- Main Action Buttons -->
+          <div style="margin-top: 8px; display: flex; gap: 6px;">
+            <button id="btn-beta-synth-generate" class="studio-btn-primary" style="flex: 1.5; font-size: 0.9em; padding: 7px 10px; background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">📸 Generate Once</button>
+            <button id="btn-beta-synth-toggle-loop" class="studio-btn-ghost" style="flex: 1; font-size: 0.85em; padding: 7px 10px;">▶ Start Loop</button>
+          </div>
+
+          <!-- Status, Thumbnail & Editable Review Textbox -->
+          <div id="beta-synth-output-box" style="margin-top: 10px; display: none; flex-direction: column; gap: 6px; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 8px;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <span id="beta-synth-status-tag" style="font-size: 0.8em; font-weight: 700; color: #a78bfa;">🟢 Pipeline Ready</span>
+              <span id="beta-synth-latency-tag" style="font-size: 0.75em; color: #9ca3af;">0ms</span>
+            </div>
+
+            <!-- Thumbnail Image Preview -->
+            <div style="width: 100%; height: 100px; background: #000; border-radius: 4px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.08);">
+              <img id="beta-synth-thumbnail" src="" alt="Screen Vision Snapshot" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+            </div>
+
+            <!-- Step 1: Vision Scene Description Snippet -->
+            <div style="font-size: 0.78em; color: #9ca3af; line-height: 1.35; background: rgba(255,255,255,0.02); padding: 5px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.04);">
+              <strong style="color: #38bdf8;">Stage 1 Vision:</strong> <span id="beta-synth-vision-text">Awaiting capture...</span>
+            </div>
+
+            <!-- Step 2: Editable Synthesized Captions Text Area for Review -->
+            <div style="font-size: 0.8em; font-weight: 700; color: #a78bfa; margin-top: 2px;">Stage 2 LLM Captions (Review &amp; Edit Output):</div>
+            <textarea id="beta-synth-output-text" class="studio-input" style="width: 100%; height: 95px; font-size: 0.85em; line-height: 1.4; resize: vertical; background: rgba(18, 20, 32, 0.9); border: 1px solid rgba(139, 92, 246, 0.4); border-radius: 5px; padding: 6px; color: #ffffff; font-family: inherit;" placeholder="Synthesized captions will appear here for your review..."></textarea>
+
+            <!-- Dispatch Action Buttons for Reviewed Captions -->
+            <div style="display: flex; gap: 5px; margin-top: 2px; flex-wrap: wrap;">
+              <button id="btn-beta-synth-stream-seq" class="studio-btn-primary" style="flex: 1.4; font-size: 0.8em; padding: 5px 8px; background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);">▶ Stream Sequentially</button>
+              <button id="btn-beta-synth-send-caption" class="studio-btn-ghost" style="flex: 1; font-size: 0.8em; padding: 4px 6px;">🪟 Send 1st</button>
+              <button id="btn-beta-synth-send-bubble" class="studio-btn-ghost" style="flex: 1; font-size: 0.8em; padding: 4px 6px;">🐾 Pet Bubble</button>
+              <button id="btn-beta-synth-copy" class="studio-btn-ghost" style="flex: 0.8; font-size: 0.8em; padding: 4px 6px;">📋 Copy</button>
+              <button id="btn-beta-synth-clear" class="studio-btn-ghost" style="flex: 0.8; font-size: 0.8em; padding: 4px 6px;">🧹 Clear</button>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <!-- Tab 6: System & Preferences (Centralized Configuration Hub) -->

@@ -466,6 +466,107 @@ ipcMain.on('toggle-live-chat-window', () => {
   }
 });
 
+// Broadcast Screen Vision AI reflections to all active live chat renderers
+ipcMain.on('broadcast-vision-chat', (event, data) => {
+  if (liveChatWindow && !liveChatWindow.isDestroyed()) {
+    liveChatWindow.webContents.send('vision-commentary', data);
+  }
+  if (mainWindow && !mainWindow.isDestroyed() && event && event.sender !== mainWindow.webContents) {
+    mainWindow.webContents.send('vision-commentary', data);
+  }
+});
+
+// ==========================================================================
+// Independent Live Caption / Subtitle Floating Window (Pop-out Window)
+// ==========================================================================
+let liveCaptionWindow = null;
+
+function openLiveCaptionWindow() {
+  if (liveCaptionWindow && !liveCaptionWindow.isDestroyed()) {
+    liveCaptionWindow.focus();
+    return;
+  }
+
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize;
+  const winWidth = 560;
+  const winHeight = 150;
+
+  liveCaptionWindow = new BrowserWindow({
+    width: winWidth,
+    height: winHeight,
+    x: Math.max(20, Math.round((screenWidth - winWidth) / 2)),
+    y: Math.max(20, screenHeight - winHeight - 80),
+    transparent: true,
+    frame: false,
+    alwaysOnTop: true,
+    resizable: true,
+    minWidth: 320,
+    minHeight: 100,
+    hasShadow: true,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      sandbox: false,
+      preload: path.join(__dirname, 'preload.js')
+    }
+  });
+
+  liveCaptionWindow.setAlwaysOnTop(true, 'screen-saver', 1);
+  liveCaptionWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+  liveCaptionWindow.loadFile('caption.html');
+
+  liveCaptionWindow.on('closed', () => {
+    liveCaptionWindow = null;
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('live-caption-window-closed');
+    }
+  });
+
+  logDiagnostic('[Live Caption] Independent live caption window launched.');
+}
+
+function closeLiveCaptionWindow() {
+  if (liveCaptionWindow && !liveCaptionWindow.isDestroyed()) {
+    liveCaptionWindow.close();
+    liveCaptionWindow = null;
+  }
+}
+
+ipcMain.on('open-live-caption-window', () => {
+  openLiveCaptionWindow();
+});
+
+ipcMain.on('close-live-caption-window', () => {
+  closeLiveCaptionWindow();
+});
+
+ipcMain.on('toggle-live-caption-window', () => {
+  if (liveCaptionWindow && !liveCaptionWindow.isDestroyed()) {
+    closeLiveCaptionWindow();
+  } else {
+    openLiveCaptionWindow();
+  }
+});
+
+ipcMain.on('broadcast-live-caption', (event, data) => {
+  if (liveCaptionWindow && !liveCaptionWindow.isDestroyed()) {
+    liveCaptionWindow.webContents.send('live-caption-update', data);
+  }
+  if (mainWindow && !mainWindow.isDestroyed() && event && event.sender !== mainWindow.webContents) {
+    mainWindow.webContents.send('live-caption-update', data);
+  }
+});
+
+ipcMain.on('clear-live-caption', () => {
+  if (liveCaptionWindow && !liveCaptionWindow.isDestroyed()) {
+    liveCaptionWindow.webContents.send('clear-live-caption');
+  }
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('clear-live-caption');
+  }
+});
+
 // ==========================================================================
 // Screen Vision Snapshot Capture (Local Multimodal Vision AI Bridge)
 // ==========================================================================
