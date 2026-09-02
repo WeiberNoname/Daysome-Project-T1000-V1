@@ -8,6 +8,7 @@
  */
 
 import { soundManager } from '../core/SoundManager.js';
+import { liveAudienceAIService } from '../services/LiveAudienceAIService.js';
 
 const FAKE_CHATTERS = [
   { name: '@GamerGod99', color: '#38bdf8', badge: '💎 SUB', msg: 'OMG so cute!! 🐰✨' },
@@ -96,6 +97,8 @@ export class LiveChatSimulator {
     this.scale = currentSettings.liveChatScale !== undefined ? currentSettings.liveChatScale : 1.0;
     this.position = currentSettings.liveChatPosition || 'top-left';
     this.fontSize = currentSettings.liveChatFontSize || 11;
+    this.personaCount = currentSettings.liveChatPersonaCount || 4;
+    this.language = currentSettings.liveChatLanguage || 'auto';
     this.chatIndex = 0;
     this.soundEnabled = true;
   }
@@ -107,6 +110,8 @@ export class LiveChatSimulator {
     const toggle = document.getElementById('beta-live-chat-toggle');
     const speedSelect = document.getElementById('beta-chat-speed');
     const fontSizeInput = document.getElementById('beta-chat-fontsize');
+    const personasInput = document.getElementById('beta-chat-personas');
+    const langSelect = document.getElementById('beta-chat-lang');
     const widthInput = document.getElementById('beta-chat-width');
     const heightInput = document.getElementById('beta-chat-height');
     const scaleInput = document.getElementById('beta-chat-scale');
@@ -138,6 +143,27 @@ export class LiveChatSimulator {
         if (!isNaN(val) && val >= 8 && val <= 32) {
           this.setFontSize(val);
         }
+      });
+    }
+
+    if (personasInput) {
+      personasInput.value = this.personaCount;
+      personasInput.addEventListener('input', () => {
+        const val = parseInt(personasInput.value, 10);
+        if (!isNaN(val) && val >= 1 && val <= 10) {
+          this.personaCount = val;
+          this.currentSettings.liveChatPersonaCount = val;
+          if (this.saveSettingsFile) this.saveSettingsFile();
+        }
+      });
+    }
+
+    if (langSelect) {
+      langSelect.value = this.language;
+      langSelect.addEventListener('change', () => {
+        this.language = langSelect.value;
+        this.currentSettings.liveChatLanguage = langSelect.value;
+        if (this.saveSettingsFile) this.saveSettingsFile();
       });
     }
 
@@ -279,24 +305,17 @@ export class LiveChatSimulator {
       this.overlayElem.classList.remove('hidden');
     }
 
-    // Seed initial message
+    // Seed initial AI ready indicator if empty
     if (this.messagesContainer && this.messagesContainer.children.length === 0) {
-      this.pushRandomMessage();
-      setTimeout(() => this.pushMemeCard(), 500);
+      const initRow = document.createElement('div');
+      initRow.className = 'live-chat-msg-row';
+      initRow.innerHTML = `
+        <span class="live-chat-badge" style="border-color: #10b98140; background: #10b98115; color: #10b981;">🤖 AI CORE</span>
+        <span class="live-chat-user" style="color: #34d399;">@System:</span>
+        <span class="live-chat-text">Live AI Stream Overlay is active & ready for events.</span>
+      `;
+      this.appendMessageElement(initRow);
     }
-
-    this.intervalId = setInterval(() => {
-      const roll = Math.random();
-      if (roll < 0.12) {
-        this.sendSuperchat();
-      } else if (roll < 0.24) {
-        this.pushMemeCard();
-      } else if (roll < 0.32) {
-        this.pushVideoClipCard();
-      } else {
-        this.pushRandomMessage();
-      }
-    }, this.getIntervalMs());
   }
 
   stop() {
@@ -304,23 +323,7 @@ export class LiveChatSimulator {
       clearInterval(this.intervalId);
       this.intervalId = null;
     }
-  }
-
-  pushRandomMessage() {
-    if (!this.messagesContainer) return;
-
-    const chatter = FAKE_CHATTERS[this.chatIndex % FAKE_CHATTERS.length];
-    this.chatIndex++;
-
-    const msgRow = document.createElement('div');
-    msgRow.className = 'live-chat-msg-row';
-    msgRow.innerHTML = `
-      <span class="live-chat-badge" style="border-color: ${chatter.color}40; background: ${chatter.color}15; color: ${chatter.color};">${chatter.badge}</span>
-      <span class="live-chat-user" style="color: ${chatter.color};">${chatter.name}:</span>
-      <span class="live-chat-text">${chatter.msg}</span>
-    `;
-
-    this.appendMessageElement(msgRow);
+    liveAudienceAIService.clearPendingDrips();
   }
 
   pushMemeCard() {
@@ -403,6 +406,41 @@ export class LiveChatSimulator {
     if (this.messagesContainer) {
       this.messagesContainer.innerHTML = '';
     }
+  }
+
+  postHostMessage(text) {
+    if (!this.messagesContainer || !text) return;
+    const msgRow = document.createElement('div');
+    msgRow.className = 'live-chat-msg-row';
+    msgRow.innerHTML = `
+      <span class="live-chat-badge" style="border-color: #e67e2240; background: #e67e2220; color: #f39c12;">🎙️ STREAMER</span>
+      <span class="live-chat-user" style="color: #f39c12; font-weight: 700;">@Host:</span>
+      <span class="live-chat-text" style="color: #ffffff; font-weight: 600;">${text}</span>
+    `;
+    this.appendMessageElement(msgRow);
+
+    // Trigger AI Audience Cascade
+    this.triggerAIBurst(text);
+  }
+
+  triggerAIBurst(hostMessage, context = '') {
+    liveAudienceAIService.generateAudienceCascade({
+      hostMessage,
+      context,
+      speed: this.speed,
+      personaCount: this.personaCount,
+      primaryLanguage: this.language,
+      onMessage: (msgObj, idx) => {
+        const row = document.createElement('div');
+        row.className = 'live-chat-msg-row';
+        row.innerHTML = `
+          <span class="live-chat-badge" style="border-color: ${msgObj.color || '#38bdf8'}40; background: ${msgObj.color || '#38bdf8'}15; color: ${msgObj.color || '#38bdf8'};">${msgObj.badge || '💎 SUB'}</span>
+          <span class="live-chat-user" style="color: ${msgObj.color || '#38bdf8'};">${msgObj.user || `@Fan_${idx + 1}`}:</span>
+          <span class="live-chat-text">${msgObj.msg}</span>
+        `;
+        this.appendMessageElement(row);
+      }
+    });
   }
 }
 

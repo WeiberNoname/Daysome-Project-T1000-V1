@@ -1,24 +1,25 @@
 # Desktop 3D Display & AI Companion - Project Knowledge & Rules (AGENTS.md)
 
 ## 1. System Architecture & UI Philosophy
-* **$O(1)$ Complexity Law**: All selectable assets (Mascots, Textures, Atmosphere Weather, Instruments, Songs, and future SynapseFlow graphs) use the **Standard File Holder Grid** (`.studio-select-card`). Adding features adds 0 new UI paradigms.
-* **"Tab UI as Complete History"**: The classical tabs (Display, Atmosphere, Lighting, Texture, Sound, System) are a complete, stable historical archive. Do not add new cluttered buttons or toolbars.
+* **$O(1)$ Complexity Law**: All selectable assets (Mascots, Textures, Atmosphere Weather, Instruments, Songs, and SynapseFlow graphs) use the **Standard File Holder Grid** (`.studio-select-card`). Adding features adds 0 new UI paradigms.
+* **"Tab UI as Complete History"**: The classical tabs (Display, Atmosphere, Lighting, Texture, Sound, System) are a complete, stable historical archive.
 * **AI Function Director (Tab 1)**: Pure, minimal conversational chat interface with real-time AI Mode indicator (`🟢 Local LLM` vs `⚡ Fallback Mode`).
-* **System Tab (Tab 8)**: Centralized configuration hub containing Neural LLM endpoint settings, language selector, motion parameters, physics, and GPU toggles.
+* **Live Audience AI Engine**: Real-time multi-persona audience cascade generator with staggered human-jitter drip delivery for live streaming simulation and screen vision reflections.
+* **System Tab**: Centralized configuration hub containing Neural LLM endpoint settings, language selector, motion parameters, physics, and GPU toggles.
 
 ## 2. Local LLM & Ollama Background Bridge
 * **Auto-Start Daemon**: `main.js` automatically detects and starts `ollama.exe serve` (`OLLAMA_HOST=127.0.0.1:11434`, `OLLAMA_ORIGINS=*`) on boot.
 * **Default Local Model**: `llama3.2` (located at `C:\Users\space\.ollama\models\manifests\registry.ollama.ai\library\llama3.2\latest`).
-* **Fallback Mode**: If the endpoint is unreachable or offline, the app automatically switches to the built-in multi-lingual rule-based semantic parser.
+* **Fallback Mode**: If the endpoint is unreachable or offline, the app automatically switches to the built-in multi-lingual rule-based semantic parser and heuristic audience cascade.
 
-## 3. Build, Verification & Testing Commands (PowerShell)
-* **Unit Tests (14 Suites)**:
+## 3. Canonical Build, Verification & Testing Commands (PowerShell)
+* **Run Automated Unit Tests (16 Suites)**:
   ```powershell
   node tests/run_tests.mjs
   ```
-* **Packaging Binary**:
+* **Packaging Binary (Standardized Canonical Output: `DesktopPet-win32-x64`)**:
   ```powershell
-  Get-Process -Name DesktopPet -ErrorAction SilentlyContinue | Stop-Process -Force; Start-Sleep -Seconds 1; node ./node_modules/electron-packager/bin/electron-packager.js . DesktopPet --platform=win32 --arch=x64 --overwrite; Copy-Item steam_appid.txt -Destination DesktopPet-win32-x64\
+  Get-Process | Where-Object { $_.Path -like "*DesktopPet*" } | Stop-Process -Force -ErrorAction SilentlyContinue; node ./node_modules/electron-packager/bin/electron-packager.js . DesktopPet --platform=win32 --arch=x64 --ignore="DesktopPet-win32-x64|build_tmp|tests|\.git" --overwrite; Copy-Item steam_appid.txt -Destination DesktopPet-win32-x64\ -Force
   ```
 * **Launch Executable**:
   ```powershell
@@ -26,4 +27,3 @@
   ```
 * **Clean State Testing**:
   Remove the `assets/` folder after rebuilds (`Remove-Item -Recurse -Force assets`) to test cold boots; the application automatically recreates default assets and configurations on launch.
-

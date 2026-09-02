@@ -31,6 +31,9 @@ const electronAPI = {
   openLiveChatWindow: () => ipcRenderer.send('open-live-chat-window'),
   closeLiveChatWindow: () => ipcRenderer.send('close-live-chat-window'),
   toggleLiveChatWindow: () => ipcRenderer.send('toggle-live-chat-window'),
+  openLiveCaptionWindow: () => ipcRenderer.send('open-live-caption-window'),
+  closeLiveCaptionWindow: () => ipcRenderer.send('close-live-caption-window'),
+  toggleLiveCaptionWindow: () => ipcRenderer.send('toggle-live-caption-window'),
   captureScreenSnapshot: () => ipcRenderer.invoke('capture-screen-snapshot'),
 
   // Safe IPC event listener
@@ -40,7 +43,11 @@ const electronAPI = {
       'force-hover-exit',
       'settings-updated',
       'model-imported',
-      'live-chat-window-closed'
+      'live-chat-window-closed',
+      'live-caption-window-closed',
+      'vision-commentary',
+      'live-caption-update',
+      'clear-live-caption'
     ];
     if (validChannels.includes(channel) && typeof callback === 'function') {
       const subscription = (event, ...args) => callback(...args);
@@ -59,7 +66,13 @@ const electronAPI = {
       'close-app',
       'open-live-chat-window',
       'close-live-chat-window',
-      'toggle-live-chat-window'
+      'toggle-live-chat-window',
+      'open-live-caption-window',
+      'close-live-caption-window',
+      'toggle-live-caption-window',
+      'broadcast-vision-chat',
+      'broadcast-live-caption',
+      'clear-live-caption'
     ];
     if (validSendChannels.includes(channel)) {
       ipcRenderer.send(channel, data);
