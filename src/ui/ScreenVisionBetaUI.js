@@ -8,7 +8,6 @@
 
 import { screenVisionService } from '../services/ScreenVisionService.js';
 import { soundManager } from '../core/SoundManager.js';
-import { liveAudienceAIService } from '../services/LiveAudienceAIService.js';
 
 export class ScreenVisionBetaUI {
   constructor({ currentSettings = {}, saveSettingsFile = null } = {}) {
@@ -20,7 +19,6 @@ export class ScreenVisionBetaUI {
     this.captureBtn = null;
     this.modelSelect = null;
     this.detailSelect = null;
-    this.postChatCheckbox = null;
     this.autoLoopCheckbox = null;
     this.intervalInput = null;
     this.outputBox = null;
@@ -34,7 +32,6 @@ export class ScreenVisionBetaUI {
     this.captureBtn = document.getElementById('btn-beta-capture-vision');
     this.modelSelect = document.getElementById('beta-vision-model');
     this.detailSelect = document.getElementById('beta-vision-detail');
-    this.postChatCheckbox = document.getElementById('beta-vision-post-chat');
     this.autoLoopCheckbox = document.getElementById('beta-vision-autoloop');
     this.intervalInput = document.getElementById('beta-vision-interval');
     this.outputBox = document.getElementById('beta-vision-output-box');
@@ -57,14 +54,6 @@ export class ScreenVisionBetaUI {
       }
       this.detailSelect.addEventListener('change', () => {
         this.currentSettings.screenVisionDetail = this.detailSelect.value;
-        if (this.saveSettingsFile) this.saveSettingsFile();
-      });
-    }
-
-    if (this.postChatCheckbox) {
-      this.postChatCheckbox.checked = this.currentSettings.screenVisionPostChat !== false;
-      this.postChatCheckbox.addEventListener('change', () => {
-        this.currentSettings.screenVisionPostChat = this.postChatCheckbox.checked;
         if (this.saveSettingsFile) this.saveSettingsFile();
       });
     }
@@ -143,10 +132,8 @@ export class ScreenVisionBetaUI {
 
   async handleCaptureAndAnalyze({ isAuto = false } = {}) {
     if (this.isAnalyzing || screenVisionService.isAnalyzing) return;
-
     const model = this.modelSelect ? this.modelSelect.value : (this.currentSettings.screenVisionModel || 'moondream');
     const detail = this.detailSelect ? this.detailSelect.value : (this.currentSettings.screenVisionDetail || 'medium');
-    const shouldPostChat = this.postChatCheckbox ? this.postChatCheckbox.checked : true;
 
     this.isAnalyzing = true;
     if (this.captureBtn && !isAuto) {
@@ -162,36 +149,26 @@ export class ScreenVisionBetaUI {
       this.visionText.innerText = 'Analyzing visual pixels with local AI model...';
     }
 
-    const language = this.currentSettings?.liveChatLanguage || this.currentSettings?.language || 'auto';
-
     try {
-      if (!isAuto) soundManager.playInteractionSfx();
-
-      const result = await screenVisionService.captureAndAnalyze({
+      const result = await screenVisionService.captureAndAnalyzeScreen({
         model,
         detail,
-        language,
-        onStatus: (status) => {
-          if (this.statusTag) this.statusTag.innerText = status;
-        },
-        onStream: (chunk, fullText) => {
-          if (this.visionText) {
-            const preview = fullText.startsWith('Output:') ? fullText : `Output: ${fullText}`;
-            this.visionText.innerText = preview;
-          }
+        onStatus: (msg) => {
+          if (this.statusTag) this.statusTag.innerText = msg;
         }
       });
 
       if (result.success) {
-        if (this.thumbnailImg && result.thumbnail) {
-          this.thumbnailImg.src = result.thumbnail;
+        if (this.statusTag) {
+          this.statusTag.style.color = '#22c55e';
+          this.statusTag.innerText = '✅ Analysis Complete';
         }
         if (this.visionText) {
           this.visionText.innerText = result.text;
         }
-        if (this.statusTag) {
-          this.statusTag.style.color = '#10b981';
-          this.statusTag.innerText = `✅ Analyzed by ${result.model}`;
+        if (this.thumbnailImg && result.dataUrl) {
+          this.thumbnailImg.src = result.dataUrl;
+          this.thumbnailImg.style.display = 'block';
         }
         if (this.latencyTag) {
           this.latencyTag.innerText = `${result.durationMs}ms`;
@@ -199,9 +176,9 @@ export class ScreenVisionBetaUI {
 
         if (!isAuto) soundManager.playFanfareSfx();
 
-        // Feed vision commentary into Live Chat Simulator if enabled
-        if (shouldPostChat && result.text) {
-          this.postVisionReflectionToChat(result.text, result.model);
+        // Broadcast vision commentary to Live Caption HUD if enabled
+        if (result.text) {
+          this.broadcastVisionCommentary(result.text, result.model);
         }
       } else {
         if (this.statusTag) {
@@ -229,65 +206,14 @@ export class ScreenVisionBetaUI {
     }
   }
 
-  postVisionReflectionToChat(text, model) {
+  broadcastVisionCommentary(text, model) {
     if (!text) return;
     const cleanText = text.replace(/^Output:\s*/i, '').trim();
     if (!cleanText) return;
 
-    // 1. Render locally to on-screen overlay if present
-    const chatContainer = document.getElementById('live-chat-messages');
-    if (chatContainer) {
-      const row = document.createElement('div');
-      row.className = 'live-chat-msg-row';
-      row.style.background = 'rgba(56, 189, 248, 0.15)';
-      row.style.border = '1px solid rgba(56, 189, 248, 0.4)';
-      row.style.borderRadius = '5px';
-      row.style.padding = '3px 5px';
-      row.style.margin = '2px 0';
-      row.innerHTML = `
-        <span class="live-chat-badge" style="background: #38bdf825; color: #38bdf8; border-color: #38bdf8;">👁️ VISION AI</span>
-        <span class="live-chat-user" style="color: #38bdf8; font-weight: 700;">@VisionBot:</span>
-        <span class="live-chat-text" style="color: #ffffff; font-weight: 500;">${cleanText}</span>
-      `;
-
-      chatContainer.appendChild(row);
-      while (chatContainer.children.length > 15) {
-        chatContainer.removeChild(chatContainer.firstChild);
-      }
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-
-      // Trigger AI Audience Reaction Cascade to Vision Scene Description
-      const personaCount = this.currentSettings.liveChatPersonaCount || 4;
-      const language = this.currentSettings?.liveChatLanguage || this.currentSettings?.language || 'auto';
-      liveAudienceAIService.generateAudienceCascade({
-        hostMessage: cleanText,
-        context: `Screen Vision snapshot analyzed (${model || 'local vision'})`,
-        speed: this.currentSettings.liveChatSpeed || 'normal',
-        personaCount,
-        primaryLanguage: language,
-        onMessage: (msgObj, idx) => {
-          const msgRow = document.createElement('div');
-          msgRow.className = 'live-chat-msg-row';
-          msgRow.innerHTML = `
-            <span class="live-chat-badge" style="border-color: ${msgObj.color || '#38bdf8'}40; background: ${msgObj.color || '#38bdf8'}15; color: ${msgObj.color || '#38bdf8'};">${msgObj.badge || '💎 SUB'}</span>
-            <span class="live-chat-user" style="color: ${msgObj.color || '#38bdf8'};">${msgObj.user || `@Fan_${idx + 1}`}:</span>
-            <span class="live-chat-text">${msgObj.msg}</span>
-          `;
-          chatContainer.appendChild(msgRow);
-          while (chatContainer.children.length > 15) {
-            chatContainer.removeChild(chatContainer.firstChild);
-          }
-          chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-      });
-    }
-
-    // 2. Broadcast via IPC to Pop-Out Independent Live Chat Window
+    // Broadcast via IPC to Pop-Out Independent Live Caption HUD Window
     const api = window.electronAPI || (typeof window.require === 'function' ? window.require('electron').ipcRenderer : null);
     if (api && typeof api.send === 'function') {
-      api.send('broadcast-vision-chat', { text: cleanText, model });
-
-      // 3. Broadcast via IPC to Pop-Out Independent Live Caption HUD Window
       if (this.currentSettings.liveCaptionMirrorVision !== false) {
         api.send('broadcast-live-caption', {
           text: cleanText,

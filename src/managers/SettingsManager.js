@@ -68,15 +68,6 @@ export class SettingsManager {
       aiContextRetrievalEnabled: true,
       aiRetrieverPreset: 'builtin_rag',
       aiRetrieverEndpoint: 'http://localhost:11434/v1',
-      liveChatEnabled: false,
-      liveChatSpeed: 'normal',
-      liveChatWidth: 240,
-      liveChatHeight: 190,
-      liveChatScale: 1.0,
-      liveChatPosition: 'top-left',
-      liveChatFontSize: 11,
-      liveChatPersonaCount: 4,
-      liveChatLanguage: 'auto',
       screenVisionAutoLoop: false,
       screenVisionInterval: 10,
       screenVisionModel: 'moondream',
@@ -95,6 +86,10 @@ export class SettingsManager {
       bannerBgOpacity: 0.85,
       bannerImagePath: '',
       bannerLinkUrl: '',
+      bannerPlaylist: [],
+      bannerDuration: 5,
+      bannerTransition: 'fade',
+      bannerAutoPlay: true,
       synthVisionModel: 'moondream',
       synthVisionDetail: 'medium',
       synthTextModel: 'llama3.2',
@@ -203,6 +198,13 @@ language=en`;
           console.warn("Could not create assets directory:", e);
         }
       }
+      const readmePath = path.join(assetsDir, 'README.md');
+      if (!fs.existsSync(readmePath)) {
+        try {
+          const readmeContent = `# 3D Mascot Assets Folder\n\nPlace any custom 3D models (\`.glb\` or \`.gltf\` format) in this directory.\n\n- The application will automatically discover custom models placed here.\n- Thumbnail previews will be generated automatically in \`.previews/\`.\n- If no custom models are present, the application will use the built-in procedural mascot.\n`;
+          fs.writeFileSync(readmePath, readmeContent, 'utf8');
+        } catch (_) {}
+      }
       try {
         const tmpPath = filePath + '.tmp';
         fs.writeFileSync(tmpPath, defaultContent, 'utf8');
@@ -303,15 +305,6 @@ language=en`;
             if (key === 'aiContextRetrievalEnabled') { currentSettings.aiContextRetrievalEnabled = (val !== 'false'); validKeysParsed++; }
             if (key === 'aiRetrieverPreset') { currentSettings.aiRetrieverPreset = val || 'builtin_rag'; validKeysParsed++; }
             if (key === 'aiRetrieverEndpoint') { currentSettings.aiRetrieverEndpoint = val || 'http://localhost:11434/v1'; validKeysParsed++; }
-            if (key === 'liveChatEnabled') { currentSettings.liveChatEnabled = (val === 'true'); validKeysParsed++; }
-            if (key === 'liveChatSpeed') { currentSettings.liveChatSpeed = val || 'normal'; validKeysParsed++; }
-            if (key === 'liveChatWidth') { currentSettings.liveChatWidth = parseInt(val, 10) || 240; validKeysParsed++; }
-            if (key === 'liveChatHeight') { currentSettings.liveChatHeight = parseInt(val, 10) || 190; validKeysParsed++; }
-            if (key === 'liveChatScale') { currentSettings.liveChatScale = parseFloat(val) || 1.0; validKeysParsed++; }
-            if (key === 'liveChatPosition') { currentSettings.liveChatPosition = val || 'top-left'; validKeysParsed++; }
-            if (key === 'liveChatFontSize') { currentSettings.liveChatFontSize = parseInt(val, 10) || 11; validKeysParsed++; }
-            if (key === 'liveChatPersonaCount') { currentSettings.liveChatPersonaCount = Math.max(1, Math.min(10, parseInt(val, 10) || 4)); validKeysParsed++; }
-            if (key === 'liveChatLanguage') { currentSettings.liveChatLanguage = val || 'auto'; validKeysParsed++; }
             if (key === 'screenVisionAutoLoop') { currentSettings.screenVisionAutoLoop = (val === 'true'); validKeysParsed++; }
             if (key === 'screenVisionInterval') { currentSettings.screenVisionInterval = Math.max(5, Math.min(300, parseInt(val, 10) || 10)); validKeysParsed++; }
             if (key === 'screenVisionModel') { currentSettings.screenVisionModel = val || 'llama3.2-vision'; validKeysParsed++; }
@@ -327,11 +320,31 @@ language=en`;
             if (key === 'bannerBgOpacity') { currentSettings.bannerBgOpacity = parseFloat(val) !== undefined && !isNaN(parseFloat(val)) ? parseFloat(val) : 0.85; validKeysParsed++; }
             if (key === 'bannerImagePath') { currentSettings.bannerImagePath = val || ''; validKeysParsed++; }
             if (key === 'bannerLinkUrl') { currentSettings.bannerLinkUrl = val || ''; validKeysParsed++; }
+            if (key === 'bannerPlaylist') {
+              try {
+                currentSettings.bannerPlaylist = JSON.parse(decodeURIComponent(val));
+              } catch (e) {
+                currentSettings.bannerPlaylist = [];
+              }
+              validKeysParsed++;
+            }
+            if (key === 'bannerDuration') { currentSettings.bannerDuration = Math.max(1, Math.min(60, parseInt(val, 10) || 5)); validKeysParsed++; }
+            if (key === 'bannerTransition') { currentSettings.bannerTransition = val || 'fade'; validKeysParsed++; }
+            if (key === 'bannerAutoPlay') { currentSettings.bannerAutoPlay = (val !== 'false'); validKeysParsed++; }
             if (key === 'language') { currentSettings.language = val || 'en'; validKeysParsed++; }
           }
         });
         if (validKeysParsed === 0) {
           throw new Error('No valid keys could be parsed from settings file');
+        }
+        // Backward-compatibility: if bannerPlaylist is empty but bannerImagePath exists, backfill playlist
+        if ((!currentSettings.bannerPlaylist || currentSettings.bannerPlaylist.length === 0) && currentSettings.bannerImagePath) {
+          currentSettings.bannerPlaylist = [{
+            id: '1',
+            imagePath: currentSettings.bannerImagePath,
+            linkUrl: currentSettings.bannerLinkUrl || '',
+            name: 'Default Banner'
+          }];
         }
         return { hasSettingsFile: true, wasConfigHealed: false };
       } catch (e) {
@@ -429,15 +442,6 @@ aiProvider=${currentSettings.aiProvider || 'ollama'}
 aiContextRetrievalEnabled=${currentSettings.aiContextRetrievalEnabled !== false}
 aiRetrieverPreset=${currentSettings.aiRetrieverPreset || 'builtin_rag'}
 aiRetrieverEndpoint=${currentSettings.aiRetrieverEndpoint || 'http://localhost:11434/v1'}
-liveChatEnabled=${currentSettings.liveChatEnabled === true}
-liveChatSpeed=${currentSettings.liveChatSpeed || 'normal'}
-liveChatWidth=${currentSettings.liveChatWidth || 240}
-liveChatHeight=${currentSettings.liveChatHeight || 190}
-liveChatScale=${currentSettings.liveChatScale !== undefined ? currentSettings.liveChatScale : 1.0}
-liveChatPosition=${currentSettings.liveChatPosition || 'top-left'}
-liveChatFontSize=${currentSettings.liveChatFontSize || 11}
-liveChatPersonaCount=${currentSettings.liveChatPersonaCount || 4}
-liveChatLanguage=${currentSettings.liveChatLanguage || 'auto'}
 screenVisionAutoLoop=${currentSettings.screenVisionAutoLoop === true}
 screenVisionInterval=${currentSettings.screenVisionInterval || 10}
 screenVisionModel=${currentSettings.screenVisionModel || 'llama3.2-vision'}
@@ -453,6 +457,10 @@ bannerBgColor=${currentSettings.bannerBgColor || '#0b0f19'}
 bannerBgOpacity=${currentSettings.bannerBgOpacity !== undefined ? currentSettings.bannerBgOpacity : 0.85}
 bannerImagePath=${currentSettings.bannerImagePath || ''}
 bannerLinkUrl=${currentSettings.bannerLinkUrl || ''}
+bannerPlaylist=${encodeURIComponent(JSON.stringify(currentSettings.bannerPlaylist || []))}
+bannerDuration=${currentSettings.bannerDuration || 5}
+bannerTransition=${currentSettings.bannerTransition || 'fade'}
+bannerAutoPlay=${currentSettings.bannerAutoPlay !== false}
 language=${currentSettings.language}`;
 
     try {

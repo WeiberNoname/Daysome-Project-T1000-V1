@@ -804,23 +804,54 @@ Always reply conversationally in the user's language.`
       }
     }
 
-    // If LLM did not execute tools, apply the semantic heuristic tool calls!
-    if (executedActions.length === 0 && heuristic.toolCalls && heuristic.toolCalls.length > 0) {
-      heuristic.toolCalls.forEach(tc => {
-        const actions = this.executeTool(tc.name, tc.args);
-        executedActions.push(...actions);
-      });
+    // In fallback mode (LLM offline or unavailable), directly execute heuristic actions
+    if (!llmSucceeded) {
+      responseText = heuristic.text;
+      if (heuristic.toolCalls && heuristic.toolCalls.length > 0) {
+        heuristic.toolCalls.forEach(tc => {
+          const actions = this.executeTool(tc.name, tc.args);
+          executedActions.push(...actions);
+        });
+      }
+    } else {
+      // If LLM succeeded but did not execute tools via tool_calls, check if responseText or userText contains actions:
+      if (executedActions.length === 0 && !this.pendingProposal) {
+        // 1. Check if the AI's response text proposed/mentioned actions
+        const replyMatch = this.registry.matchSemanticIntent(responseText);
+        if (replyMatch && replyMatch.toolCalls && replyMatch.toolCalls.length > 0) {
+          this.pendingProposal = {
+            toolCalls: replyMatch.toolCalls,
+            actionsSummary: (replyMatch.actionsSummary && replyMatch.actionsSummary.length > 0)
+              ? replyMatch.actionsSummary
+              : replyMatch.toolCalls.map(tc => tc.name)
+          };
+        } else if (heuristic.toolCalls && heuristic.toolCalls.length > 0) {
+          // 2. Check if user prompt requested actions that require confirmation
+          this.pendingProposal = {
+            toolCalls: heuristic.toolCalls,
+            actionsSummary: (heuristic.actionsSummary && heuristic.actionsSummary.length > 0)
+              ? heuristic.actionsSummary
+              : heuristic.toolCalls.map(tc => tc.name)
+          };
+        }
+      }
+
+      // If LLM response was empty, use heuristic response text
+      if (!responseText || !responseText.trim()) {
+        responseText = heuristic.text;
+      }
     }
 
-    // If LLM was offline or empty response, use heuristic response text
-    if (!llmSucceeded || !responseText || !responseText.trim()) {
-      responseText = heuristic.text;
-    }
+    const proposalData = this.pendingProposal ? {
+      toolCalls: [...this.pendingProposal.toolCalls],
+      actionsSummary: [...(this.pendingProposal.actionsSummary || [])]
+    } : null;
 
     const assistantMessageObj = {
       role: 'assistant',
       content: responseText,
       actions: executedActions,
+      proposal: proposalData,
       isNeural: llmSucceeded,
       engineMode: llmSucceeded ? 'Neural LLM' : 'Rule-Based Fallback'
     };
@@ -889,6 +920,33 @@ Always reply conversationally in the user's language.`
     });
 
     return assistantMessageObj;
+  }
+
+  /**
+   * Directly executes all proposed tool actions from a pending proposal card with one click.
+   * @param {Object} [proposal] Optional proposal object { toolCalls, actionsSummary }
+   * @returns {Array<string>} Array of executed action receipt strings
+   */
+  executeProposal(proposal = null) {
+    const p = proposal || this.pendingProposal;
+    if (!p || !p.toolCalls || !Array.isArray(p.toolCalls) || p.toolCalls.length === 0) return [];
+
+    const executedActions = [];
+    p.toolCalls.forEach(tc => {
+      const actions = this.executeTool(tc.name, tc.args || {});
+      if (Array.isArray(actions)) {
+        executedActions.push(...actions);
+      }
+    });
+
+    this.pendingProposal = null;
+
+    // Notify telemetry listeners if any
+    this.telemetryListeners.forEach(fn => {
+      try { fn({ type: 'proposal_confirmed', executedActions }); } catch (e) {}
+    });
+
+    return executedActions;
   }
 
   /**

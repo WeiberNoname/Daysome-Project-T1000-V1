@@ -4,13 +4,13 @@
 * **$O(1)$ Complexity Law**: All selectable assets (Mascots, Textures, Atmosphere Weather, Instruments, Songs, and SynapseFlow graphs) use the **Standard File Holder Grid** (`.studio-select-card`). Adding features adds 0 new UI paradigms.
 * **"Tab UI as Complete History"**: The classical tabs (Display, Atmosphere, Lighting, Texture, Sound, System) are a complete, stable historical archive.
 * **AI Function Director (Tab 1)**: Pure, minimal conversational chat interface with real-time AI Mode indicator (`🟢 Local LLM` vs `⚡ Fallback Mode`).
-* **Live Audience AI Engine**: Real-time multi-persona audience cascade generator with staggered human-jitter drip delivery for live streaming simulation and screen vision reflections.
+* **Live Stream Overlays**: Floating frameless, click-through Subtitle HUD (`caption.html`) and rotating Sponsor Banner (`banner.html`) for streamer commentary and cross-promotions.
 * **System Tab**: Centralized configuration hub containing Neural LLM endpoint settings, language selector, motion parameters, physics, and GPU toggles.
 
 ## 2. Local LLM & Ollama Background Bridge
 * **Auto-Start Daemon**: `main.js` automatically detects and starts `ollama.exe serve` (`OLLAMA_HOST=127.0.0.1:11434`, `OLLAMA_ORIGINS=*`) on boot.
 * **Default Local Model**: `llama3.2` (located at `C:\Users\space\.ollama\models\manifests\registry.ollama.ai\library\llama3.2\latest`).
-* **Fallback Mode**: If the endpoint is unreachable or offline, the app automatically switches to the built-in multi-lingual rule-based semantic parser and heuristic audience cascade.
+* **Fallback Mode**: If the endpoint is unreachable or offline, the app automatically switches to the built-in multi-lingual rule-based semantic parser.
 
 ## 3. Canonical Build, Verification & Testing Commands (PowerShell)
 * **Run Automated Unit Tests (16 Suites)**:

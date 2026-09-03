@@ -257,7 +257,7 @@ export function setupAIDirectorTabUI(deps) {
     }
   };
 
-  const appendMessage = (role, text, actions = []) => {
+  const appendMessage = (role, text, actions = [], proposal = null) => {
     if (!chatMessages) return;
 
     const msgEl = document.createElement('div');
@@ -286,6 +286,91 @@ export function setupAIDirectorTabUI(deps) {
         actionsWrapper.appendChild(badge);
       });
       body.appendChild(actionsWrapper);
+    }
+
+    // Render interactive action proposal card with single confirm button
+    if (proposal && proposal.toolCalls && proposal.toolCalls.length > 0) {
+      const proposalBox = document.createElement('div');
+      proposalBox.className = 'ai-proposal-box';
+
+      const propHeader = document.createElement('div');
+      propHeader.className = 'ai-proposal-header';
+      propHeader.innerHTML = `<span>⚡ Proposed Actions (${proposal.toolCalls.length})</span>`;
+      proposalBox.appendChild(propHeader);
+
+      const itemsList = document.createElement('div');
+      itemsList.className = 'ai-proposal-items';
+      const summaries = proposal.actionsSummary && proposal.actionsSummary.length > 0
+        ? proposal.actionsSummary
+        : proposal.toolCalls.map(tc => tc.name);
+
+      summaries.forEach(summary => {
+        const itemBadge = document.createElement('span');
+        itemBadge.className = 'ai-proposal-item';
+        itemBadge.innerText = summary;
+        itemsList.appendChild(itemBadge);
+      });
+      proposalBox.appendChild(itemsList);
+
+      const actionsRow = document.createElement('div');
+      actionsRow.className = 'ai-proposal-actions';
+
+      const btnConfirm = document.createElement('button');
+      btnConfirm.className = 'ai-confirm-btn';
+      btnConfirm.innerHTML = `⚡ Confirm All Actions`;
+
+      const btnDismiss = document.createElement('button');
+      btnDismiss.className = 'ai-dismiss-btn';
+      btnDismiss.innerText = `✕ Dismiss`;
+
+      btnConfirm.addEventListener('click', () => {
+        if (typeof soundManager !== 'undefined' && soundManager.playFanfareSfx) {
+          soundManager.playFanfareSfx();
+        } else if (typeof soundManager !== 'undefined' && soundManager.playInteractionSfx) {
+          soundManager.playInteractionSfx();
+        }
+
+        const executed = engine.executeProposal(proposal);
+        btnConfirm.disabled = true;
+        btnConfirm.innerHTML = `✅ All Actions Applied`;
+        btnDismiss.style.display = 'none';
+
+        // Render orange action badges for executed actions
+        if (executed && executed.length > 0) {
+          const actionsWrapper = document.createElement('div');
+          actionsWrapper.className = 'ai-actions-container';
+          executed.forEach(act => {
+            const badge = document.createElement('span');
+            badge.className = 'ai-action-badge';
+            badge.innerHTML = `⚡ <strong>${act}</strong>`;
+            actionsWrapper.appendChild(badge);
+          });
+          body.appendChild(actionsWrapper);
+        }
+
+        if (saveSettingsFile) saveSettingsFile();
+        if (engine.showSpeechBubble) {
+          engine.showSpeechBubble(
+            engine.currentSettings.language === 'zh'
+              ? '好嘞！已为你确认并执行所有建议调整！✨'
+              : 'All set! Confirmed and applied all proposed actions! ✨'
+          );
+        }
+        scrollToBottom();
+      });
+
+      btnDismiss.addEventListener('click', () => {
+        engine.pendingProposal = null;
+        proposalBox.style.opacity = '0.5';
+        btnDismiss.disabled = true;
+        btnConfirm.style.display = 'none';
+        btnDismiss.innerText = 'Dismissed';
+      });
+
+      actionsRow.appendChild(btnConfirm);
+      actionsRow.appendChild(btnDismiss);
+      proposalBox.appendChild(actionsRow);
+      body.appendChild(proposalBox);
     }
 
     msgEl.appendChild(avatar);
@@ -333,7 +418,7 @@ export function setupAIDirectorTabUI(deps) {
       const response = await engine.processUserMessage(text);
       removeTypingIndicator();
       if (response) {
-        appendMessage('assistant', response.content, response.actions);
+        appendMessage('assistant', response.content, response.actions, response.proposal);
         setModeIndicatorState(response.isNeural, engine.modelName);
       }
     } catch (err) {

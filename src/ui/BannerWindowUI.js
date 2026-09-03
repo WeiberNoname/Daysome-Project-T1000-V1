@@ -1,8 +1,9 @@
 /**
  * BannerWindowUI.js
  * Controls the Sponsor & Ad Banner Window settings in the Studio Panel.
- * Handles image upload / preview, transparent background configuration,
- * click-through toggles, target URLs, and real-time IPC synchronization.
+ * Supports image ad playlists with configurable duration, seamless transition
+ * animations (Fade, Slide Left, Slide Up, Zoom, 3D Flip), click-through toggles,
+ * per-ad target URLs, and real-time IPC synchronization.
  */
 
 export class BannerWindowUI {
@@ -24,6 +25,18 @@ export class BannerWindowUI {
     this.checkboxClickThrough = null;
     this.imgPreview = null;
     this.previewEmpty = null;
+    this.playlistCount = null;
+    this.playlistStrip = null;
+    this.previewNav = null;
+    this.previewBadge = null;
+    this.btnPrev = null;
+    this.btnNext = null;
+    this.sliderDuration = null;
+    this.labelDurationVal = null;
+    this.selectTransition = null;
+    this.checkboxAutoPlay = null;
+
+    this.selectedIndex = 0;
   }
 
   init() {
@@ -40,11 +53,36 @@ export class BannerWindowUI {
     this.checkboxClickThrough = document.getElementById('studio-banner-click-through');
     this.imgPreview = document.getElementById('studio-banner-preview-img');
     this.previewEmpty = document.getElementById('studio-banner-preview-empty');
+    this.playlistCount = document.getElementById('studio-banner-playlist-count');
+    this.playlistStrip = document.getElementById('studio-banner-playlist-strip');
+    this.previewNav = document.getElementById('studio-banner-preview-nav');
+    this.previewBadge = document.getElementById('studio-banner-preview-badge');
+    this.btnPrev = document.getElementById('btn-studio-banner-prev');
+    this.btnNext = document.getElementById('btn-studio-banner-next');
+    this.sliderDuration = document.getElementById('studio-banner-duration');
+    this.labelDurationVal = document.getElementById('studio-banner-duration-val');
+    this.selectTransition = document.getElementById('studio-banner-transition');
+    this.checkboxAutoPlay = document.getElementById('studio-banner-autoplay');
+
+    // Ensure playlist initialization and backward compatibility
+    if (!Array.isArray(this.currentSettings.bannerPlaylist)) {
+      this.currentSettings.bannerPlaylist = [];
+    }
+    if (this.currentSettings.bannerPlaylist.length === 0 && this.currentSettings.bannerImagePath) {
+      this.currentSettings.bannerPlaylist.push({
+        id: '1',
+        imagePath: this.currentSettings.bannerImagePath,
+        linkUrl: this.currentSettings.bannerLinkUrl || '',
+        name: 'Default Banner'
+      });
+    }
 
     this.initWindowControls();
-    this.initImageControls();
+    this.initPlaylistControls();
+    this.initRotationControls();
     this.initAppearanceControls();
     this.initIPCListeners();
+    this.renderPlaylist();
   }
 
   initWindowControls() {
@@ -97,52 +135,132 @@ export class BannerWindowUI {
     }
   }
 
-  initImageControls() {
-    // Initial preview render
-    this.updateImagePreview(this.currentSettings.bannerImagePath);
-
+  initPlaylistControls() {
     if (this.btnUpload && this.inputFile) {
       this.btnUpload.addEventListener('click', () => {
         this.inputFile.click();
       });
 
       this.inputFile.addEventListener('change', (e) => {
-        const file = e.target.files && e.target.files[0];
-        if (!file) return;
+        const files = Array.from(e.target.files || []);
+        if (files.length === 0) return;
 
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const dataUrl = event.target.result;
-          this.currentSettings.bannerImagePath = dataUrl;
-          this.updateImagePreview(dataUrl);
-          if (this.saveSettingsFile) this.saveSettingsFile();
-          this.broadcastBannerData();
-          this.updateStatus('🖼️ Banner Image Updated');
-        };
-        reader.readAsDataURL(file);
+        let loadedCount = 0;
+        files.forEach((file, idx) => {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const dataUrl = event.target.result;
+            const newItem = {
+              id: `${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+              imagePath: dataUrl,
+              linkUrl: '',
+              name: file.name.replace(/\.[^/.]+$/, "") || `Ad ${this.currentSettings.bannerPlaylist.length + 1}`
+            };
+            this.currentSettings.bannerPlaylist.push(newItem);
+            loadedCount++;
+
+            if (loadedCount === files.length) {
+              this.selectedIndex = this.currentSettings.bannerPlaylist.length - 1;
+              this.syncPrimaryAdFields();
+              if (this.saveSettingsFile) this.saveSettingsFile();
+              this.renderPlaylist();
+              this.broadcastBannerData();
+              this.updateStatus(`🖼️ Added ${files.length} Image Ads`);
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+
+        // Reset input so same files can be re-selected if desired
+        this.inputFile.value = '';
       });
     }
 
     if (this.btnClearImage) {
       this.btnClearImage.addEventListener('click', () => {
+        this.currentSettings.bannerPlaylist = [];
         this.currentSettings.bannerImagePath = '';
+        this.currentSettings.bannerLinkUrl = '';
+        this.selectedIndex = 0;
         if (this.inputFile) this.inputFile.value = '';
-        this.updateImagePreview('');
+        this.renderPlaylist();
         if (this.saveSettingsFile) this.saveSettingsFile();
         this.broadcastBannerData();
-        this.updateStatus('🗑️ Banner Image Cleared');
+        this.updateStatus('🗑️ All Banner Ads Cleared');
       });
     }
 
     if (this.inputLinkUrl) {
-      this.inputLinkUrl.value = this.currentSettings.bannerLinkUrl || '';
       const onUrlChange = (e) => {
-        this.currentSettings.bannerLinkUrl = e.target.value.trim();
+        const val = e.target.value.trim();
+        const playlist = this.currentSettings.bannerPlaylist || [];
+        if (playlist[this.selectedIndex]) {
+          playlist[this.selectedIndex].linkUrl = val;
+        }
+        this.syncPrimaryAdFields();
         if (this.saveSettingsFile) this.saveSettingsFile();
         this.broadcastBannerData();
       };
       this.inputLinkUrl.addEventListener('input', onUrlChange);
       this.inputLinkUrl.addEventListener('change', onUrlChange);
+    }
+
+    // Preview Navigation
+    if (this.btnPrev) {
+      this.btnPrev.addEventListener('click', () => {
+        const playlist = this.currentSettings.bannerPlaylist || [];
+        if (playlist.length <= 1) return;
+        this.selectedIndex = (this.selectedIndex - 1 + playlist.length) % playlist.length;
+        this.renderPlaylist();
+      });
+    }
+
+    if (this.btnNext) {
+      this.btnNext.addEventListener('click', () => {
+        const playlist = this.currentSettings.bannerPlaylist || [];
+        if (playlist.length <= 1) return;
+        this.selectedIndex = (this.selectedIndex + 1) % playlist.length;
+        this.renderPlaylist();
+      });
+    }
+  }
+
+  initRotationControls() {
+    const defaultDur = this.currentSettings.bannerDuration || 5;
+    const defaultTrans = this.currentSettings.bannerTransition || 'fade';
+    const defaultAuto = this.currentSettings.bannerAutoPlay !== false;
+
+    if (this.sliderDuration) {
+      this.sliderDuration.value = defaultDur;
+      if (this.labelDurationVal) this.labelDurationVal.innerText = `${defaultDur}s`;
+      this.sliderDuration.addEventListener('input', (e) => {
+        const sec = parseInt(e.target.value, 10) || 5;
+        if (this.labelDurationVal) this.labelDurationVal.innerText = `${sec}s`;
+        this.currentSettings.bannerDuration = sec;
+        if (this.saveSettingsFile) this.saveSettingsFile();
+        this.broadcastBannerData();
+      });
+    }
+
+    if (this.selectTransition) {
+      this.selectTransition.value = defaultTrans;
+      this.selectTransition.addEventListener('change', (e) => {
+        this.currentSettings.bannerTransition = e.target.value;
+        if (this.saveSettingsFile) this.saveSettingsFile();
+        this.broadcastBannerData();
+        this.updateStatus(`✨ Transition: ${e.target.value}`);
+      });
+    }
+
+    if (this.checkboxAutoPlay) {
+      this.checkboxAutoPlay.checked = defaultAuto;
+      this.checkboxAutoPlay.addEventListener('change', (e) => {
+        const auto = !!e.target.checked;
+        this.currentSettings.bannerAutoPlay = auto;
+        if (this.saveSettingsFile) this.saveSettingsFile();
+        this.broadcastBannerData();
+        this.updateStatus(auto ? '▶ Auto-Play Enabled' : '⏸ Auto-Play Paused');
+      });
     }
   }
 
@@ -189,14 +307,49 @@ export class BannerWindowUI {
     }
   }
 
-  updateImagePreview(imgSrc) {
-    if (imgSrc && imgSrc.trim()) {
+  syncPrimaryAdFields() {
+    const playlist = this.currentSettings.bannerPlaylist || [];
+    if (playlist.length > 0) {
+      const active = playlist[this.selectedIndex] || playlist[0];
+      this.currentSettings.bannerImagePath = active.imagePath || '';
+      this.currentSettings.bannerLinkUrl = active.linkUrl || '';
+    } else {
+      this.currentSettings.bannerImagePath = '';
+      this.currentSettings.bannerLinkUrl = '';
+    }
+  }
+
+  renderPlaylist() {
+    const playlist = this.currentSettings.bannerPlaylist || [];
+
+    // Clamp selected index
+    if (this.selectedIndex >= playlist.length) {
+      this.selectedIndex = Math.max(0, playlist.length - 1);
+    }
+
+    // Playlist count label
+    if (this.playlistCount) {
+      this.playlistCount.innerText = `${playlist.length} Ad${playlist.length === 1 ? '' : 's'}`;
+    }
+
+    // Active Ad Preview
+    if (playlist.length > 0 && playlist[this.selectedIndex]) {
+      const activeAd = playlist[this.selectedIndex];
       if (this.imgPreview) {
-        this.imgPreview.src = imgSrc;
+        this.imgPreview.src = activeAd.imagePath;
         this.imgPreview.style.display = 'block';
       }
       if (this.previewEmpty) {
         this.previewEmpty.style.display = 'none';
+      }
+      if (this.inputLinkUrl) {
+        this.inputLinkUrl.value = activeAd.linkUrl || '';
+      }
+      if (this.previewNav) {
+        this.previewNav.style.display = playlist.length > 1 ? 'flex' : 'none';
+      }
+      if (this.previewBadge) {
+        this.previewBadge.innerText = `${this.selectedIndex + 1}/${playlist.length}`;
       }
     } else {
       if (this.imgPreview) {
@@ -206,12 +359,105 @@ export class BannerWindowUI {
       if (this.previewEmpty) {
         this.previewEmpty.style.display = 'flex';
       }
+      if (this.inputLinkUrl) {
+        this.inputLinkUrl.value = '';
+      }
+      if (this.previewNav) {
+        this.previewNav.style.display = 'none';
+      }
+    }
+
+    // Thumbnail strip rendering
+    if (this.playlistStrip) {
+      this.playlistStrip.innerHTML = '';
+      if (playlist.length === 0) {
+        this.playlistStrip.style.display = 'none';
+      } else {
+        this.playlistStrip.style.display = 'flex';
+        playlist.forEach((item, idx) => {
+          const thumbCard = document.createElement('div');
+          const isSelected = idx === this.selectedIndex;
+          thumbCard.style.cssText = `
+            position: relative;
+            flex-shrink: 0;
+            width: 48px;
+            height: 34px;
+            border-radius: 4px;
+            border: 2px solid ${isSelected ? '#38bdf8' : 'rgba(255,255,255,0.15)'};
+            background: rgba(0,0,0,0.5);
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.15s ease;
+          `;
+
+          const thumbImg = document.createElement('img');
+          thumbImg.src = item.imagePath;
+          thumbImg.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
+          thumbCard.appendChild(thumbImg);
+
+          // Delete button on thumbnail
+          const btnDel = document.createElement('button');
+          btnDel.innerHTML = '✕';
+          btnDel.title = 'Remove Ad';
+          btnDel.style.cssText = `
+            position: absolute;
+            top: 1px;
+            right: 1px;
+            width: 13px;
+            height: 13px;
+            background: rgba(239, 68, 68, 0.85);
+            color: #fff;
+            border: none;
+            border-radius: 2px;
+            font-size: 8px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+          `;
+          btnDel.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.removeAd(idx);
+          });
+          thumbCard.appendChild(btnDel);
+
+          thumbCard.addEventListener('click', () => {
+            this.selectedIndex = idx;
+            this.syncPrimaryAdFields();
+            this.renderPlaylist();
+          });
+
+          this.playlistStrip.appendChild(thumbCard);
+        });
+      }
+    }
+  }
+
+  removeAd(idx) {
+    const playlist = this.currentSettings.bannerPlaylist || [];
+    if (idx >= 0 && idx < playlist.length) {
+      playlist.splice(idx, 1);
+      if (this.selectedIndex >= playlist.length) {
+        this.selectedIndex = Math.max(0, playlist.length - 1);
+      }
+      this.syncPrimaryAdFields();
+      if (this.saveSettingsFile) this.saveSettingsFile();
+      this.renderPlaylist();
+      this.broadcastBannerData();
+      this.updateStatus('🗑️ Ad Removed');
     }
   }
 
   broadcastBannerData() {
     const api = window.electronAPI;
     const data = {
+      playlist: this.currentSettings.bannerPlaylist || [],
+      duration: this.currentSettings.bannerDuration || 5,
+      transition: this.currentSettings.bannerTransition || 'fade',
+      autoPlay: this.currentSettings.bannerAutoPlay !== false,
       imagePath: this.currentSettings.bannerImagePath || '',
       linkUrl: this.currentSettings.bannerLinkUrl || '',
       bgColor: this.currentSettings.bannerBgColor || '#0b0f19',
