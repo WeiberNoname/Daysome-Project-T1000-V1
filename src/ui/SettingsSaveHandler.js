@@ -147,6 +147,14 @@ export async function handleSaveSettings(deps) {
   if (synthAutoLoopDom) currentSettings.synthAutoLoop = synthAutoLoopDom.checked;
   const synthAutoIntervalDom = document.getElementById('beta-synth-auto-interval');
   if (synthAutoIntervalDom) currentSettings.synthAutoInterval = parseInt(synthAutoIntervalDom.value, 10) || 15;
+  const synthTTSEnableDom = document.getElementById('beta-synth-tts-enable');
+  if (synthTTSEnableDom) currentSettings.synthTTSEnabled = synthTTSEnableDom.checked;
+  const synthTTSPitchDom = document.getElementById('beta-synth-tts-pitch');
+  if (synthTTSPitchDom) currentSettings.synthTTSPitch = parseFloat(synthTTSPitchDom.value) || 1.15;
+  const synthTTSRateDom = document.getElementById('beta-synth-tts-rate');
+  if (synthTTSRateDom) currentSettings.synthTTSRate = parseFloat(synthTTSRateDom.value) || 1.05;
+  const synthTTSVolDom = document.getElementById('beta-synth-tts-volume');
+  if (synthTTSVolDom) currentSettings.synthTTSVolume = (parseFloat(synthTTSVolDom.value) || 100) / 100.0;
 
   soundManager.syncAtmosphere(currentSettings);
 

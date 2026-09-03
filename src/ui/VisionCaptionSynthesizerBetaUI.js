@@ -6,6 +6,7 @@
  */
 
 import { visionCaptionSynthesizerService } from '../services/VisionCaptionSynthesizerService.js';
+import { speechSynthesisService } from '../services/SpeechSynthesisService.js';
 import { soundManager } from '../core/SoundManager.js';
 import { showSpeechBubble } from '../ui/uiUtils.js';
 
@@ -28,6 +29,12 @@ export class VisionCaptionSynthesizerBetaUI {
     this.autoIntervalSelect = null;
     this.autoStreamHUDCheckbox = null;
     this.btnToggleLoop = null;
+
+    this.ttsEnableCheckbox = null;
+    this.ttsPitchInput = null;
+    this.ttsRateInput = null;
+    this.ttsVolInput = null;
+    this.btnTTSPreview = null;
 
     this.btnGenerate = null;
     this.btnStreamSeq = null;
@@ -64,6 +71,12 @@ export class VisionCaptionSynthesizerBetaUI {
     this.autoStreamHUDCheckbox = document.getElementById('beta-synth-auto-stream-hud');
     this.btnToggleLoop = document.getElementById('btn-beta-synth-toggle-loop');
 
+    this.ttsEnableCheckbox = document.getElementById('beta-synth-tts-enable');
+    this.ttsPitchInput = document.getElementById('beta-synth-tts-pitch');
+    this.ttsRateInput = document.getElementById('beta-synth-tts-rate');
+    this.ttsVolInput = document.getElementById('beta-synth-tts-volume');
+    this.btnTTSPreview = document.getElementById('btn-beta-synth-tts-preview');
+
     this.btnGenerate = document.getElementById('btn-beta-synth-generate');
     this.btnStreamSeq = document.getElementById('btn-beta-synth-stream-seq');
     this.btnCopy = document.getElementById('btn-beta-synth-copy');
@@ -79,6 +92,44 @@ export class VisionCaptionSynthesizerBetaUI {
     this.outputTextarea = document.getElementById('beta-synth-output-text');
 
     // Restore settings & bind change events
+    if (this.ttsEnableCheckbox) {
+      this.ttsEnableCheckbox.checked = !!this.currentSettings.synthTTSEnabled;
+      this.ttsEnableCheckbox.addEventListener('change', () => {
+        this.currentSettings.synthTTSEnabled = this.ttsEnableCheckbox.checked;
+        if (this.saveSettingsFile) this.saveSettingsFile();
+      });
+    }
+
+    if (this.ttsPitchInput && this.currentSettings.synthTTSPitch !== undefined) {
+      this.ttsPitchInput.value = this.currentSettings.synthTTSPitch.toFixed(2);
+      this.ttsPitchInput.addEventListener('change', () => {
+        this.currentSettings.synthTTSPitch = parseFloat(this.ttsPitchInput.value) || 1.15;
+        if (this.saveSettingsFile) this.saveSettingsFile();
+      });
+    }
+
+    if (this.ttsRateInput && this.currentSettings.synthTTSRate !== undefined) {
+      this.ttsRateInput.value = this.currentSettings.synthTTSRate.toFixed(2);
+      this.ttsRateInput.addEventListener('change', () => {
+        this.currentSettings.synthTTSRate = parseFloat(this.ttsRateInput.value) || 1.05;
+        if (this.saveSettingsFile) this.saveSettingsFile();
+      });
+    }
+
+    if (this.ttsVolInput && this.currentSettings.synthTTSVolume !== undefined) {
+      this.ttsVolInput.value = Math.round(this.currentSettings.synthTTSVolume * 100);
+      this.ttsVolInput.addEventListener('change', () => {
+        this.currentSettings.synthTTSVolume = (parseFloat(this.ttsVolInput.value) || 100) / 100.0;
+        if (this.saveSettingsFile) this.saveSettingsFile();
+      });
+    }
+
+    if (this.btnTTSPreview) {
+      this.btnTTSPreview.addEventListener('click', () => {
+        this.handleTTSPreview();
+      });
+    }
+
     if (this.visionModelSelect && this.currentSettings.synthVisionModel) {
       this.visionModelSelect.value = this.currentSettings.synthVisionModel;
       this.visionModelSelect.addEventListener('change', () => {
@@ -409,6 +460,12 @@ export class VisionCaptionSynthesizerBetaUI {
       this.btnStreamSeq.innerText = `⏹️ Streaming (1/${list.length})...`;
     }
 
+    const isTTSEnabled = this.ttsEnableCheckbox ? this.ttsEnableCheckbox.checked : !!this.currentSettings.synthTTSEnabled;
+    const lang = this.langSelect ? this.langSelect.value : (this.currentSettings.synthLanguage || 'auto');
+    const pitch = parseFloat(this.ttsPitchInput?.value || this.currentSettings.synthTTSPitch || 1.15);
+    const rate = parseFloat(this.ttsRateInput?.value || this.currentSettings.synthTTSRate || 1.05);
+    const volume = (parseFloat(this.ttsVolInput?.value || 100)) / 100.0;
+
     list.forEach((sentence, idx) => {
       const timeoutId = setTimeout(() => {
         if (!this.isStreamingSequence) return;
@@ -422,6 +479,11 @@ export class VisionCaptionSynthesizerBetaUI {
             model,
             source: 'SYNTHESIZER'
           });
+        }
+
+        // Trigger Voice Synthesis (TTS) if enabled
+        if (isTTSEnabled) {
+          speechSynthesisService.speak(sentence, { language: lang, pitch, rate, volume });
         }
 
         if (this.btnStreamSeq) {
@@ -450,9 +512,40 @@ export class VisionCaptionSynthesizerBetaUI {
     this.sequenceTimeouts.forEach(t => clearTimeout(t));
     this.sequenceTimeouts = [];
     this.isStreamingSequence = false;
+    speechSynthesisService.stop();
     if (this.btnStreamSeq) {
       this.btnStreamSeq.innerText = '▶ Stream Sequentially';
     }
+  }
+
+  handleTTSPreview() {
+    const lang = this.langSelect ? this.langSelect.value : (this.currentSettings.synthLanguage || 'auto');
+    const pitch = parseFloat(this.ttsPitchInput?.value || this.currentSettings.synthTTSPitch || 1.15);
+    const rate = parseFloat(this.ttsRateInput?.value || this.currentSettings.synthTTSRate || 1.05);
+    const volume = (parseFloat(this.ttsVolInput?.value || 100)) / 100.0;
+
+    let sampleText = "Hello! Voice dubbing and mascot lip-sync are now active.";
+    if (lang === 'zh-TW' || lang === 'zh_TW') {
+      sampleText = "太神啦！即時語音旁白與桌寵同步講話已經開啟！";
+    } else if (lang === 'zh' || lang === 'zh-CN') {
+      sampleText = "你好！实时语音旁白与桌宠同步说话已经就绪！";
+    } else if (lang === 'ja') {
+      sampleText = "こんにちは！リアルタイム音声読み上げとマスコット同期が有効です。";
+    } else if (lang === 'ko') {
+      sampleText = "안녕하세요! 실시간 음성 더빙이 활성화되었습니다.";
+    }
+
+    soundManager.playInteractionSfx();
+    this.updateStatus(`🔊 Playing voice test preview (${lang})...`);
+    speechSynthesisService.speak(sampleText, {
+      language: lang,
+      pitch,
+      rate,
+      volume,
+      onEnd: () => {
+        this.updateStatus('✅ Voice preview completed');
+      }
+    });
   }
 
   handleSendToCaptionWindow() {
@@ -479,6 +572,16 @@ export class VisionCaptionSynthesizerBetaUI {
 
     showSpeechBubble(firstCaption, 5000);
     soundManager.playFanfareSfx();
+
+    const isTTSEnabled = this.ttsEnableCheckbox ? this.ttsEnableCheckbox.checked : !!this.currentSettings.synthTTSEnabled;
+    if (isTTSEnabled) {
+      const lang = this.langSelect ? this.langSelect.value : (this.currentSettings.synthLanguage || 'auto');
+      const pitch = parseFloat(this.ttsPitchInput?.value || this.currentSettings.synthTTSPitch || 1.15);
+      const rate = parseFloat(this.ttsRateInput?.value || this.currentSettings.synthTTSRate || 1.05);
+      const volume = (parseFloat(this.ttsVolInput?.value || 100)) / 100.0;
+      speechSynthesisService.speak(firstCaption, { language: lang, pitch, rate, volume });
+    }
+
     this.updateStatus('🐾 Displaying in mascot speech bubble!');
   }
 

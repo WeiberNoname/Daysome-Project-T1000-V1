@@ -16,8 +16,19 @@ export class LiveCaptionBetaUI {
     this.btnTest = null;
     this.btnClear = null;
     this.mirrorToggle = null;
+    this.clickThroughToggle = null;
     this.statusTag = null;
     this.lastBroadcastText = '';
+
+    // Appearance controls
+    this.inputBgColor = null;
+    this.labelBgHex = null;
+    this.sliderOpacity = null;
+    this.labelOpacityVal = null;
+    this.inputFontColor = null;
+    this.labelFontHex = null;
+    this.sliderFontSize = null;
+    this.labelFontSizeVal = null;
   }
 
   init() {
@@ -26,6 +37,18 @@ export class LiveCaptionBetaUI {
     this.btnClear = document.getElementById('btn-beta-clear-caption-window');
     this.mirrorToggle = document.getElementById('beta-caption-mirror-vision');
     this.statusTag = document.getElementById('beta-caption-hud-status');
+
+    // Appearance inputs
+    this.inputBgColor = document.getElementById('beta-caption-bg-color');
+    this.labelBgHex = document.getElementById('beta-caption-bg-hex');
+    this.sliderOpacity = document.getElementById('beta-caption-opacity');
+    this.labelOpacityVal = document.getElementById('beta-caption-opacity-val');
+    this.inputFontColor = document.getElementById('beta-caption-font-color');
+    this.labelFontHex = document.getElementById('beta-caption-font-hex');
+    this.sliderFontSize = document.getElementById('beta-caption-font-size');
+    this.labelFontSizeVal = document.getElementById('beta-caption-font-size-val');
+
+    this.initAppearanceControls();
 
     if (this.btnLaunch) {
       this.btnLaunch.addEventListener('click', () => {
@@ -62,12 +85,150 @@ export class LiveCaptionBetaUI {
       });
     }
 
+    this.clickThroughToggle = document.getElementById('beta-caption-click-through');
+    if (this.clickThroughToggle) {
+      this.clickThroughToggle.checked = this.currentSettings.liveCaptionClickThrough === true;
+      this.clickThroughToggle.addEventListener('change', () => {
+        const enabled = this.clickThroughToggle.checked;
+        this.currentSettings.liveCaptionClickThrough = enabled;
+        if (this.saveSettingsFile) this.saveSettingsFile();
+        const api = window.electronAPI;
+        if (api && typeof api.setCaptionClickThrough === 'function') {
+          api.setCaptionClickThrough(enabled);
+        } else if (api && typeof api.send === 'function') {
+          api.send('set-caption-click-through', enabled);
+        }
+        this.updateStatus(enabled ? '🖱️ Click-Through Enabled' : '🖐️ Click-Through Disabled');
+      });
+    }
+
+    // Initialize click-through state on boot
+    if (this.currentSettings.liveCaptionClickThrough) {
+      const api = window.electronAPI;
+      if (api && typeof api.setCaptionClickThrough === 'function') {
+        api.setCaptionClickThrough(true);
+      } else if (api && typeof api.send === 'function') {
+        api.send('set-caption-click-through', true);
+      }
+    }
+
+    // Listen for style updates from the floating caption window
+    const api = window.electronAPI;
+    if (api && typeof api.on === 'function') {
+      api.on('caption-style-update', (style) => {
+        if (!style) return;
+        if (style.bgColor && this.inputBgColor) {
+          this.inputBgColor.value = style.bgColor;
+          if (this.labelBgHex) this.labelBgHex.innerText = style.bgColor.toUpperCase();
+          this.currentSettings.liveCaptionBgColor = style.bgColor;
+        }
+        if (style.opacity !== undefined && this.sliderOpacity) {
+          const pct = Math.round(style.opacity * 100);
+          this.sliderOpacity.value = pct;
+          if (this.labelOpacityVal) this.labelOpacityVal.innerText = `${pct}%`;
+          this.currentSettings.liveCaptionBgOpacity = style.opacity;
+        }
+        if (style.fontColor && this.inputFontColor) {
+          this.inputFontColor.value = style.fontColor;
+          if (this.labelFontHex) this.labelFontHex.innerText = style.fontColor.toUpperCase();
+          this.currentSettings.liveCaptionFontColor = style.fontColor;
+        }
+        if (style.fontSize !== undefined && this.sliderFontSize) {
+          this.sliderFontSize.value = style.fontSize;
+          if (this.labelFontSizeVal) this.labelFontSizeVal.innerText = `${style.fontSize}px`;
+          this.currentSettings.liveCaptionFontSize = style.fontSize;
+        }
+        if (this.saveSettingsFile) this.saveSettingsFile();
+      });
+    }
+
     // Auto-launch on boot if user configured it
     if (this.currentSettings.liveCaptionAutoOpen) {
-      const api = window.electronAPI;
       if (api && typeof api.openLiveCaptionWindow === 'function') {
         api.openLiveCaptionWindow();
       }
+    }
+  }
+
+  /**
+   * Initializes background color, opacity, and font color controls with settings.
+   */
+  initAppearanceControls() {
+    const defaultBg = this.currentSettings.liveCaptionBgColor || '#0b0f19';
+    const defaultOp = this.currentSettings.liveCaptionBgOpacity !== undefined ? this.currentSettings.liveCaptionBgOpacity : 0.90;
+    const defaultFont = this.currentSettings.liveCaptionFontColor || '#ffffff';
+
+    if (this.inputBgColor) {
+      this.inputBgColor.value = defaultBg;
+      if (this.labelBgHex) this.labelBgHex.innerText = defaultBg.toUpperCase();
+      const onBgChange = (e) => {
+        const hex = e.target.value;
+        if (this.labelBgHex) this.labelBgHex.innerText = hex.toUpperCase();
+        this.currentSettings.liveCaptionBgColor = hex;
+        if (this.saveSettingsFile) this.saveSettingsFile();
+        this.broadcastCaptionStyle();
+      };
+      this.inputBgColor.addEventListener('input', onBgChange);
+      this.inputBgColor.addEventListener('change', onBgChange);
+    }
+
+    if (this.sliderOpacity) {
+      const pct = Math.round(defaultOp * 100);
+      this.sliderOpacity.value = pct;
+      if (this.labelOpacityVal) this.labelOpacityVal.innerText = `${pct}%`;
+      const onOpChange = (e) => {
+        const opVal = parseInt(e.target.value, 10) / 100;
+        if (this.labelOpacityVal) this.labelOpacityVal.innerText = `${parseInt(e.target.value, 10)}%`;
+        this.currentSettings.liveCaptionBgOpacity = opVal;
+        if (this.saveSettingsFile) this.saveSettingsFile();
+        this.broadcastCaptionStyle();
+      };
+      this.sliderOpacity.addEventListener('input', onOpChange);
+      this.sliderOpacity.addEventListener('change', onOpChange);
+    }
+
+    if (this.inputFontColor) {
+      this.inputFontColor.value = defaultFont;
+      if (this.labelFontHex) this.labelFontHex.innerText = defaultFont.toUpperCase();
+      const onFontChange = (e) => {
+        const hex = e.target.value;
+        if (this.labelFontHex) this.labelFontHex.innerText = hex.toUpperCase();
+        this.currentSettings.liveCaptionFontColor = hex;
+        if (this.saveSettingsFile) this.saveSettingsFile();
+        this.broadcastCaptionStyle();
+      };
+      this.inputFontColor.addEventListener('input', onFontChange);
+      this.inputFontColor.addEventListener('change', onFontChange);
+    }
+
+    if (this.sliderFontSize) {
+      const defaultSize = this.currentSettings.liveCaptionFontSize || 16;
+      this.sliderFontSize.value = defaultSize;
+      if (this.labelFontSizeVal) this.labelFontSizeVal.innerText = `${defaultSize}px`;
+      const onSizeChange = (e) => {
+        const sizeVal = parseInt(e.target.value, 10) || 16;
+        if (this.labelFontSizeVal) this.labelFontSizeVal.innerText = `${sizeVal}px`;
+        this.currentSettings.liveCaptionFontSize = sizeVal;
+        if (this.saveSettingsFile) this.saveSettingsFile();
+        this.broadcastCaptionStyle();
+      };
+      this.sliderFontSize.addEventListener('input', onSizeChange);
+      this.sliderFontSize.addEventListener('change', onSizeChange);
+    }
+  }
+
+  /**
+   * Broadcasts style preferences to floating caption window.
+   */
+  broadcastCaptionStyle() {
+    const api = window.electronAPI;
+    if (api && typeof api.send === 'function') {
+      api.send('broadcast-caption-style', {
+        bgColor: this.currentSettings.liveCaptionBgColor || '#0b0f19',
+        opacity: this.currentSettings.liveCaptionBgOpacity !== undefined ? this.currentSettings.liveCaptionBgOpacity : 0.90,
+        fontColor: this.currentSettings.liveCaptionFontColor || '#ffffff',
+        fontSize: this.currentSettings.liveCaptionFontSize || 16
+      });
     }
   }
 
