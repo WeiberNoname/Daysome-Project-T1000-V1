@@ -27,15 +27,6 @@ assert.strictEqual(defaults.activeModel, 'procedural', 'Default activeModel shou
 assert.strictEqual(defaults.sakuraRain, true, 'Default sakuraRain should be true');
 assert.strictEqual(defaults.snowFall, false, 'Default snowFall should be false');
 assert.strictEqual(defaults.dynamicBatterySaver, false, 'Default dynamicBatterySaver should be false');
-assert.strictEqual(defaults.liveChatEnabled, false, 'Default liveChatEnabled should be false');
-assert.strictEqual(defaults.liveChatSpeed, 'normal', 'Default liveChatSpeed should be normal');
-assert.strictEqual(defaults.liveChatWidth, 240, 'Default liveChatWidth should be 240');
-assert.strictEqual(defaults.liveChatHeight, 190, 'Default liveChatHeight should be 190');
-assert.strictEqual(defaults.liveChatScale, 1.0, 'Default liveChatScale should be 1.0');
-assert.strictEqual(defaults.liveChatPosition, 'top-left', 'Default liveChatPosition should be top-left');
-assert.strictEqual(defaults.liveChatFontSize, 11, 'Default liveChatFontSize should be 11');
-assert.strictEqual(defaults.liveChatPersonaCount, 4, 'Default liveChatPersonaCount should be 4');
-assert.strictEqual(defaults.liveChatLanguage, 'auto', 'Default liveChatLanguage should be auto');
 assert.strictEqual(defaults.screenVisionAutoLoop, false, 'Default screenVisionAutoLoop should be false');
 assert.strictEqual(defaults.screenVisionModel, 'moondream', 'Default screenVisionModel should be moondream');
 assert.strictEqual(defaults.screenVisionDetail, 'medium', 'Default screenVisionDetail should be medium');
@@ -53,6 +44,10 @@ assert.strictEqual(defaults.bannerBgColor, '#0b0f19', 'Default bannerBgColor sho
 assert.strictEqual(defaults.bannerBgOpacity, 0.85, 'Default bannerBgOpacity should be 0.85');
 assert.strictEqual(defaults.bannerImagePath, '', 'Default bannerImagePath should be empty');
 assert.strictEqual(defaults.bannerLinkUrl, '', 'Default bannerLinkUrl should be empty');
+assert.deepStrictEqual(defaults.bannerPlaylist, [], 'Default bannerPlaylist should be empty array');
+assert.strictEqual(defaults.bannerDuration, 5, 'Default bannerDuration should be 5');
+assert.strictEqual(defaults.bannerTransition, 'fade', 'Default bannerTransition should be fade');
+assert.strictEqual(defaults.bannerAutoPlay, true, 'Default bannerAutoPlay should be true');
 assert.strictEqual(defaults.synthVisionModel, 'moondream', 'Default synthVisionModel should be moondream');
 assert.strictEqual(defaults.synthVisionDetail, 'medium', 'Default synthVisionDetail should be medium');
 assert.strictEqual(defaults.synthTextModel, 'llama3.2', 'Default synthTextModel should be llama3.2');
@@ -69,15 +64,6 @@ const merged = SettingsManager.mergeWithDefaults({
   targetFps: 120,
   customKey: 'test',
   snowFall: true,
-  liveChatEnabled: true,
-  liveChatSpeed: 'fast',
-  liveChatWidth: 320,
-  liveChatHeight: 250,
-  liveChatScale: 1.25,
-  liveChatPosition: 'top-right',
-  liveChatFontSize: 16,
-  liveChatPersonaCount: 8,
-  liveChatLanguage: 'ja',
   screenVisionAutoLoop: true,
   screenVisionInterval: 15,
   screenVisionModel: 'moondream',
@@ -92,20 +78,15 @@ const merged = SettingsManager.mergeWithDefaults({
   bannerBgColor: '#18181b',
   bannerBgOpacity: 0.60,
   bannerImagePath: 'sample.png',
-  bannerLinkUrl: 'https://store.steampowered.com'
+  bannerLinkUrl: 'https://store.steampowered.com',
+  bannerPlaylist: [{ id: 'ad1', imagePath: 'sample.png', linkUrl: 'https://store.steampowered.com', name: 'Test Ad' }],
+  bannerDuration: 8,
+  bannerTransition: 'slide-left',
+  bannerAutoPlay: false
 });
 assert.strictEqual(merged.scale, 2.5, 'Scale should be overridden to 2.5');
 assert.strictEqual(merged.targetFps, 120, 'targetFps should be overridden to 120');
 assert.strictEqual(merged.snowFall, true, 'snowFall should be overridden to true');
-assert.strictEqual(merged.liveChatEnabled, true, 'liveChatEnabled should be overridden to true');
-assert.strictEqual(merged.liveChatSpeed, 'fast', 'liveChatSpeed should be overridden to fast');
-assert.strictEqual(merged.liveChatWidth, 320, 'liveChatWidth should be overridden to 320');
-assert.strictEqual(merged.liveChatHeight, 250, 'liveChatHeight should be overridden to 250');
-assert.strictEqual(merged.liveChatScale, 1.25, 'liveChatScale should be overridden to 1.25');
-assert.strictEqual(merged.liveChatPosition, 'top-right', 'liveChatPosition should be overridden to top-right');
-assert.strictEqual(merged.liveChatFontSize, 16, 'liveChatFontSize should be overridden to 16');
-assert.strictEqual(merged.liveChatPersonaCount, 8, 'liveChatPersonaCount should be overridden to 8');
-assert.strictEqual(merged.liveChatLanguage, 'ja', 'liveChatLanguage should be overridden to ja');
 assert.strictEqual(merged.screenVisionAutoLoop, true, 'screenVisionAutoLoop should be overridden to true');
 assert.strictEqual(merged.screenVisionInterval, 15, 'screenVisionInterval should be overridden to 15');
 assert.strictEqual(merged.screenVisionModel, 'moondream', 'screenVisionModel should be overridden to moondream');
@@ -121,6 +102,10 @@ assert.strictEqual(merged.bannerBgColor, '#18181b', 'bannerBgColor should be ove
 assert.strictEqual(merged.bannerBgOpacity, 0.60, 'bannerBgOpacity should be overridden to 0.60');
 assert.strictEqual(merged.bannerImagePath, 'sample.png', 'bannerImagePath should be overridden to sample.png');
 assert.strictEqual(merged.bannerLinkUrl, 'https://store.steampowered.com', 'bannerLinkUrl should be overridden to steam URL');
+assert.strictEqual(merged.bannerPlaylist.length, 1, 'bannerPlaylist should have 1 item');
+assert.strictEqual(merged.bannerDuration, 8, 'bannerDuration should be overridden to 8');
+assert.strictEqual(merged.bannerTransition, 'slide-left', 'bannerTransition should be overridden to slide-left');
+assert.strictEqual(merged.bannerAutoPlay, false, 'bannerAutoPlay should be overridden to false');
 assert.strictEqual(merged.width, 350, 'Unspecified width should fallback to 350');
 assert.strictEqual(merged.activeModel, 'procedural', 'Fallback activeModel should be procedural');
 console.log('✅ SettingsManager tests PASSED.');
@@ -836,6 +821,28 @@ import('../src/core/SoundManager.js').then(({ SoundManager }) => {
                 assert.strictEqual(listenerNotified, true, 'Telemetry listener should be notified of dataset load');
                 assert.strictEqual(engine.getTelemetryTraces().length, 1, 'Loaded dataset should be set active');
 
+                // Test executeProposal (Single Confirm All Actions Button)
+                const sampleProposal = {
+                  toolCalls: [
+                    { name: 'setWeather', args: { snowFall: true } },
+                    { name: 'setModelScale', args: { scale: 1.8 } }
+                  ],
+                  actionsSummary: ['turned on snowfall', 'scaled model to 1.8x']
+                };
+                const proposalActions = engine.executeProposal(sampleProposal);
+                assert.strictEqual(proposalActions.length, 2, 'executeProposal must execute all tool calls in one shot');
+                assert.strictEqual(mockSettings.snowFall, true, 'Proposal execution must apply snowFall: true');
+                assert.strictEqual(mockSettings.scale, 1.8, 'Proposal execution must apply scale: 1.8');
+
+                // Test processUserMessage proposal generation on conversational action offers
+                mockSettings.soundMuted = false;
+                mockSettings.soundMasterVolume = 0.8;
+                mockSettings.spinY = true;
+                engine.processUserMessage('turn off anything that could be annoying').then(annoyanceTurn => {
+                  assert.ok(annoyanceTurn.proposal !== null, 'Annoyance audit must return a pending proposal');
+                  assert.ok(annoyanceTurn.proposal.toolCalls.length > 0, 'Proposal must contain proposed tool calls');
+                });
+
                 // Test AssetRegistryManager Ingestion & 3D Model Scanning
                 console.log('▶ Testing AssetRegistryManager 3D Ingestion & SceneStageManager Scanning...');
                 const registry = new AssetRegistryManager();
@@ -1001,73 +1008,24 @@ import('../src/core/SoundManager.js').then(({ SoundManager }) => {
 
                     console.log('✅ SpeechSynthesisService unit tests PASSED.');
 
-                    // Test LiveAudienceAIService (Multi-Persona AI Live Stream Audience Engine)
-                    const { LiveAudienceAIService } = await import('../src/services/LiveAudienceAIService.js');
-                    console.log('▶ Testing LiveAudienceAIService multi-persona AI audience cascades & drip delivery...');
-                    const audienceService = new LiveAudienceAIService();
+                    // Test Overlay Window Files & Safe Live Chat Deprecation Integrity
+                    console.log('▶ Testing Floating Subtitle HUD & Sponsor Banner overlay integrity...');
+                    import('fs').then((fs) => {
+                      assert.strictEqual(fs.existsSync('caption.html'), true, 'caption.html overlay window must exist');
+                      assert.strictEqual(fs.existsSync('caption.js'), true, 'caption.js overlay controller must exist');
+                      assert.strictEqual(fs.existsSync('banner.html'), true, 'banner.html sponsor window must exist');
+                      assert.strictEqual(fs.existsSync('banner.js'), true, 'banner.js sponsor controller must exist');
 
-                    // 1. Test System Prompt Schema, Persona Scaling & Primary Language
-                    const enAudiencePrompt = LiveAudienceAIService.getSystemPrompt(8, 'en');
-                    assert(enAudiencePrompt.includes('Twitch'), 'English system prompt must mention streaming platforms');
-                    assert(enAudiencePrompt.includes('EXACTLY 8'), 'English system prompt must scale to requested count');
+                      // Confirm orphaned live chat files are safely removed
+                      assert.strictEqual(fs.existsSync('chat.html'), false, 'Orphaned chat.html must be removed');
+                      assert.strictEqual(fs.existsSync('chat.js'), false, 'Orphaned chat.js must be removed');
+                      assert.strictEqual(fs.existsSync('src/services/LiveAudienceAIService.js'), false, 'Orphaned LiveAudienceAIService.js must be removed');
+                      assert.strictEqual(fs.existsSync('src/ui/LiveChatSimulatorUI.js'), false, 'Orphaned LiveChatSimulatorUI.js must be removed');
 
-                    const zhAudiencePrompt = LiveAudienceAIService.getSystemPrompt(8, 'zh');
-                    assert(zhAudiencePrompt.includes('直播间'), 'Chinese system prompt must use native Chinese instructions');
-                    assert(zhAudiencePrompt.includes('恰好 8'), 'Chinese system prompt must scale to requested count');
-
-                    const zhSuffix = LiveAudienceAIService.getPromptLanguageSuffix('zh');
-                    assert(zhSuffix.includes('简体中文'), 'Chinese prompt suffix must enforce Chinese output');
-
-                    // 2. Test JSON Parser with markdown fences and dirty formatting
-                    const dirtyJSON = '```json\n[{"user":"@HypeKing","badge":"💎 SUB","color":"#38bdf8","msg":"W play!"},{"user":"@Troll99","badge":"⚡ PRO","color":"#f43f5e","msg":"LMAO dead"}]\n```';
-                    const parsedAudience = audienceService._parseJSONResponse(dirtyJSON);
-                    assert.strictEqual(parsedAudience.length, 2, 'Must parse 2 JSON message objects');
-                    assert.strictEqual(parsedAudience[0].user, '@HypeKing', 'Parsed user must match');
-                    assert.strictEqual(parsedAudience[0].badge, '💎 SUB', 'Parsed badge must match');
-                    assert.strictEqual(parsedAudience[1].msg, 'LMAO dead', 'Parsed msg must match');
-
-                    // 3. Test Heuristic Fallback Cascade with 10 Distinct Narrative Archetypes (English & Chinese)
-                    const tenPersonas = audienceService.generateFallbackCascade('We finally won and beat the boss!', '', 10);
-                    assert.strictEqual(tenPersonas.length, 10, 'Must produce exactly 10 distinct narrative persona messages');
-                    assert(tenPersonas.some(m => m.user.startsWith('@MetaBuilder')), 'Must include Tactical Strategist persona');
-                    assert(tenPersonas.some(m => m.user.startsWith('@DevilAdvocate')), 'Must include Contrarian/Critic persona');
-                    assert(tenPersonas.some(m => m.user === '@Sarah_Mod'), 'Must include Moderator persona');
-                    assert(tenPersonas.some(m => m.user === '@LoreScholar'), 'Must include Lore Analyst persona');
-                    assert(tenPersonas.some(m => m.user === '@FrameDataDan'), 'Must include Speedrun/FrameData persona');
-                    assert(tenPersonas.some(m => m.user === '@PatronPledge'), 'Must include Patron persona');
-                    assert(tenPersonas.some(m => m.user === '@MetaphorChef'), 'Must include Metaphor/Meme persona');
-                    assert(tenPersonas.some(m => m.user.startsWith('@CuriousMind')), 'Must include Curious Inquirer persona');
-                    assert(tenPersonas.some(m => m.user === '@OldSchoolGamer'), 'Must include Veteran persona');
-                    assert(tenPersonas.some(m => m.user === '@EagleEye'), 'Must include Background Detective persona');
-
-                    const zhPersonas = audienceService.generateFallbackCascade('通关成功', '', 5, 'zh');
-                    assert.strictEqual(zhPersonas.length, 5, 'Must produce exactly 5 Chinese persona messages');
-                    assert(zhPersonas.some(m => m.user.includes('战术大师') || m.user.includes('战术分析师')), 'Must include Chinese tactical persona');
-
-                    // 4. Test Single Persona Scaling (count = 1)
-                    const singlePersona = audienceService.generateFallbackCascade('Hello chat', '', 1);
-                    assert.strictEqual(singlePersona.length, 1, 'Must scale down to exactly 1 persona');
-
-                    // 5. Test Live Audience Cascade Execution & Drip delivery
-                    let receivedDripMessages = [];
-                    await audienceService.generateAudienceCascade({
-                      hostMessage: 'GG guys we clutched the match',
-                      speed: 'fast',
-                      personaCount: 5,
-                      onMessage: (msgObj) => {
-                        receivedDripMessages.push(msgObj);
-                      }
+                      console.log('✅ Floating Subtitle HUD & Sponsor Banner overlay integrity tests PASSED.');
+                      console.log('✅ LLMDirectorEngine, ToolRegistry, AppContextRetriever & DevTools Telemetry unit tests PASSED.');
+                      console.log('\n🎉 ALL UNIT TEST SUITES PASSED CLEANLY (100% SUCCESS)');
                     });
-
-                    assert(receivedDripMessages.length === 0, 'Initial count before timer resolution should be 0');
-                    // Wait for fast drip delivery
-                    await new Promise(r => setTimeout(r, 600));
-                    assert(receivedDripMessages.length > 0, 'Drip queue must start delivering staggered messages');
-                    audienceService.clearPendingDrips();
-
-                    console.log('✅ LiveAudienceAIService multi-persona AI live chat tests PASSED.');
-                    console.log('✅ LLMDirectorEngine, ToolRegistry, AppContextRetriever & DevTools Telemetry unit tests PASSED.');
-                    console.log('\n🎉 ALL UNIT TEST SUITES PASSED CLEANLY (100% SUCCESS)');
                   });
                 });
               });

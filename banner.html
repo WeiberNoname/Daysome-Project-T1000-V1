@@ -75,10 +75,41 @@
       opacity: calc(0.4 * var(--banner-bg-opacity) + 0.6);
     }
 
+    .banner-page-indicator {
+      font-size: 9px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.7);
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 1px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+      transition: all 0.2s ease;
+    }
+
     .banner-header-actions {
       -webkit-app-region: no-drag;
       display: flex;
       align-items: center;
+      gap: 4px;
+    }
+
+    .hdr-nav-btn {
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.45);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 4px;
+      border-radius: 3px;
+      cursor: pointer;
+      line-height: 1;
+      transition: all 0.15s ease;
+    }
+
+    .hdr-nav-btn:hover {
+      background: rgba(56, 189, 248, 0.25);
+      color: #38bdf8;
     }
 
     .hdr-btn-close {
@@ -102,6 +133,7 @@
     /* Banner Content Body */
     .banner-body {
       flex: 1;
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -129,9 +161,23 @@
       align-items: center;
       justify-content: center;
       gap: 4px;
+      z-index: 1;
     }
 
-    .banner-img {
+    /* Dual-Layer Transition Stage */
+    .banner-stage {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 1000px;
+      overflow: hidden;
+    }
+
+    .banner-slide {
+      position: absolute;
       max-width: 100%;
       max-height: 100%;
       width: auto;
@@ -139,35 +185,70 @@
       object-fit: contain;
       border-radius: 6px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-      display: none;
-      animation: bannerPopIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      backface-visibility: hidden;
+      will-change: transform, opacity;
+      opacity: 0;
+      pointer-events: none;
     }
 
-    @keyframes bannerPopIn {
-      0% { opacity: 0; transform: scale(0.96); }
-      100% { opacity: 1; transform: scale(1); }
+    .banner-slide.active {
+      opacity: 1;
+      transform: none;
+      pointer-events: auto;
+      z-index: 2;
     }
+
+    /* Animations: Fade */
+    .anim-fade-out { opacity: 0 !important; }
+    .anim-fade-in { opacity: 1 !important; }
+
+    /* Animations: Slide Left */
+    .anim-slide-left-out { transform: translateX(-105%) !important; opacity: 0 !important; }
+    .anim-slide-left-in { transform: translateX(0) !important; opacity: 1 !important; }
+    .anim-slide-left-prep { transform: translateX(105%) !important; opacity: 0 !important; }
+
+    /* Animations: Slide Up */
+    .anim-slide-up-out { transform: translateY(-105%) !important; opacity: 0 !important; }
+    .anim-slide-up-in { transform: translateY(0) !important; opacity: 1 !important; }
+    .anim-slide-up-prep { transform: translateY(105%) !important; opacity: 0 !important; }
+
+    /* Animations: Zoom / Pop */
+    .anim-zoom-out { transform: scale(1.15) !important; opacity: 0 !important; }
+    .anim-zoom-in { transform: scale(1) !important; opacity: 1 !important; }
+    .anim-zoom-prep { transform: scale(0.82) !important; opacity: 0 !important; }
+
+    /* Animations: 3D Flip */
+    .anim-flip-out { transform: rotateY(-90deg) scale(0.85) !important; opacity: 0 !important; }
+    .anim-flip-in { transform: rotateY(0deg) scale(1) !important; opacity: 1 !important; }
+    .anim-flip-prep { transform: rotateY(90deg) scale(0.85) !important; opacity: 0 !important; }
   </style>
 </head>
 <body>
   <div id="banner-window-container" class="banner-container">
-    <!-- Minimal Header with Draggable Handle and Close -->
+    <!-- Minimal Header with Draggable Handle, Pagination and Close -->
     <div class="banner-header">
       <div class="banner-header-left">
         <span class="banner-badge">📢 SPONSOR / PROMO</span>
+        <span id="banner-page-indicator" class="banner-page-indicator" style="display: none;">[1/1]</span>
       </div>
       <div class="banner-header-actions">
+        <button id="btn-banner-prev" class="hdr-nav-btn" title="Previous Ad" style="display: none;">◀</button>
+        <button id="btn-banner-next" class="hdr-nav-btn" title="Next Ad" style="display: none;">▶</button>
         <button id="btn-banner-close" class="hdr-btn-close" title="Close Window">✕</button>
       </div>
     </div>
 
-    <!-- Banner Display Body -->
+    <!-- Banner Display Body with Dual-Layer Transition Stage -->
     <div id="banner-body" class="banner-body">
       <div id="banner-placeholder" class="banner-placeholder">
         <span>🖼️ No image banner selected</span>
-        <span style="font-size: 10px; opacity: 0.7;">Select or upload image in Studio Panel</span>
+        <span style="font-size: 10px; opacity: 0.7;">Select or upload images in Studio Panel</span>
       </div>
-      <img id="banner-img" class="banner-img" alt="Sponsor Banner" />
+      <div id="banner-stage" class="banner-stage">
+        <img id="banner-slide-a" class="banner-slide active" alt="Sponsor Banner A" />
+        <img id="banner-slide-b" class="banner-slide" alt="Sponsor Banner B" />
+      </div>
     </div>
   </div>
 

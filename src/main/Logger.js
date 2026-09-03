@@ -19,6 +19,13 @@ class Logger {
       if (!fs.existsSync(assetsDir)) {
         fs.mkdirSync(assetsDir, { recursive: true });
       }
+      const readmePath = path.join(assetsDir, 'README.md');
+      if (!fs.existsSync(readmePath)) {
+        try {
+          const readmeContent = `# 3D Mascot Assets Folder\n\nPlace any custom 3D models (\`.glb\` or \`.gltf\` format) in this directory.\n\n- The application will automatically discover custom models placed here.\n- Thumbnail previews will be generated automatically in \`.previews/\`.\n- If no custom models are present, the application will use the built-in procedural mascot.\n`;
+          fs.writeFileSync(readmePath, readmeContent, 'utf8');
+        } catch (_) {}
+      }
       const diagnosticsLogPath = path.join(assetsDir, 'diagnostics.log');
       
       if (fs.existsSync(diagnosticsLogPath)) {

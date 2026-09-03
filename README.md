@@ -38,12 +38,18 @@ graph TD
   * **Mouse Click-Through Toggle**: Pass all mouse clicks directly through the subtitle HUD to underlying games, videos, or desktop apps.
 
 * **📢 Independent Sponsor & Ad Banner Window ([banner.html](banner.html))**:
-  * **Dedicated Floating Pop-out Window**: Independent frameless overlay for showcasing sponsor banners, streamer announcements, community graphics, or Steam DLC cross-promotions.
-  * **Local Image Upload**: File picker supporting PNG, JPG, GIF, and WebP with live preview thumbnail and one-click clear.
-  * **Custom Background & Transparency**: Adjustable backing color and opacity slider ($0\%\text{–}100\%$). At $0\%$ opacity, the container borders and shadows disappear, leaving only the banner graphic floating cleanly on the desktop.
-  * **Clickable Destination Link**: Optional URL input that opens external web or Steam store links (`steam://` or `https://`) via Electron's secure shell bridge when clicked.
-  * **Mouse Click-Through Mode**: Toggleable click-through setting for non-intrusive stream overlay placement.
-  * **Automatic Settings Persistence**: Banner configuration is saved atomically in `SettingsManager.js` across application reboots.
+  * **Dedicated Floating Pop-out Window**: Independent frameless overlay for showcasing rotating sponsor banners, streamer announcements, community graphics, or Steam DLC cross-promotions.
+  * **Multi-Image Playlist & Rotation**: Add multiple ad/sponsor images into an automated rotating queue with configurable duration per ad (`1s` to `30s`), visual thumbnail strip with drag/remove management, and hover-to-pause inspection.
+  * **Cinematic GPU Transition Animations**: 5 seamless CSS/GPU transition effects:
+    * `Fade` — Smooth cross-dissolve
+    * `Slide Left` — Horizontal banner scroll
+    * `Slide Up` — Vertical headline slide
+    * `Zoom & Pop` — Energetic scale pop
+    * `3D Card Flip` — Dynamic 3D perspective card flip
+  * **Per-Ad Clickable Destination Links**: Bind unique Steam store (`steam://`), DLC, or web URLs (`https://`) to individual ads in the playlist with safe Electron shell execution.
+  * **Custom Background & Transparency**: Adjustable backing color and opacity slider ($0\%\text{–}100\%$). At $0\%$ opacity, the container borders and shadows disappear, leaving only the floating banner graphic cleanly on the desktop.
+  * **Mouse Click-Through Mode**: Pass mouse events directly through to background games and applications.
+  * **Automatic Settings Persistence**: Banner playlist, duration, transition style, and autoplay states are saved atomically in `SettingsManager.js` across reboots.
 
 * **🧠 2-Stage Vision &rarr; LLM Caption Synthesizer**:
   * **2-Stage Neural Pipeline**: Captures screen snapshots &rarr; Stage 1 Multimodal Vision (**`moondream`**) perceives natural scene &rarr; Stage 2 Text LLM (**`llama3.2`**) synthesizes punchy subtitle sentences with native multilingual prompt variables.
@@ -156,7 +162,7 @@ node ./node_modules/electron/cli.js .
 ```powershell
 node tests/run_tests.mjs
 ```
-*Coverage: SettingsManager, PhysicsEngine, 12-Locale Parity, AppStore, EventBus, GPU VRAM disposal, Preload Security, SoundManager, FlagMeshBuilder, TextureManager, Web Audio Piano, MidiParser, MusicXml, AssetRegistryManager, ScreenVisionService, and LiveAudienceAIService.*
+*Coverage: SettingsManager, PhysicsEngine, 12-Locale Parity, AppStore, EventBus, GPU VRAM disposal, Preload Security, SoundManager, FlagMeshBuilder, TextureManager, Web Audio Piano, MidiParser, MusicXml, AssetRegistryManager, ScreenVisionService, and Overlay Window Integrity.*
 
 ---
 
@@ -205,7 +211,6 @@ Start-Process "DesktopPet-win32-x64\DesktopPet.exe"
 │   │   └── SoundManager.js
 │   ├── managers/                 <-- AppStore, SettingsManager & EventBus
 │   ├── services/                 <-- Neural & Multimodal Services
-│   │   ├── LiveAudienceAIService.js             <-- Multi-Persona AI Live Stream Audience Engine
 │   │   ├── ScreenVisionService.js               <-- Local Multimodal Vision Service
 │   │   └── VisionCaptionSynthesizerService.js   <-- 2-Stage Vision -> LLM Caption Synthesizer
 │   └── ui/                       <-- Studio UI & Viewport Controllers
