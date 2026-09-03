@@ -279,6 +279,14 @@ export function syncSlidersUI(deps) {
   if (synthAutoLoopDom) synthAutoLoopDom.checked = !!currentSettings.synthAutoLoop;
   const synthAutoIntervalDom = document.getElementById('beta-synth-auto-interval');
   if (synthAutoIntervalDom && currentSettings.synthAutoInterval) synthAutoIntervalDom.value = currentSettings.synthAutoInterval.toString();
+  const synthTTSEnableDom = document.getElementById('beta-synth-tts-enable');
+  if (synthTTSEnableDom) synthTTSEnableDom.checked = !!currentSettings.synthTTSEnabled;
+  const synthTTSPitchDom = document.getElementById('beta-synth-tts-pitch');
+  if (synthTTSPitchDom && currentSettings.synthTTSPitch !== undefined) synthTTSPitchDom.value = currentSettings.synthTTSPitch.toFixed(2);
+  const synthTTSRateDom = document.getElementById('beta-synth-tts-rate');
+  if (synthTTSRateDom && currentSettings.synthTTSRate !== undefined) synthTTSRateDom.value = currentSettings.synthTTSRate.toFixed(2);
+  const synthTTSVolDom = document.getElementById('beta-synth-tts-volume');
+  if (synthTTSVolDom && currentSettings.synthTTSVolume !== undefined) synthTTSVolDom.value = Math.round(currentSettings.synthTTSVolume * 100);
 
   if (updateStageLighting) updateStageLighting();
   if (updateSpotlightPosition) updateSpotlightPosition();

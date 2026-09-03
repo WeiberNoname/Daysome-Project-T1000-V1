@@ -135,12 +135,22 @@ export function updateAnimationFrame(deps) {
       if (physicsEngine && physicsEngine.enabled) {
         physicsEngine.update(delta, characterGroup);
       } else if (currentSettings.bobbing) {
-        characterGroup.position.y = Math.sin(elapsed * 1.5) * 0.12;
-        characterGroup.rotation.z = Math.sin(elapsed * 0.8) * 0.025;
+        const isSpeaking = typeof window !== 'undefined' && window.speechSynthesis && window.speechSynthesis.speaking;
+        const speechOffset = isSpeaking ? Math.sin(elapsed * 12.0) * 0.04 : 0;
+        const speechRot = isSpeaking ? Math.sin(elapsed * 16.0) * 0.025 : 0;
+
+        characterGroup.position.y = (Math.sin(elapsed * 1.5) * 0.12) + speechOffset;
+        characterGroup.rotation.z = (Math.sin(elapsed * 0.8) * 0.025) + speechRot;
         characterGroup.rotation.y = Math.sin(elapsed * 0.4) * 0.04;
       } else {
-        characterGroup.position.y = 0;
-        characterGroup.rotation.z = 0;
+        const isSpeaking = typeof window !== 'undefined' && window.speechSynthesis && window.speechSynthesis.speaking;
+        if (isSpeaking) {
+          characterGroup.position.y = Math.sin(elapsed * 12.0) * 0.04;
+          characterGroup.rotation.z = Math.sin(elapsed * 16.0) * 0.025;
+        } else {
+          characterGroup.position.y = 0;
+          characterGroup.rotation.z = 0;
+        }
         characterGroup.rotation.y = 0;
       }
     }

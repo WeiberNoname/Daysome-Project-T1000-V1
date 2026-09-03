@@ -15,7 +15,10 @@
 
     :root {
       --caption-font-size: 16px;
+      --caption-bg-color: #0b0f19;
+      --caption-bg-rgb: 11, 15, 25;
       --caption-bg-opacity: 0.90;
+      --caption-font-color: #ffffff;
       --caption-accent-color: #38bdf8;
       --caption-accent-glow: rgba(56, 189, 248, 0.4);
     }
@@ -34,26 +37,25 @@
       flex-direction: column;
       width: 100%;
       height: 100%;
-      background: rgba(11, 15, 25, var(--caption-bg-opacity));
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-      border: 1px solid rgba(56, 189, 248, 0.35);
+      background: rgba(var(--caption-bg-rgb), var(--caption-bg-opacity));
+      backdrop-filter: blur(calc(20px * var(--caption-bg-opacity))) saturate(180%);
+      -webkit-backdrop-filter: blur(calc(20px * var(--caption-bg-opacity))) saturate(180%);
+      border: 1px solid rgba(56, 189, 248, calc(0.35 * var(--caption-bg-opacity) + 0.08));
       border-radius: 10px;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.85), 0 0 20px var(--caption-accent-glow);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, calc(0.85 * var(--caption-bg-opacity))), 0 0 20px var(--caption-accent-glow);
       overflow: hidden;
-      transition: background 0.2s ease, border-color 0.2s ease;
+      transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
     }
 
-    /* Draggable Window Header */
+    /* Minimal Draggable Header */
     .caption-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 5px 10px;
-      background: rgba(255, 255, 255, 0.04);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 5px 8px 3px 8px;
       -webkit-app-region: drag;
       cursor: grab;
+      min-height: 20px;
     }
 
     .caption-header:active {
@@ -63,74 +65,62 @@
     .caption-header-left {
       display: flex;
       align-items: center;
-      gap: 7px;
+      gap: 6px;
     }
 
+    /* Streaming Green Flash Indicator */
     .live-dot {
-      width: 7px;
-      height: 7px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       background: #10b981;
-      box-shadow: 0 0 10px #10b981;
-      animation: pulseLive 1.5s infinite ease-in-out;
+      box-shadow: 0 0 8px #10b981;
+      animation: pulseLive 1.4s infinite ease-in-out;
+      flex-shrink: 0;
     }
 
     @keyframes pulseLive {
-      0%, 100% { transform: scale(0.9); opacity: 0.7; }
-      50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 12px #10b981; }
+      0%, 100% {
+        transform: scale(0.85);
+        opacity: 0.6;
+        box-shadow: 0 0 5px #10b981;
+      }
+      50% {
+        transform: scale(1.35);
+        opacity: 1;
+        box-shadow: 0 0 14px #10b981, 0 0 20px rgba(16, 185, 129, 0.6);
+      }
     }
 
-    .caption-title {
-      font-size: 10.5px;
-      font-weight: 800;
-      letter-spacing: 0.6px;
-      color: var(--caption-accent-color);
-      text-transform: uppercase;
-    }
-
-    .caption-badge {
+    .caption-counter {
       font-size: 9px;
       font-weight: 700;
-      padding: 1px 5px;
-      border-radius: 3px;
-      background: rgba(56, 189, 248, 0.12);
-      border: 1px solid rgba(56, 189, 248, 0.35);
-      color: #38bdf8;
+      color: rgba(56, 189, 248, 0.85);
+      font-family: monospace;
+      letter-spacing: 0.5px;
     }
 
     .caption-header-actions {
+      -webkit-app-region: no-drag;
       display: flex;
       align-items: center;
-      gap: 4px;
-      -webkit-app-region: no-drag;
-    }
-
-    .hdr-btn {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: #e5e7eb;
-      font-size: 9.5px;
-      font-weight: 700;
-      padding: 2px 6px;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-
-    .hdr-btn:hover {
-      background: rgba(56, 189, 248, 0.25);
-      border-color: #38bdf8;
-      color: #ffffff;
     }
 
     .hdr-btn-close {
-      background: rgba(239, 68, 68, 0.15);
-      border-color: rgba(239, 68, 68, 0.4);
-      color: #ef4444;
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.35);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 4px;
+      cursor: pointer;
+      line-height: 1;
+      transition: all 0.15s ease;
     }
 
     .hdr-btn-close:hover {
-      background: #ef4444;
+      background: rgba(239, 68, 68, 0.8);
       color: #ffffff;
     }
 
@@ -140,14 +130,15 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      padding: 12px 18px;
+      padding: 6px 16px 10px 16px;
       overflow-y: auto;
       gap: 6px;
     }
 
     .caption-empty-placeholder {
       font-size: 13px;
-      color: rgba(255, 255, 255, 0.35);
+      color: var(--caption-font-color);
+      opacity: 0.40;
       font-style: italic;
       text-align: center;
       display: flex;
@@ -160,104 +151,41 @@
       font-size: var(--caption-font-size);
       font-weight: 700;
       line-height: 1.45;
-      color: #ffffff;
-      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95), 0 0 12px var(--caption-accent-glow);
+      color: var(--caption-font-color);
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95), 0 0 10px var(--caption-accent-glow);
       word-break: break-word;
-      transition: all 0.2s ease;
+      transition: color 0.15s ease, font-size 0.15s ease;
     }
 
     .caption-pop-anim {
-      animation: captionPopIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation: captionPopIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
     @keyframes captionPopIn {
-      0% { opacity: 0; transform: translateY(5px); }
+      0% { opacity: 0; transform: translateY(4px); }
       100% { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Footer Telemetry Strip */
-    .caption-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 3px 10px;
-      background: rgba(0, 0, 0, 0.35);
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-      font-size: 9px;
-      color: #9ca3af;
-    }
-
-    .caption-footer-left {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .caption-counter {
-      color: #38bdf8;
-      font-weight: 700;
-    }
-
-    /* Theme Presets */
-    .theme-cyberpunk {
-      --caption-accent-color: #ec4899;
-      --caption-accent-glow: rgba(236, 72, 153, 0.45);
-      border-color: rgba(236, 72, 153, 0.45);
-    }
-
-    .theme-amber {
-      --caption-accent-color: #f59e0b;
-      --caption-accent-glow: rgba(245, 158, 11, 0.45);
-      border-color: rgba(245, 158, 11, 0.45);
-    }
-
-    .theme-emerald {
-      --caption-accent-color: #10b981;
-      --caption-accent-glow: rgba(16, 185, 129, 0.45);
-      border-color: rgba(16, 185, 129, 0.45);
-    }
-
-    .theme-highcontrast {
-      background: #000000 !important;
-      border: 2px solid #ffffff !important;
-      --caption-accent-color: #ffffff;
-      --caption-accent-glow: rgba(255, 255, 255, 0.2);
     }
   </style>
 </head>
 <body>
   <div id="caption-window-container" class="caption-container">
-    <!-- Header -->
+    <!-- Minimal Header with Streaming Green Flash -->
     <div class="caption-header">
       <div class="caption-header-left">
-        <div class="live-dot"></div>
-        <span class="caption-title">LIVE CAPTION</span>
-        <span id="caption-source-badge" class="caption-badge">BETA</span>
+        <div class="live-dot" title="Live Streaming Active"></div>
+        <span id="caption-seq-counter" class="caption-counter"></span>
       </div>
       <div class="caption-header-actions">
-        <button id="btn-font-minus" class="hdr-btn" title="Decrease Font Size">A-</button>
-        <button id="btn-font-plus" class="hdr-btn" title="Increase Font Size">A+</button>
-        <button id="btn-theme-cycle" class="hdr-btn" title="Cycle Color Theme">🎨</button>
-        <button id="btn-opacity-toggle" class="hdr-btn" title="Toggle Opacity">◐</button>
-        <button id="btn-caption-close" class="hdr-btn hdr-btn-close" title="Close Window">✕</button>
+        <button id="btn-caption-close" class="hdr-btn-close" title="Close Window">✕</button>
       </div>
     </div>
 
-    <!-- Subtitle Body (Empty on start) -->
+    <!-- Subtitle Body -->
     <div class="caption-body">
       <div id="caption-empty-hint" class="caption-empty-placeholder">
         Awaiting live caption broadcast...
       </div>
       <div id="caption-text" class="caption-text-content caption-pop-anim" style="display: none;"></div>
-    </div>
-
-    <!-- Footer Telemetry -->
-    <div class="caption-footer">
-      <div class="caption-footer-left">
-        <span id="caption-seq-counter" class="caption-counter">--</span>
-        <span id="caption-model-tag">Live Subtitles HUD</span>
-      </div>
-      <div id="caption-time-tag">Ready</div>
     </div>
   </div>
 

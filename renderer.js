@@ -34,6 +34,7 @@ import { setupAIDirectorTabUI } from './src/ui/AIDirectorTabUI.js';
 import { setupScreenVisionBetaUI } from './src/ui/ScreenVisionBetaUI.js';
 import { setupLiveCaptionBetaUI } from './src/ui/LiveCaptionBetaUI.js';
 import { setupVisionCaptionSynthesizerBetaUI } from './src/ui/VisionCaptionSynthesizerBetaUI.js';
+import { setupBannerWindowUI } from './src/ui/BannerWindowUI.js';
 import { soundManager } from './src/core/SoundManager.js';
 import { renderSpotlightCardsUI as renderSpotlightCardsUIUtil, hexToRgb, rgbToHex } from './src/ui/SpotlightCardsUI.js';
 import {
@@ -544,6 +545,10 @@ function setupSettingsUI() {
     saveSettingsFile
   });
   setupVisionCaptionSynthesizerBetaUI({
+    currentSettings,
+    saveSettingsFile
+  });
+  setupBannerWindowUI({
     currentSettings,
     saveSettingsFile
   });

@@ -31,14 +31,25 @@ graph TD
 
 ### 2. 🧪 Beta Testing & Incubator Labs (Studio Tab)
 * **🪟 Independent Live Caption HUD Window ([caption.html](caption.html))**:
-  * **Clean Floating Subtitle Overlay**: Draggable, frameless, transparent, always-on-top HUD window for gaming, streaming, or video subtitles.
-  * **On-Window Controls**: Instant font adjustments (`A-` / `A+`), opacity toggling (`90%`, `65%`, `100%`), and color theme cycling (Sky Blue, Cyberpunk Pink, Amber Gold, Emerald Green, High-Contrast Black/White).
-  * **Smooth Sequence Wiping**: Seamlessly fades in new subtitle sentences while cleanly wiping out previous text with live progress tracking (`[1/3]`, `[2/3]`, `[3/3]`).
+  * **Ultra-Clean Floating Subtitle Overlay**: Draggable, frameless, transparent, always-on-top HUD window for gaming, streaming, or video subtitles.
+  * **Streaming Green Flash (`.live-dot`)**: High-visibility glowing green pulse in the header indicating active live broadcast status.
+  * **Zero-Clutter Display**: Clean subtitle canvas with inline sequence index (`[1/3]`, `[2/3]`) and subtle `✕` close button.
+  * **Centralized Studio Appearance Controls**: Real-time two-way IPC styling for Background Color tint, Background Opacity slider (`0%` ghost overlay to `100%` solid), Font Color picker, and Font Size slider (`11px` to `36px`).
+  * **Mouse Click-Through Toggle**: Pass all mouse clicks directly through the subtitle HUD to underlying games, videos, or desktop apps.
+
+* **📢 Independent Sponsor & Ad Banner Window ([banner.html](banner.html))**:
+  * **Dedicated Floating Pop-out Window**: Independent frameless overlay for showcasing sponsor banners, streamer announcements, community graphics, or Steam DLC cross-promotions.
+  * **Local Image Upload**: File picker supporting PNG, JPG, GIF, and WebP with live preview thumbnail and one-click clear.
+  * **Custom Background & Transparency**: Adjustable backing color and opacity slider ($0\%\text{–}100\%$). At $0\%$ opacity, the container borders and shadows disappear, leaving only the banner graphic floating cleanly on the desktop.
+  * **Clickable Destination Link**: Optional URL input that opens external web or Steam store links (`steam://` or `https://`) via Electron's secure shell bridge when clicked.
+  * **Mouse Click-Through Mode**: Toggleable click-through setting for non-intrusive stream overlay placement.
+  * **Automatic Settings Persistence**: Banner configuration is saved atomically in `SettingsManager.js` across application reboots.
 
 * **🧠 2-Stage Vision &rarr; LLM Caption Synthesizer**:
   * **2-Stage Neural Pipeline**: Captures screen snapshots &rarr; Stage 1 Multimodal Vision (**`moondream`**) perceives natural scene &rarr; Stage 2 Text LLM (**`llama3.2`**) synthesizes punchy subtitle sentences with native multilingual prompt variables.
   * **11 Commentary Persona Styles**: `🎙️ Live Streamer (Hype)`, `🇹🇼 實況幹話腔 (Taiwan Slang)`, `🔥 玩梗吐槽 (Meme Roaster)`, `🎮 Pro Gamer (Tactical APM)`, `🛡️ 戰術教練 (Tactical Coach)`, `🤣 Funny & Comedy`, `🧐 Serious & Analytical`, `🐾 Cute Pet Companion`, `🌌 Poetic & Artistic`, `🍿 Cinematic Narrator`, and `⚡ Fast Action`.
   * **12-Language Target Selection**: Explicit native output directives across English, Chinese (Simplified/Traditional), Japanese, Korean, Spanish (EU/LATAM), French, German, Italian, Portuguese, and Russian with built-in zero-English bleed-through guardrails and Traditional Chinese glyph normalizer.
+  * **🔊 Offline Voice Synthesis (TTS) & Mascot Lip-Sync**: Built-in Windows / Electron Web Speech Synthesis engine with automatic localized voice matching (`zh-TW`, `zh-CN`, `ja-JP`, `en-US`), tunable voice pitch (`0.5x` to `2.0x`), speaking speed (`0.6x` to `1.8x`), volume controls, and real-time mascot rhythmic speech animation / lip-sync.
   * **Sentence Count Variable**: Select from `1` (quick alert) to `6` (extended story) captions.
   * **Caption Speed / Pacing**: Configure display duration per subtitle sentence (`1.0s` to `8.0s`).
   * **🔄 Auto-Loop Gaming Mode**: Continuous background capture & synthesis loop (`8s`, `15s`, `25s`, `45s`, `60s`) with **▶ Auto-Play to Subtitle HUD** for completely hands-free live stream commentary.
@@ -201,6 +212,7 @@ Start-Process "DesktopPet-win32-x64\DesktopPet.exe"
 │       ├── AIDirectorTabUI.js
 │       ├── AssetHubUI.js
 │       ├── AtmosphereTabUI.js
+│       ├── BannerWindowUI.js                    <-- Floating Sponsor & Ad Banner UI Controller
 │       ├── FormSyncManager.js
 │       ├── LiveCaptionBetaUI.js                 <-- Floating Live Caption HUD UI Controller
 │       ├── PreviewGenerator.js
@@ -210,6 +222,8 @@ Start-Process "DesktopPet-win32-x64\DesktopPet.exe"
 │       ├── SoundTabUI.js
 │       ├── TextureTabUI.js
 │       └── VisionCaptionSynthesizerBetaUI.js    <-- Vision -> LLM Synthesizer UI Controller
+├── banner.html                   <-- Standalone Floating Sponsor & Ad Banner Window
+├── banner.js                     <-- Banner Window Controller & URL Link Handler
 ├── caption.html                  <-- Standalone Floating Live Caption HUD Window
 ├── caption.js                    <-- Subtitle HUD Controller, Themes & Font Scaler
 ├── index.html                    <-- Studio UI Markup & Beta Vision/Caption Cards

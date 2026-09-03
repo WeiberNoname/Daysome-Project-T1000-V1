@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, screen, desktopCapturer } = require('electron');
+const { app, BrowserWindow, ipcMain, screen, desktopCapturer, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -480,6 +480,7 @@ ipcMain.on('broadcast-vision-chat', (event, data) => {
 // Independent Live Caption / Subtitle Floating Window (Pop-out Window)
 // ==========================================================================
 let liveCaptionWindow = null;
+let isLiveCaptionClickThrough = false;
 
 function openLiveCaptionWindow() {
   if (liveCaptionWindow && !liveCaptionWindow.isDestroyed()) {
@@ -514,6 +515,9 @@ function openLiveCaptionWindow() {
 
   liveCaptionWindow.setAlwaysOnTop(true, 'screen-saver', 1);
   liveCaptionWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+  if (isLiveCaptionClickThrough) {
+    liveCaptionWindow.setIgnoreMouseEvents(true, { forward: true });
+  }
   liveCaptionWindow.loadFile('caption.html');
 
   liveCaptionWindow.on('closed', () => {
@@ -564,6 +568,125 @@ ipcMain.on('clear-live-caption', () => {
   }
   if (mainWindow && !mainWindow.isDestroyed()) {
     mainWindow.webContents.send('clear-live-caption');
+  }
+});
+
+ipcMain.on('broadcast-caption-style', (event, data) => {
+  if (liveCaptionWindow && !liveCaptionWindow.isDestroyed()) {
+    liveCaptionWindow.webContents.send('caption-style-update', data);
+  }
+  if (mainWindow && !mainWindow.isDestroyed() && event && event.sender !== mainWindow.webContents) {
+    mainWindow.webContents.send('caption-style-update', data);
+  }
+});
+
+ipcMain.on('set-caption-click-through', (event, enable) => {
+  isLiveCaptionClickThrough = !!enable;
+  if (liveCaptionWindow && !liveCaptionWindow.isDestroyed()) {
+    liveCaptionWindow.setIgnoreMouseEvents(isLiveCaptionClickThrough, { forward: true });
+  }
+  logDiagnostic(`[Live Caption] Click-through set to: ${isLiveCaptionClickThrough}`);
+});
+
+// ==========================================================================
+// Independent Sponsor & Ad Banner Window (Pop-out Window)
+// ==========================================================================
+let bannerWindow = null;
+let isBannerClickThrough = false;
+
+function openBannerWindow() {
+  if (bannerWindow && !bannerWindow.isDestroyed()) {
+    bannerWindow.focus();
+    return;
+  }
+
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize;
+  const winWidth = 460;
+  const winHeight = 160;
+
+  bannerWindow = new BrowserWindow({
+    width: winWidth,
+    height: winHeight,
+    x: Math.max(20, screenWidth - winWidth - 30),
+    y: Math.max(20, Math.round((screenHeight - winHeight) / 2)),
+    transparent: true,
+    frame: false,
+    alwaysOnTop: true,
+    resizable: true,
+    minWidth: 200,
+    minHeight: 80,
+    hasShadow: true,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      sandbox: false,
+      preload: path.join(__dirname, 'preload.js')
+    }
+  });
+
+  bannerWindow.setAlwaysOnTop(true, 'screen-saver', 1);
+  bannerWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+  if (isBannerClickThrough) {
+    bannerWindow.setIgnoreMouseEvents(true, { forward: true });
+  }
+  bannerWindow.loadFile('banner.html');
+
+  bannerWindow.on('closed', () => {
+    bannerWindow = null;
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('banner-window-closed');
+    }
+  });
+
+  logDiagnostic('[Banner] Independent sponsor & ad banner window launched.');
+}
+
+function closeBannerWindow() {
+  if (bannerWindow && !bannerWindow.isDestroyed()) {
+    bannerWindow.close();
+    bannerWindow = null;
+  }
+}
+
+ipcMain.on('open-banner-window', () => {
+  openBannerWindow();
+});
+
+ipcMain.on('close-banner-window', () => {
+  closeBannerWindow();
+});
+
+ipcMain.on('toggle-banner-window', () => {
+  if (bannerWindow && !bannerWindow.isDestroyed()) {
+    closeBannerWindow();
+  } else {
+    openBannerWindow();
+  }
+});
+
+ipcMain.on('set-banner-click-through', (event, enable) => {
+  isBannerClickThrough = !!enable;
+  if (bannerWindow && !bannerWindow.isDestroyed()) {
+    bannerWindow.setIgnoreMouseEvents(isBannerClickThrough, { forward: true });
+  }
+  logDiagnostic(`[Banner] Click-through set to: ${isBannerClickThrough}`);
+});
+
+ipcMain.on('broadcast-banner-data', (event, data) => {
+  if (bannerWindow && !bannerWindow.isDestroyed()) {
+    bannerWindow.webContents.send('banner-data-update', data);
+  }
+  if (mainWindow && !mainWindow.isDestroyed() && event && event.sender !== mainWindow.webContents) {
+    mainWindow.webContents.send('banner-data-update', data);
+  }
+});
+
+ipcMain.on('open-external-url', (event, url) => {
+  if (url && (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('steam://'))) {
+    shell.openExternal(url).catch(err => {
+      logDiagnostic(`[External URL] Failed to open: ${err.message}`);
+    });
   }
 });
 

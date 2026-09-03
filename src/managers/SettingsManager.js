@@ -84,6 +84,17 @@ export class SettingsManager {
       screenVisionPostChat: true,
       liveCaptionMirrorVision: true,
       liveCaptionAutoOpen: false,
+      liveCaptionClickThrough: false,
+      liveCaptionBgColor: '#0b0f19',
+      liveCaptionBgOpacity: 0.90,
+      liveCaptionFontColor: '#ffffff',
+      liveCaptionFontSize: 16,
+      bannerAutoOpen: false,
+      bannerClickThrough: false,
+      bannerBgColor: '#0b0f19',
+      bannerBgOpacity: 0.85,
+      bannerImagePath: '',
+      bannerLinkUrl: '',
       synthVisionModel: 'moondream',
       synthVisionDetail: 'medium',
       synthTextModel: 'llama3.2',
@@ -93,7 +104,11 @@ export class SettingsManager {
       synthAutoLoop: false,
       synthAutoInterval: 15,
       synthAutoPlayHUD: true,
-      synthLanguage: 'auto'
+      synthLanguage: 'auto',
+      synthTTSEnabled: false,
+      synthTTSPitch: 1.15,
+      synthTTSRate: 1.05,
+      synthTTSVolume: 1.0
     };
   }
 
@@ -301,6 +316,17 @@ language=en`;
             if (key === 'screenVisionInterval') { currentSettings.screenVisionInterval = Math.max(5, Math.min(300, parseInt(val, 10) || 10)); validKeysParsed++; }
             if (key === 'screenVisionModel') { currentSettings.screenVisionModel = val || 'llama3.2-vision'; validKeysParsed++; }
             if (key === 'screenVisionPostChat') { currentSettings.screenVisionPostChat = (val !== 'false'); validKeysParsed++; }
+            if (key === 'liveCaptionClickThrough') { currentSettings.liveCaptionClickThrough = (val === 'true'); validKeysParsed++; }
+            if (key === 'liveCaptionBgColor') { currentSettings.liveCaptionBgColor = val || '#0b0f19'; validKeysParsed++; }
+            if (key === 'liveCaptionBgOpacity') { currentSettings.liveCaptionBgOpacity = parseFloat(val) !== undefined && !isNaN(parseFloat(val)) ? parseFloat(val) : 0.90; validKeysParsed++; }
+            if (key === 'liveCaptionFontColor') { currentSettings.liveCaptionFontColor = val || '#ffffff'; validKeysParsed++; }
+            if (key === 'liveCaptionFontSize') { currentSettings.liveCaptionFontSize = parseInt(val, 10) || 16; validKeysParsed++; }
+            if (key === 'bannerAutoOpen') { currentSettings.bannerAutoOpen = (val === 'true'); validKeysParsed++; }
+            if (key === 'bannerClickThrough') { currentSettings.bannerClickThrough = (val === 'true'); validKeysParsed++; }
+            if (key === 'bannerBgColor') { currentSettings.bannerBgColor = val || '#0b0f19'; validKeysParsed++; }
+            if (key === 'bannerBgOpacity') { currentSettings.bannerBgOpacity = parseFloat(val) !== undefined && !isNaN(parseFloat(val)) ? parseFloat(val) : 0.85; validKeysParsed++; }
+            if (key === 'bannerImagePath') { currentSettings.bannerImagePath = val || ''; validKeysParsed++; }
+            if (key === 'bannerLinkUrl') { currentSettings.bannerLinkUrl = val || ''; validKeysParsed++; }
             if (key === 'language') { currentSettings.language = val || 'en'; validKeysParsed++; }
           }
         });
@@ -416,6 +442,17 @@ screenVisionAutoLoop=${currentSettings.screenVisionAutoLoop === true}
 screenVisionInterval=${currentSettings.screenVisionInterval || 10}
 screenVisionModel=${currentSettings.screenVisionModel || 'llama3.2-vision'}
 screenVisionPostChat=${currentSettings.screenVisionPostChat !== false}
+liveCaptionClickThrough=${currentSettings.liveCaptionClickThrough === true}
+liveCaptionBgColor=${currentSettings.liveCaptionBgColor || '#0b0f19'}
+liveCaptionBgOpacity=${currentSettings.liveCaptionBgOpacity !== undefined ? currentSettings.liveCaptionBgOpacity : 0.90}
+liveCaptionFontColor=${currentSettings.liveCaptionFontColor || '#ffffff'}
+liveCaptionFontSize=${currentSettings.liveCaptionFontSize || 16}
+bannerAutoOpen=${currentSettings.bannerAutoOpen === true}
+bannerClickThrough=${currentSettings.bannerClickThrough === true}
+bannerBgColor=${currentSettings.bannerBgColor || '#0b0f19'}
+bannerBgOpacity=${currentSettings.bannerBgOpacity !== undefined ? currentSettings.bannerBgOpacity : 0.85}
+bannerImagePath=${currentSettings.bannerImagePath || ''}
+bannerLinkUrl=${currentSettings.bannerLinkUrl || ''}
 language=${currentSettings.language}`;
 
     try {

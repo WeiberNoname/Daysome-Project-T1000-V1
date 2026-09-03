@@ -42,6 +42,17 @@ assert.strictEqual(defaults.screenVisionDetail, 'medium', 'Default screenVisionD
 assert.strictEqual(defaults.screenVisionPostChat, true, 'Default screenVisionPostChat should be true');
 assert.strictEqual(defaults.liveCaptionMirrorVision, true, 'Default liveCaptionMirrorVision should be true');
 assert.strictEqual(defaults.liveCaptionAutoOpen, false, 'Default liveCaptionAutoOpen should be false');
+assert.strictEqual(defaults.liveCaptionClickThrough, false, 'Default liveCaptionClickThrough should be false');
+assert.strictEqual(defaults.liveCaptionBgColor, '#0b0f19', 'Default liveCaptionBgColor should be #0b0f19');
+assert.strictEqual(defaults.liveCaptionBgOpacity, 0.90, 'Default liveCaptionBgOpacity should be 0.90');
+assert.strictEqual(defaults.liveCaptionFontColor, '#ffffff', 'Default liveCaptionFontColor should be #ffffff');
+assert.strictEqual(defaults.liveCaptionFontSize, 16, 'Default liveCaptionFontSize should be 16');
+assert.strictEqual(defaults.bannerAutoOpen, false, 'Default bannerAutoOpen should be false');
+assert.strictEqual(defaults.bannerClickThrough, false, 'Default bannerClickThrough should be false');
+assert.strictEqual(defaults.bannerBgColor, '#0b0f19', 'Default bannerBgColor should be #0b0f19');
+assert.strictEqual(defaults.bannerBgOpacity, 0.85, 'Default bannerBgOpacity should be 0.85');
+assert.strictEqual(defaults.bannerImagePath, '', 'Default bannerImagePath should be empty');
+assert.strictEqual(defaults.bannerLinkUrl, '', 'Default bannerLinkUrl should be empty');
 assert.strictEqual(defaults.synthVisionModel, 'moondream', 'Default synthVisionModel should be moondream');
 assert.strictEqual(defaults.synthVisionDetail, 'medium', 'Default synthVisionDetail should be medium');
 assert.strictEqual(defaults.synthTextModel, 'llama3.2', 'Default synthTextModel should be llama3.2');
@@ -70,7 +81,18 @@ const merged = SettingsManager.mergeWithDefaults({
   screenVisionAutoLoop: true,
   screenVisionInterval: 15,
   screenVisionModel: 'moondream',
-  screenVisionPostChat: true
+  screenVisionPostChat: true,
+  liveCaptionClickThrough: true,
+  liveCaptionBgColor: '#1e1035',
+  liveCaptionBgOpacity: 0.50,
+  liveCaptionFontColor: '#38bdf8',
+  liveCaptionFontSize: 20,
+  bannerAutoOpen: true,
+  bannerClickThrough: true,
+  bannerBgColor: '#18181b',
+  bannerBgOpacity: 0.60,
+  bannerImagePath: 'sample.png',
+  bannerLinkUrl: 'https://store.steampowered.com'
 });
 assert.strictEqual(merged.scale, 2.5, 'Scale should be overridden to 2.5');
 assert.strictEqual(merged.targetFps, 120, 'targetFps should be overridden to 120');
@@ -88,6 +110,17 @@ assert.strictEqual(merged.screenVisionAutoLoop, true, 'screenVisionAutoLoop shou
 assert.strictEqual(merged.screenVisionInterval, 15, 'screenVisionInterval should be overridden to 15');
 assert.strictEqual(merged.screenVisionModel, 'moondream', 'screenVisionModel should be overridden to moondream');
 assert.strictEqual(merged.screenVisionPostChat, true, 'screenVisionPostChat should be overridden to true');
+assert.strictEqual(merged.liveCaptionClickThrough, true, 'liveCaptionClickThrough should be overridden to true');
+assert.strictEqual(merged.liveCaptionBgColor, '#1e1035', 'liveCaptionBgColor should be overridden to #1e1035');
+assert.strictEqual(merged.liveCaptionBgOpacity, 0.50, 'liveCaptionBgOpacity should be overridden to 0.50');
+assert.strictEqual(merged.liveCaptionFontColor, '#38bdf8', 'liveCaptionFontColor should be overridden to #38bdf8');
+assert.strictEqual(merged.liveCaptionFontSize, 20, 'liveCaptionFontSize should be overridden to 20');
+assert.strictEqual(merged.bannerAutoOpen, true, 'bannerAutoOpen should be overridden to true');
+assert.strictEqual(merged.bannerClickThrough, true, 'bannerClickThrough should be overridden to true');
+assert.strictEqual(merged.bannerBgColor, '#18181b', 'bannerBgColor should be overridden to #18181b');
+assert.strictEqual(merged.bannerBgOpacity, 0.60, 'bannerBgOpacity should be overridden to 0.60');
+assert.strictEqual(merged.bannerImagePath, 'sample.png', 'bannerImagePath should be overridden to sample.png');
+assert.strictEqual(merged.bannerLinkUrl, 'https://store.steampowered.com', 'bannerLinkUrl should be overridden to steam URL');
 assert.strictEqual(merged.width, 350, 'Unspecified width should fallback to 350');
 assert.strictEqual(merged.activeModel, 'procedural', 'Fallback activeModel should be procedural');
 console.log('✅ SettingsManager tests PASSED.');
@@ -279,6 +312,14 @@ assert.strictEqual(preloadContent.includes('electronAPI'), true, 'preload.js mus
 assert.strictEqual(preloadContent.includes('fsBridge'), true, 'preload.js must expose fsBridge');
 assert.strictEqual(preloadContent.includes('pathBridge'), true, 'preload.js must expose pathBridge');
 assert.strictEqual(preloadContent.includes('urlBridge'), true, 'preload.js must expose urlBridge');
+assert.strictEqual(preloadContent.includes("'broadcast-caption-style'"), true, 'preload.js must whitelist broadcast-caption-style');
+assert.strictEqual(preloadContent.includes("'caption-style-update'"), true, 'preload.js must whitelist caption-style-update');
+assert.strictEqual(preloadContent.includes("'set-caption-click-through'"), true, 'preload.js must whitelist set-caption-click-through');
+assert.strictEqual(preloadContent.includes("'open-banner-window'"), true, 'preload.js must whitelist open-banner-window');
+assert.strictEqual(preloadContent.includes("'set-banner-click-through'"), true, 'preload.js must whitelist set-banner-click-through');
+assert.strictEqual(preloadContent.includes("'broadcast-banner-data'"), true, 'preload.js must whitelist broadcast-banner-data');
+assert.strictEqual(preloadContent.includes("'banner-data-update'"), true, 'preload.js must whitelist banner-data-update');
+assert.strictEqual(preloadContent.includes("'open-external-url'"), true, 'preload.js must whitelist open-external-url');
 
 const mainPath = path.join(__dirname, '..', 'main.js');
 const mainContent = fs.readFileSync(mainPath, 'utf8');
@@ -287,6 +328,11 @@ assert.strictEqual(mainContent.includes('nodeIntegration: false'), true, 'main.j
 assert.strictEqual(mainContent.includes("preload: path.join(__dirname, 'preload.js')"), true, 'main.js must load preload.js');
 assert.strictEqual(mainContent.includes('startSteamRepaintLoop()'), true, 'main.js must dynamically start Steam repaint loop');
 assert.strictEqual(mainContent.includes('stopSteamRepaintLoop()'), true, 'main.js must dynamically stop Steam repaint loop');
+assert.strictEqual(mainContent.includes("ipcMain.on('broadcast-caption-style'"), true, 'main.js must handle broadcast-caption-style');
+assert.strictEqual(mainContent.includes("ipcMain.on('set-caption-click-through'"), true, 'main.js must handle set-caption-click-through');
+assert.strictEqual(mainContent.includes("ipcMain.on('open-banner-window'"), true, 'main.js must handle open-banner-window');
+assert.strictEqual(mainContent.includes("ipcMain.on('set-banner-click-through'"), true, 'main.js must handle set-banner-click-through');
+assert.strictEqual(mainContent.includes("ipcMain.on('broadcast-banner-data'"), true, 'main.js must handle broadcast-banner-data');
 console.log('✅ Electron Security Bridge & Idle Optimization tests PASSED.');
 
 // 7. Test SoundManager State, Volume Normalization & Snapshot
@@ -856,7 +902,7 @@ import('../src/core/SoundManager.js').then(({ SoundManager }) => {
                 });
 
                 // Test ScreenVisionService (Multimodal Vision payload & fallback)
-                import('../src/services/ScreenVisionService.js').then(({ ScreenVisionService }) => {
+                import('../src/services/ScreenVisionService.js').then(async ({ ScreenVisionService }) => {
                   console.log('▶ Testing ScreenVisionService local multimodal vision engine...');
                   const sanitized = ScreenVisionService.sanitizeBase64('data:image/jpeg;base64,abc123XYZ==');
                   assert.strictEqual(sanitized, 'abc123XYZ==', 'Sanitizer must strip data URI prefix');
@@ -885,8 +931,8 @@ import('../src/core/SoundManager.js').then(({ SoundManager }) => {
                   console.log('✅ ScreenVisionService multimodal vision tests PASSED.');
 
                   // Test VisionCaptionSynthesizerService (Vision -> LLM Caption Synthesizer)
-                  import('../src/services/VisionCaptionSynthesizerService.js').then(async ({ VisionCaptionSynthesizerService, SYNTH_STYLE_PERSONAS, convertToTraditionalChinese }) => {
-                    console.log('▶ Testing VisionCaptionSynthesizerService native multilingual variables, 11 personas & S2T converter...');
+                  const { VisionCaptionSynthesizerService, SYNTH_STYLE_PERSONAS, convertToTraditionalChinese } = await import('../src/services/VisionCaptionSynthesizerService.js');
+                  console.log('▶ Testing VisionCaptionSynthesizerService native multilingual variables, 11 personas & S2T converter...');
                     assert(SYNTH_STYLE_PERSONAS.streamer, 'Must define streamer persona');
                     assert(SYNTH_STYLE_PERSONAS.tw_streamer, 'Must define tw_streamer persona');
                     assert(SYNTH_STYLE_PERSONAS.roast, 'Must define roast/meme persona');
@@ -923,30 +969,62 @@ import('../src/core/SoundManager.js').then(({ SoundManager }) => {
 
                     console.log('✅ VisionCaptionSynthesizerService unit tests PASSED.');
 
+                    // Test SpeechSynthesisService (Zero-Latency Offline TTS Engine)
+                    const { SpeechSynthesisService } = await import('../src/services/SpeechSynthesisService.js');
+                    console.log('▶ Testing SpeechSynthesisService offline TTS engine & voice resolution...');
+                    const ttsService = new SpeechSynthesisService();
+                    ttsService.voices = [
+                      { name: 'Microsoft David Desktop - English (United States)', lang: 'en-US', default: true },
+                      { name: 'Microsoft Hanhan Desktop - Chinese (Taiwan)', lang: 'zh-TW', default: false },
+                      { name: 'Microsoft Yaoyao Desktop - Chinese (Simplified)', lang: 'zh-CN', default: false },
+                      { name: 'Microsoft Haruka Desktop - Japanese (Japan)', lang: 'ja-JP', default: false }
+                    ];
+
+                    const twVoice = ttsService.getBestVoice('zh-TW');
+                    assert(twVoice && twVoice.lang === 'zh-TW', 'Must resolve Traditional Chinese voice');
+
+                    const jaVoice = ttsService.getBestVoice('ja');
+                    assert(jaVoice && jaVoice.lang === 'ja-JP', 'Must resolve Japanese voice by prefix');
+
+                    const enVoice = ttsService.getBestVoice('en');
+                    assert(enVoice && enVoice.lang === 'en-US', 'Must resolve English voice');
+
+                    // Test State Change Listeners
+                    let reportedSpeaking = null;
+                    const listener = (isSpeaking) => { reportedSpeaking = isSpeaking; };
+                    ttsService.onStateChange(listener);
+                    ttsService._notifyState(true);
+                    assert.strictEqual(reportedSpeaking, true, 'Must notify true when speaking');
+                    ttsService._notifyState(false);
+                    assert.strictEqual(reportedSpeaking, false, 'Must notify false when stopped');
+                    ttsService.offStateChange(listener);
+
+                    console.log('✅ SpeechSynthesisService unit tests PASSED.');
+
                     // Test LiveAudienceAIService (Multi-Persona AI Live Stream Audience Engine)
-                    import('../src/services/LiveAudienceAIService.js').then(async ({ LiveAudienceAIService }) => {
+                    const { LiveAudienceAIService } = await import('../src/services/LiveAudienceAIService.js');
                     console.log('▶ Testing LiveAudienceAIService multi-persona AI audience cascades & drip delivery...');
                     const audienceService = new LiveAudienceAIService();
 
                     // 1. Test System Prompt Schema, Persona Scaling & Primary Language
-                    const enPrompt = LiveAudienceAIService.getSystemPrompt(8, 'en');
-                    assert(enPrompt.includes('Twitch'), 'English system prompt must mention streaming platforms');
-                    assert(enPrompt.includes('EXACTLY 8'), 'English system prompt must scale to requested count');
+                    const enAudiencePrompt = LiveAudienceAIService.getSystemPrompt(8, 'en');
+                    assert(enAudiencePrompt.includes('Twitch'), 'English system prompt must mention streaming platforms');
+                    assert(enAudiencePrompt.includes('EXACTLY 8'), 'English system prompt must scale to requested count');
 
-                    const zhPrompt = LiveAudienceAIService.getSystemPrompt(8, 'zh');
-                    assert(zhPrompt.includes('直播间'), 'Chinese system prompt must use native Chinese instructions');
-                    assert(zhPrompt.includes('恰好 8'), 'Chinese system prompt must scale to requested count');
+                    const zhAudiencePrompt = LiveAudienceAIService.getSystemPrompt(8, 'zh');
+                    assert(zhAudiencePrompt.includes('直播间'), 'Chinese system prompt must use native Chinese instructions');
+                    assert(zhAudiencePrompt.includes('恰好 8'), 'Chinese system prompt must scale to requested count');
 
                     const zhSuffix = LiveAudienceAIService.getPromptLanguageSuffix('zh');
                     assert(zhSuffix.includes('简体中文'), 'Chinese prompt suffix must enforce Chinese output');
 
                     // 2. Test JSON Parser with markdown fences and dirty formatting
                     const dirtyJSON = '```json\n[{"user":"@HypeKing","badge":"💎 SUB","color":"#38bdf8","msg":"W play!"},{"user":"@Troll99","badge":"⚡ PRO","color":"#f43f5e","msg":"LMAO dead"}]\n```';
-                    const parsed = audienceService._parseJSONResponse(dirtyJSON);
-                    assert.strictEqual(parsed.length, 2, 'Must parse 2 JSON message objects');
-                    assert.strictEqual(parsed[0].user, '@HypeKing', 'Parsed user must match');
-                    assert.strictEqual(parsed[0].badge, '💎 SUB', 'Parsed badge must match');
-                    assert.strictEqual(parsed[1].msg, 'LMAO dead', 'Parsed msg must match');
+                    const parsedAudience = audienceService._parseJSONResponse(dirtyJSON);
+                    assert.strictEqual(parsedAudience.length, 2, 'Must parse 2 JSON message objects');
+                    assert.strictEqual(parsedAudience[0].user, '@HypeKing', 'Parsed user must match');
+                    assert.strictEqual(parsedAudience[0].badge, '💎 SUB', 'Parsed badge must match');
+                    assert.strictEqual(parsedAudience[1].msg, 'LMAO dead', 'Parsed msg must match');
 
                     // 3. Test Heuristic Fallback Cascade with 10 Distinct Narrative Archetypes (English & Chinese)
                     const tenPersonas = audienceService.generateFallbackCascade('We finally won and beat the boss!', '', 10);
@@ -996,8 +1074,6 @@ import('../src/core/SoundManager.js').then(({ SoundManager }) => {
             });
           });
         });
-      });
-    });
 
 
 

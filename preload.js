@@ -35,6 +35,13 @@ const electronAPI = {
   closeLiveCaptionWindow: () => ipcRenderer.send('close-live-caption-window'),
   toggleLiveCaptionWindow: () => ipcRenderer.send('toggle-live-caption-window'),
   captureScreenSnapshot: () => ipcRenderer.invoke('capture-screen-snapshot'),
+  setCaptionClickThrough: (ignore) => ipcRenderer.send('set-caption-click-through', !!ignore),
+  openBannerWindow: () => ipcRenderer.send('open-banner-window'),
+  closeBannerWindow: () => ipcRenderer.send('close-banner-window'),
+  toggleBannerWindow: () => ipcRenderer.send('toggle-banner-window'),
+  setBannerClickThrough: (ignore) => ipcRenderer.send('set-banner-click-through', !!ignore),
+  broadcastBannerData: (data) => ipcRenderer.send('broadcast-banner-data', data),
+  openExternalUrl: (url) => ipcRenderer.send('open-external-url', String(url)),
 
   // Safe IPC event listener
   on: (channel, callback) => {
@@ -45,9 +52,12 @@ const electronAPI = {
       'model-imported',
       'live-chat-window-closed',
       'live-caption-window-closed',
+      'banner-window-closed',
       'vision-commentary',
       'live-caption-update',
-      'clear-live-caption'
+      'clear-live-caption',
+      'caption-style-update',
+      'banner-data-update'
     ];
     if (validChannels.includes(channel) && typeof callback === 'function') {
       const subscription = (event, ...args) => callback(...args);
@@ -72,7 +82,15 @@ const electronAPI = {
       'toggle-live-caption-window',
       'broadcast-vision-chat',
       'broadcast-live-caption',
-      'clear-live-caption'
+      'clear-live-caption',
+      'broadcast-caption-style',
+      'set-caption-click-through',
+      'open-banner-window',
+      'close-banner-window',
+      'toggle-banner-window',
+      'set-banner-click-through',
+      'broadcast-banner-data',
+      'open-external-url'
     ];
     if (validSendChannels.includes(channel)) {
       ipcRenderer.send(channel, data);

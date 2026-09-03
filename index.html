@@ -447,6 +447,63 @@
             <input type="checkbox" id="beta-caption-mirror-vision" class="studio-checkbox" checked>
           </div>
 
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <span class="studio-row-title">Mouse Click-Through</span>
+              <span class="studio-row-sub">Pass clicks directly through HUD to apps</span>
+            </div>
+            <input type="checkbox" id="beta-caption-click-through" class="studio-checkbox">
+          </div>
+
+          <!-- Caption Window Appearance Controls -->
+          <div style="margin-top: 10px; padding: 10px; background: rgba(0, 0, 0, 0.25); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.08); display: flex; flex-direction: column; gap: 8px;">
+            <div style="font-size: 0.8em; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px;">🎨 Appearance & HUD Styling</div>
+            
+            <div class="studio-row">
+              <div class="studio-row-label">
+                <label for="beta-caption-bg-color" class="studio-row-title">Background Color</label>
+                <span class="studio-row-sub">HUD background tint</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <input type="color" id="beta-caption-bg-color" value="#0b0f19" style="width: 34px; height: 26px; border: 1px solid rgba(255,255,255,0.25); border-radius: 4px; background: transparent; cursor: pointer; padding: 0;">
+                <span id="beta-caption-bg-hex" style="font-size: 0.8em; color: #9ca3af; font-family: monospace; min-width: 58px;">#0B0F19</span>
+              </div>
+            </div>
+
+            <div class="studio-row">
+              <div class="studio-row-label">
+                <label for="beta-caption-opacity" class="studio-row-title">Background Opacity</label>
+                <span class="studio-row-sub">0% Ghost overlay to 100% solid</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; width: 140px;">
+                <input type="range" id="beta-caption-opacity" min="0" max="100" step="5" value="90" class="studio-slider" style="flex: 1;">
+                <span id="beta-caption-opacity-val" style="font-size: 0.82em; color: #38bdf8; font-weight: 700; min-width: 34px; text-align: right;">90%</span>
+              </div>
+            </div>
+
+            <div class="studio-row">
+              <div class="studio-row-label">
+                <label for="beta-caption-font-color" class="studio-row-title">Font Color</label>
+                <span class="studio-row-sub">Subtitle text color</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <input type="color" id="beta-caption-font-color" value="#ffffff" style="width: 34px; height: 26px; border: 1px solid rgba(255,255,255,0.25); border-radius: 4px; background: transparent; cursor: pointer; padding: 0;">
+                <span id="beta-caption-font-hex" style="font-size: 0.8em; color: #9ca3af; font-family: monospace; min-width: 58px;">#FFFFFF</span>
+              </div>
+            </div>
+
+            <div class="studio-row">
+              <div class="studio-row-label">
+                <label for="beta-caption-font-size" class="studio-row-title">Font Size</label>
+                <span class="studio-row-sub">Subtitle text size</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; width: 140px;">
+                <input type="range" id="beta-caption-font-size" min="11" max="36" step="1" value="16" class="studio-slider" style="flex: 1;">
+                <span id="beta-caption-font-size-val" style="font-size: 0.82em; color: #38bdf8; font-weight: 700; min-width: 34px; text-align: right;">16px</span>
+              </div>
+            </div>
+          </div>
+
           <!-- Action Buttons -->
           <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 6px;">
             <button id="btn-beta-launch-caption-window" class="studio-btn-primary" style="width: 100%; font-size: 0.9em; padding: 7px 10px; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);">🪟 Launch Independent Caption Window</button>
@@ -461,7 +518,94 @@
           </div>
         </div>
 
-        <!-- 9. 🎬 Beta Testing: Vision -> LLM Caption Synthesizer Card -->
+        <!-- 📢 Sponsor & Ad Banner Window Card -->
+        <div class="studio-card">
+          <div class="studio-card-header">
+            <span class="studio-card-title">📢 Sponsor & Ad Banner Window</span>
+            <span class="studio-badge studio-badge-cyan">NEW</span>
+          </div>
+
+          <div style="font-size: 0.82em; color: #9ca3af; margin-bottom: 8px; line-height: 1.35;">
+            Dedicated floating pop-out window for displaying sponsor graphics, streamer announcements, or custom banners with transparent background controls and click-through mode.
+          </div>
+
+          <!-- Launch Button Row -->
+          <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 10px;">
+            <button id="btn-studio-launch-banner-window" class="studio-btn" style="flex: 1; font-weight: 700; padding: 7px 12px;">
+              🪟 Launch Banner Window
+            </button>
+          </div>
+
+          <!-- Image Upload & Preview -->
+          <div style="padding: 10px; background: rgba(0, 0, 0, 0.25); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.08); display: flex; flex-direction: column; gap: 8px;">
+            <div style="font-size: 0.8em; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px;">🖼️ Banner Graphic</div>
+            
+            <input type="file" id="studio-banner-file-input" accept="image/*" style="display: none;">
+            
+            <!-- Image Preview Area -->
+            <div style="min-height: 80px; max-height: 140px; background: rgba(0, 0, 0, 0.4); border: 1px dashed rgba(255, 255, 255, 0.15); border-radius: 6px; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 6px;">
+              <div id="studio-banner-preview-empty" style="font-size: 0.78em; color: #64748b; font-style: italic; text-align: center;">
+                No banner image selected.<br>Click "Select Image" to upload PNG, JPG, or GIF.
+              </div>
+              <img id="studio-banner-preview-img" style="max-width: 100%; max-height: 120px; object-fit: contain; border-radius: 4px; display: none;" alt="Banner Preview">
+            </div>
+
+            <div style="display: flex; gap: 6px;">
+              <button id="btn-studio-upload-banner" class="studio-btn-ghost" style="flex: 2; font-size: 0.85em; padding: 5px 8px;">📁 Select Image (PNG / JPG / GIF)</button>
+              <button id="btn-studio-clear-banner-image" class="studio-btn-ghost" style="flex: 1; font-size: 0.85em; padding: 5px 8px; color: #ef4444;">🗑️ Clear</button>
+            </div>
+
+            <!-- Optional Click URL -->
+            <div class="studio-row" style="margin-top: 4px;">
+              <div class="studio-row-label">
+                <label for="studio-banner-link-url" class="studio-row-title">Click URL (Optional)</label>
+                <span class="studio-row-sub">Open link when banner clicked</span>
+              </div>
+              <input type="text" id="studio-banner-link-url" class="studio-input" placeholder="https://store.steampowered.com/..." style="width: 200px; font-size: 0.85em;">
+            </div>
+          </div>
+
+          <!-- Appearance & Transparency Controls -->
+          <div style="margin-top: 10px; padding: 10px; background: rgba(0, 0, 0, 0.25); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.08); display: flex; flex-direction: column; gap: 8px;">
+            <div style="font-size: 0.8em; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px;">🎨 Background & Transparency</div>
+
+            <div class="studio-row">
+              <div class="studio-row-label">
+                <label for="studio-banner-bg-color" class="studio-row-title">Background Color</label>
+                <span class="studio-row-sub">Window backing tint</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <input type="color" id="studio-banner-bg-color" value="#0b0f19" style="width: 34px; height: 26px; border: 1px solid rgba(255,255,255,0.25); border-radius: 4px; background: transparent; cursor: pointer; padding: 0;">
+                <span id="studio-banner-bg-hex" style="font-size: 0.8em; color: #9ca3af; font-family: monospace; min-width: 58px;">#0B0F19</span>
+              </div>
+            </div>
+
+            <div class="studio-row">
+              <div class="studio-row-label">
+                <label for="studio-banner-opacity" class="studio-row-title">Background Opacity</label>
+                <span class="studio-row-sub">0% = Transparent Ghost, 100% = Solid</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; flex: 1; max-width: 200px;">
+                <input type="range" id="studio-banner-opacity" min="0" max="100" step="5" value="85" class="studio-range" style="flex: 1;">
+                <span id="studio-banner-opacity-val" style="font-size: 0.8em; color: #38bdf8; font-weight: 700; min-width: 36px; text-align: right;">85%</span>
+              </div>
+            </div>
+
+            <div class="studio-row">
+              <div class="studio-row-label">
+                <span class="studio-row-title">Mouse Click-Through</span>
+                <span class="studio-row-sub">Pass clicks directly through to apps</span>
+              </div>
+              <input type="checkbox" id="studio-banner-click-through" class="studio-checkbox">
+            </div>
+          </div>
+
+          <div id="studio-banner-window-status" style="margin-top: 6px; font-size: 0.78em; color: #38bdf8; font-weight: 600; text-align: center;">
+            Ready to launch
+          </div>
+        </div>
+
+        <!-- 10. 🎬 Beta Testing: Vision -> LLM Caption Synthesizer Card -->
         <div class="studio-card">
           <div class="studio-card-header">
             <span class="studio-card-title">🎬 Beta Testing: Vision &rarr; LLM Captions</span>
@@ -613,10 +757,53 @@
             <input type="checkbox" id="beta-synth-auto-stream-hud" class="studio-checkbox" checked>
           </div>
 
+          <!-- Voice Synthesis (TTS) Dubbing & Lip-Sync Controls -->
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="beta-synth-tts-enable" class="studio-row-title">🔊 Voice Synthesis (TTS)</label>
+              <span class="studio-row-sub">Voice dubbing & mascot lip-sync</span>
+            </div>
+            <input type="checkbox" id="beta-synth-tts-enable" class="studio-checkbox">
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="beta-synth-tts-pitch" class="studio-row-title">Voice Pitch</label>
+              <span class="studio-row-sub">Tone pitch (0.5x to 2.0x)</span>
+            </div>
+            <div class="studio-number-wrapper">
+              <input type="number" id="beta-synth-tts-pitch" class="studio-number-input" min="0.5" max="2.0" step="0.05" value="1.15">
+              <span class="studio-unit-suffix">x</span>
+            </div>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="beta-synth-tts-rate" class="studio-row-title">Voice Speed / Rate</label>
+              <span class="studio-row-sub">Speaking tempo (0.6x to 1.8x)</span>
+            </div>
+            <div class="studio-number-wrapper">
+              <input type="number" id="beta-synth-tts-rate" class="studio-number-input" min="0.6" max="1.8" step="0.05" value="1.05">
+              <span class="studio-unit-suffix">x</span>
+            </div>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="beta-synth-tts-volume" class="studio-row-title">Voice Volume</label>
+              <span class="studio-row-sub">Audio loudness (0%–100%)</span>
+            </div>
+            <div class="studio-number-wrapper">
+              <input type="number" id="beta-synth-tts-volume" class="studio-number-input" min="0" max="100" step="5" value="100">
+              <span class="studio-unit-suffix">%</span>
+            </div>
+          </div>
+
           <!-- Main Action Buttons -->
           <div style="margin-top: 8px; display: flex; gap: 6px;">
             <button id="btn-beta-synth-generate" class="studio-btn-primary" style="flex: 1.5; font-size: 0.9em; padding: 7px 10px; background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">📸 Generate Once</button>
             <button id="btn-beta-synth-toggle-loop" class="studio-btn-ghost" style="flex: 1; font-size: 0.85em; padding: 7px 10px;">▶ Start Loop</button>
+            <button id="btn-beta-synth-tts-preview" class="studio-btn-ghost" title="Test Voice Output" style="font-size: 0.85em; padding: 7px 9px;">🔊 Test</button>
           </div>
 
           <!-- Status, Thumbnail & Editable Review Textbox -->
