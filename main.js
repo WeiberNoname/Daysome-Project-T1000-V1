@@ -144,6 +144,10 @@ function createWindow() {
     console.log(`[Renderer Console] ${message}`);
   });
 
+  mainWindow.webContents.on('render-process-gone', (e, details) => {
+    Logger.logDiagnostic(`[Renderer Process Gone] reason: ${details.reason}, exitCode: ${details.exitCode}`);
+  });
+
   if (isDevMode) {
     mainWindow.webContents.openDevTools({ mode: 'detach' });
     logDiagnostic('Developer mode: Detached DevTools window opened.');

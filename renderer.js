@@ -4,16 +4,13 @@ import { initI18n, t, changeLanguage, getCurrentLanguage } from './i18nManager.j
 import { physicsEngine } from './physicsEngine.js';
 import { SettingsManager } from './src/managers/SettingsManager.js';
 import { updateGearPosition as updateGearPositionUtil, showSpeechBubble } from './src/ui/uiUtils.js';
-import { updateSpotlightPosition as updateSpotlightPositionUtil, updateStageLighting as updateStageLightingUtil } from './src/core/LightingManager.js';
+import { updateStageLighting as updateStageLightingUtil } from './src/core/LightingManager.js';
 import { createProceduralMascot } from './src/core/MascotBuilder.js';
-import { SakuraRainManager } from './src/core/SakuraRainManager.js';
-import { SnowFallManager } from './src/core/SnowFallManager.js';
 import { setupInteraction as setupInteractionUtil } from './src/core/InteractionManager.js';
 import {
   scanForModels as scanForModelsUtil,
   detectAndLoadAsset as detectAndLoadAssetUtil,
   fallbackToProcedural as fallbackToProceduralUtil,
-  loadFlagModel as loadFlagModelUtil,
   loadHumanoidModel as loadHumanoidModelUtil,
   loadCustomModel as loadCustomModelUtil,
   applySelectedAnimation as applySelectedAnimationUtil
@@ -27,23 +24,17 @@ import {
 } from './src/ui/PreviewGenerator.js';
 import { setupStudioTabs as setupStudioTabsUtil } from './src/ui/StudioTabManager.js';
 import { setupAssetHubUI } from './src/ui/AssetHubUI.js';
-import { setupAtmosphereTabUI } from './src/ui/AtmosphereTabUI.js';
-import { setupSoundTabUI } from './src/ui/SoundTabUI.js';
-import { setupTextureTabUI } from './src/ui/TextureTabUI.js';
 import { setupAIDirectorTabUI } from './src/ui/AIDirectorTabUI.js';
 import { setupScreenVisionBetaUI } from './src/ui/ScreenVisionBetaUI.js';
 import { setupLiveCaptionBetaUI } from './src/ui/LiveCaptionBetaUI.js';
 import { setupVisionCaptionSynthesizerBetaUI } from './src/ui/VisionCaptionSynthesizerBetaUI.js';
 import { setupBannerWindowUI } from './src/ui/BannerWindowUI.js';
-import { soundManager } from './src/core/SoundManager.js';
-import { renderSpotlightCardsUI as renderSpotlightCardsUIUtil, hexToRgb, rgbToHex } from './src/ui/SpotlightCardsUI.js';
 import {
   populateAnimationDropdown as populateAnimationDropdownUtil,
   syncSlidersUI as syncSlidersUIUtil
 } from './src/ui/SettingsPanelUI.js';
 import { handleSaveSettings as handleSaveSettingsUtil } from './src/ui/SettingsSaveHandler.js';
 import { updateAnimationFrame as updateAnimationFrameUtil } from './src/core/AnimationLoopManager.js';
-import { PreviewViewportEngine } from './src/ui/PreviewViewportEngine.js';
 import {
   updateFPSCamera as updateFPSCameraUtil,
   updateXYZVisibility as updateXYZVisibilityUtil,
@@ -79,8 +70,6 @@ const { pathToFileURL } = window.urlBridge || (typeof window.require === 'functi
 let scene, camera, renderer, characterGroup, innerModelGroup, collisionProxy;
 let axesHelper = null;
 let gridHelper = null;
-let stageSpotLights = [];
-let stageSpotLightHelpers = [];
 let ambientLight = null;
 let keyLight = null;
 let fillLight = null;
@@ -91,8 +80,6 @@ let reactAction = null;
 let loadedAnimations = [];
 let availableAnimations = [];
 let customModelLoaded = false;
-let sakuraRainManager = null;
-let snowFallManager = null;
 
 // Application Reactive State Store
 const appStore = new AppStore();
@@ -107,8 +94,6 @@ function updateGearPosition() {
 }
 
 async function init() {
-  physicsEngine.onBounce = (vel) => soundManager.playBounceSfx(vel);
-
   await initializeAppUtil({
     THREE,
     ipcRenderer,
@@ -136,34 +121,16 @@ async function init() {
     callbacks: {
       updateXYZVisibility,
       updateStageLighting,
-      updateSpotlightPosition,
       detectAndLoadAsset,
       setupInteraction,
       setupSettingsUI,
       updateGearPosition,
-      initPreviewViewport,
       startBackgroundPreviewGenerator,
-      initSakuraRain: () => {
-        if (!sakuraRainManager && scene) {
-          sakuraRainManager = new SakuraRainManager(THREE, scene);
-          sakuraRainManager.setEnabled(currentSettings.sakuraRain !== false);
-        }
-      },
-      initSnowFall: () => {
-        if (!snowFallManager && scene) {
-          snowFallManager = new SnowFallManager(THREE, scene);
-          snowFallManager.setEnabled(currentSettings.snowFall === true);
-        }
-      },
       animate,
       updateIgnoreMouseState: () => updateIgnoreMouseState()
     },
     onWindowResize
   });
-}
-
-function updateSpotlightPosition() {
-  updateSpotlightPositionUtil(scene, currentSettings.spotlights, stageSpotLights, stageSpotLightHelpers, appState.isSettingsOpen, THREE);
 }
 
 function updateStageLighting() {
@@ -303,7 +270,6 @@ function getModelLoaderCtx() {
     },
     callbacks: {
       createMascot,
-      createFlag: () => loadFlagModel(),
       generateModelPreview,
       populateAnimationDropdown: () => {
         if (typeof populateAnimationDropdown === 'function') populateAnimationDropdown();
@@ -384,7 +350,6 @@ function getPreviewGeneratorCtx() {
 const scanForModels = modelDelegates.scanForModels;
 const detectAndLoadAsset = modelDelegates.detectAndLoadAsset;
 const fallbackToProcedural = modelDelegates.fallbackToProcedural;
-const loadFlagModel = () => loadFlagModelUtil(getModelLoaderCtx());
 const loadHumanoidModel = () => loadHumanoidModelUtil(getModelLoaderCtx());
 const loadCustomModel = modelDelegates.loadCustomModel;
 const applySelectedAnimation = modelDelegates.applySelectedAnimation;
@@ -395,15 +360,13 @@ const generateMascotPreviewInBackground = modelDelegates.generateMascotPreviewIn
 const forceRefreshAllPreviews = modelDelegates.forceRefreshAllPreviews;
 
 function setupSettingsUI() {
-  const { syncSlidersUI, populateAnimationDropdown, renderSpotlightCardsUI } = createFormSyncManager({
+  const { syncSlidersUI, populateAnimationDropdown } = createFormSyncManager({
     currentSettings,
     getAvailableAnimations: () => (currentSettings.activeModel === 'humanoid' ? ['Idle', 'Wave', 'Dance', 'Look_Around'] : availableAnimations),
     syncSlidersUIUtil,
     populateAnimationDropdownUtil,
-    renderSpotlightCardsUIUtil,
     updateXYZVisibility: () => updateXYZVisibility(),
     updateStageLighting,
-    updateSpotlightPosition,
     saveSettingsFile,
     t
   });
@@ -414,18 +377,15 @@ function setupSettingsUI() {
     ipcRenderer,
     t,
     showSpeechBubble,
-    updateSpotlightPosition,
     updateStageLighting,
     saveSettingsFile,
     syncSlidersUI,
     populateModelDropdown,
     populateAnimationDropdown,
     forceRefreshAllPreviews,
-    renderSpotlightCardsUI,
     setupStudioTabsUtil,
     applySelectedAnimation,
     fallbackToProcedural,
-    loadFlagModel,
     loadHumanoidModel,
     loadCustomModel,
     getAssetsPath,
@@ -436,7 +396,6 @@ function setupSettingsUI() {
         currentSettings,
         changeLanguage,
         updateStageLighting,
-        updateSpotlightPosition,
         physicsEngine,
         saveSettingsFile,
         loadHumanoidModel,
@@ -465,7 +424,6 @@ function setupSettingsUI() {
         getAssetsPath,
         ipcRenderer,
         fallbackToProcedural,
-        loadFlagModel,
         loadCustomModel,
         applySelectedAnimation,
         updateGearPosition,
@@ -503,38 +461,8 @@ function setupSettingsUI() {
       if (asset && asset.objectUrl) {
         currentSettings.customTexturePath = asset.objectUrl;
         saveSettingsFile();
-        const previewImg = document.getElementById('texture-preview-img');
-        if (previewImg) previewImg.src = asset.objectUrl;
-        const filenameLabel = document.getElementById('texture-filename');
-        if (filenameLabel) filenameLabel.innerText = asset.name;
-        showSpeechBubble(`Applied ${asset.name} to Flag Cloth!`);
       }
     }
-  });
-  setupAtmosphereTabUI({
-    currentSettings,
-    saveSettingsFile,
-    t,
-    showSpeechBubble,
-    sakuraRainManager,
-    snowFallManager
-  });
-  setupSoundTabUI({
-    currentSettings,
-    saveSettingsFile,
-    t,
-    fs,
-    path,
-    getAssetsPath,
-    showSpeechBubble
-  });
-  setupTextureTabUI({
-    currentSettings,
-    saveSettingsFile,
-    t,
-    THREE,
-    getInnerModelGroup: () => innerModelGroup,
-    forceRefreshAllPreviews
   });
   setupScreenVisionBetaUI({
     currentSettings,
@@ -604,7 +532,6 @@ function resetCameraAndPosition() {
 }
 
 const clock = new THREE.Clock();
-const previewViewportEngine = new PreviewViewportEngine(THREE);
 
 const renderLoopDelegates = createRenderLoopDelegates({
   clock,
@@ -612,7 +539,6 @@ const renderLoopDelegates = createRenderLoopDelegates({
   updateAnimationFrameUtil,
   updateFPSCameraUtil,
   updateXYZVisibilityUtil,
-  previewViewportEngine,
   getContext: () => ({
     mixer,
     innerModelGroup,
@@ -629,13 +555,9 @@ const renderLoopDelegates = createRenderLoopDelegates({
     gridHelper,
     renderer,
     scene,
-    sakuraRainManager,
-    snowFallManager,
-    renderPreviewViewport,
     updateFPSCamera,
     isSettingsOpen: appState.isSettingsOpen,
     isMouseOverCharacter: appState.isMouseOverCharacter,
-    stageSpotLightHelpers,
     t,
     keys: appState
   })
@@ -644,8 +566,6 @@ const renderLoopDelegates = createRenderLoopDelegates({
 const animate = renderLoopDelegates.animate;
 const updateFPSCamera = renderLoopDelegates.updateFPSCamera;
 const updateXYZVisibility = renderLoopDelegates.updateXYZVisibility;
-const initPreviewViewport = renderLoopDelegates.initPreviewViewport;
-const renderPreviewViewport = renderLoopDelegates.renderPreviewViewport;
 
 // Initialize on load
 window.addEventListener('DOMContentLoaded', init);

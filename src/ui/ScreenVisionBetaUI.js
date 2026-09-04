@@ -7,7 +7,6 @@
  */
 
 import { screenVisionService } from '../services/ScreenVisionService.js';
-import { soundManager } from '../core/SoundManager.js';
 
 export class ScreenVisionBetaUI {
   constructor({ currentSettings = {}, saveSettingsFile = null } = {}) {

@@ -26,30 +26,13 @@ export function gatherSettingsFormElements() {
     settingsLeftCheck: document.getElementById('settings-left'),
     lockPositionCheck: document.getElementById('lock-position'),
     viewOnlyCheck: document.getElementById('view-only'),
-    sakuraRainCheck: document.getElementById('sakura-rain'),
-    snowFallCheck: document.getElementById('snow-fall'),
     enablePhysicsCheck: document.getElementById('enable-physics'),
     physicsFloorCheck: document.getElementById('physics-floor'),
     physicsGravitySlider: document.getElementById('physics-gravity'),
     physicsElasticitySlider: document.getElementById('physics-elasticity'),
     modelSelect: document.getElementById('model-select'),
     animSelect: document.getElementById('anim-select'),
-    fontScaleSlider: document.getElementById('font-scale'),
-    enableStudioLightsCheck: document.getElementById('enable-studio-lights'),
-    ambientIntensitySlider: document.getElementById('ambient-intensity'),
-    soundMasterEnableCheck: document.getElementById('sound-master-enable'),
-    soundMasterVolSlider: document.getElementById('sound-master-vol'),
-    soundSnowVolSlider: document.getElementById('sound-snow-vol'),
-    soundSakuraVolSlider: document.getElementById('sound-sakura-vol'),
-    soundDrumVolSlider: document.getElementById('sound-drum-vol'),
-    soundSnowSyncCheck: document.getElementById('sound-snow-sync'),
-    soundSakuraSyncCheck: document.getElementById('sound-sakura-sync'),
-    flagWindSpeedSlider: document.getElementById('flag-wind-speed'),
-    flagWaveIntensitySlider: document.getElementById('flag-wave-intensity'),
-    textureRepeatXSlider: document.getElementById('texture-repeat-x'),
-    textureRepeatYSlider: document.getElementById('texture-repeat-y'),
-    textureRoughnessSlider: document.getElementById('texture-roughness'),
-    textureMetalnessSlider: document.getElementById('texture-metalness')
+    fontScaleSlider: document.getElementById('font-scale')
   };
 }
 

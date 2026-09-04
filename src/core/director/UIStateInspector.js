@@ -68,17 +68,6 @@ export class UIStateInspector {
         physicsElasticity: getFloat('physics-elasticity', 0.7),
         physicsFloor: getChecked('physics-floor', true)
       },
-      texture: {
-        flagPreset: getValue('flag-preset-select', 'default'),
-        flagWindSpeed: getFloat('flag-wind-speed', 3.5),
-        flagWaveIntensity: getFloat('flag-wave-intensity', 0.35),
-        textureRoughness: getFloat('texture-roughness', 0.50),
-        textureMetalness: getFloat('texture-metalness', 0.05)
-      },
-      lighting: {
-        enableStudioLights: getChecked('enable-studio-lights', true),
-        ambientIntensity: getFloat('ambient-intensity', 0.70)
-      },
       system: {
         ignoreMouse: getChecked('ignore-mouse', false) || getChecked('view-only', false),
         enableFPSMode: getChecked('enable-fps-mode', false),
@@ -125,12 +114,6 @@ export class UIStateInspector {
     settingsObj.physicsGravity = live.physics.physicsGravity;
     settingsObj.physicsElasticity = live.physics.elasticity;
     settingsObj.physicsFloor = live.physics.physicsFloor;
-
-    settingsObj.flagPreset = live.texture.flagPreset;
-    settingsObj.flagWindSpeed = live.texture.flagWindSpeed;
-    settingsObj.flagWaveIntensity = live.texture.flagWaveIntensity;
-    settingsObj.textureRoughness = live.texture.textureRoughness;
-    settingsObj.textureMetalness = live.texture.textureMetalness;
 
     settingsObj.ignoreMouse = live.system.ignoreMouse;
     settingsObj.enableFPSMode = live.system.enableFPSMode;

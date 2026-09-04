@@ -5,7 +5,6 @@
  */
 
 import { createProceduralMascot } from './MascotBuilder.js';
-import { createFlagMesh } from './FlagMeshBuilder.js';
 import { createProceduralHumanoid } from './HumanoidMascotBuilder.js';
 import { disposeHierarchy, disposeMixer } from './GPUAssetManager.js';
 
@@ -116,17 +115,12 @@ export class SceneStageManager {
     this.scanForModels();
     const active = this.currentSettings.activeModel || 'procedural';
 
-    if (active === 'flag') {
-      this.loadFlagModel();
-      return;
-    }
-
     if (active === 'humanoid' || active === 'procedural_humanoid') {
       this.loadHumanoidModel();
       return;
     }
 
-    if (active === 'procedural') {
+    if (active === 'flag' || active === 'procedural') {
       this.loadProceduralModel();
       return;
     }
@@ -233,55 +227,6 @@ export class SceneStageManager {
     }
   }
 
-  /**
-   * Loads the 3D Waving Country Flag mesh.
-   */
-  loadFlagModel() {
-    this.loadToken++;
-    this.disposeCurrentModel();
-    this.activeModelKey = 'flag';
-    this.currentSettings.activeModel = 'flag';
-
-    const targetW = this.currentSettings.width || 350;
-    const targetH = this.currentSettings.height || 350;
-    if (this.camera) {
-      this.camera.aspect = targetW / targetH;
-      this.camera.updateProjectionMatrix();
-      this.camera.position.set(0, 0, 5.5);
-      this.camera.lookAt(0, 0, 0);
-    }
-    if (this.renderer) {
-      this.renderer.setSize(targetW, targetH);
-    }
-
-    const result = createFlagMesh(this.THREE, this.scene, {
-      customTextureUrl: this.currentSettings.customTexturePath,
-      flagPreset: this.currentSettings.flagPreset,
-      windSpeed: this.currentSettings.flagWindSpeed,
-      waveIntensity: this.currentSettings.flagWaveIntensity,
-      textureRepeatX: this.currentSettings.textureRepeatX,
-      textureRepeatY: this.currentSettings.textureRepeatY,
-      textureRoughness: this.currentSettings.textureRoughness,
-      textureMetalness: this.currentSettings.textureMetalness
-    });
-
-    if (result) {
-      this.characterGroup = result.characterGroup;
-      this.innerModelGroup = result.innerModelGroup;
-      this.collisionProxy = result.collisionProxy;
-
-      if (this.state.setCharacterGroup) this.state.setCharacterGroup(result.characterGroup);
-      if (this.state.setInnerModelGroup) this.state.setInnerModelGroup(result.innerModelGroup);
-      if (this.state.setCollisionProxy) this.state.setCollisionProxy(result.collisionProxy);
-    }
-
-    if (this.callbacks.generateModelPreview) {
-      this.callbacks.generateModelPreview('flag');
-    }
-    if (this.callbacks.populateAnimationDropdown) {
-      this.callbacks.populateAnimationDropdown();
-    }
-  }
 
   /**
    * Loads custom GLTF/GLB model from file path, object URL, or blob.
@@ -532,23 +477,6 @@ export class SceneStageManager {
   applyTexture(textureUrl) {
     if (!this.innerModelGroup || !this.THREE) return;
 
-    if (this.innerModelGroup.userData && this.innerModelGroup.userData.flagClothMesh) {
-      const textureLoader = new this.THREE.TextureLoader();
-      textureLoader.load(textureUrl, (loadedTex) => {
-        loadedTex.wrapS = this.THREE.RepeatWrapping;
-        loadedTex.wrapT = this.THREE.RepeatWrapping;
-        loadedTex.repeat.set(this.currentSettings.textureRepeatX || 1.0, this.currentSettings.textureRepeatY || 1.0);
-
-        const mat = this.innerModelGroup.userData.flagClothMesh.material;
-        if (mat) {
-          mat.map = loadedTex;
-          mat.roughness = this.currentSettings.textureRoughness !== undefined ? this.currentSettings.textureRoughness : 0.50;
-          mat.metalness = this.currentSettings.textureMetalness !== undefined ? this.currentSettings.textureMetalness : 0.05;
-          mat.needsUpdate = true;
-        }
-      });
-      return;
-    }
 
     if (this.currentSettings.flagPreset === 'model_default' || !textureUrl) {
       this.innerModelGroup.traverse((child) => {

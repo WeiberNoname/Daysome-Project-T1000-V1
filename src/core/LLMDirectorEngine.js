@@ -21,7 +21,6 @@ export class LLMDirectorEngine {
   constructor(deps = {}) {
     this.currentSettings = deps.currentSettings || {};
     this.saveSettingsFile = deps.saveSettingsFile || (() => {});
-    this.showSpeechBubble = deps.showSpeechBubble || null;
     this.callbacks = deps.callbacks || {};
 
     this.endpointUrl = this.currentSettings.aiEndpointUrl || 'http://localhost:11434/v1';
@@ -36,7 +35,6 @@ export class LLMDirectorEngine {
     this.registry = new ToolRegistry({
       currentSettings: this.currentSettings,
       saveSettingsFile: this.saveSettingsFile,
-      showSpeechBubble: this.showSpeechBubble,
       callbacks: this.callbacks
     });
 

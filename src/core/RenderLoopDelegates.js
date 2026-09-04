@@ -10,7 +10,6 @@ export function createRenderLoopDelegates(deps) {
     updateAnimationFrameUtil,
     updateFPSCameraUtil,
     updateXYZVisibilityUtil,
-    previewViewportEngine,
     getContext
   } = deps;
 
@@ -113,26 +112,9 @@ export function createRenderLoopDelegates(deps) {
     });
   };
 
-  const initPreviewViewport = () => {
-    previewViewportEngine.initPreviewViewport();
-  };
-
-  const renderPreviewViewport = () => {
-    const ctx = getContext();
-    previewViewportEngine.renderPreviewViewport({
-      isSettingsOpen: ctx.isSettingsOpen,
-      scene: ctx.scene,
-      stageSpotLightHelpers: ctx.stageSpotLightHelpers,
-      currentSettings: ctx.currentSettings,
-      t: ctx.t
-    });
-  };
-
   return {
     animate,
     updateFPSCamera,
-    updateXYZVisibility,
-    initPreviewViewport,
-    renderPreviewViewport
+    updateXYZVisibility
   };
 }

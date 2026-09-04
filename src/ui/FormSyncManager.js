@@ -11,10 +11,8 @@ export function createFormSyncManager(deps) {
     availableAnimations,
     syncSlidersUIUtil,
     populateAnimationDropdownUtil,
-    renderSpotlightCardsUIUtil,
     updateXYZVisibility,
     updateStageLighting,
-    updateSpotlightPosition,
     saveSettingsFile,
     t
   } = deps;
@@ -51,9 +49,7 @@ export function createFormSyncManager(deps) {
       valAmbientIntensity,
       updateXYZVisibility,
       populateAnimationDropdown,
-      renderSpotlightCardsUI,
-      updateStageLighting,
-      updateSpotlightPosition
+      updateStageLighting
     });
   };
 
@@ -71,22 +67,8 @@ export function createFormSyncManager(deps) {
     });
   };
 
-  const renderSpotlightCardsUI = () => {
-    const addSpotlightBtn = document.getElementById('add-spotlight-btn');
-    renderSpotlightCardsUIUtil({
-      currentSettings,
-      addSpotlightBtn,
-      updateSpotlightPosition,
-      updateStageLighting,
-      saveSettingsFile,
-      showSpeechBubble: deps.showSpeechBubble,
-      t
-    });
-  };
-
   return {
     syncSlidersUI,
-    populateAnimationDropdown,
-    renderSpotlightCardsUI
+    populateAnimationDropdown
   };
 }

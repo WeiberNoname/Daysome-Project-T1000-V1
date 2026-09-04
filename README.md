@@ -1,8 +1,8 @@
 # MascotCaption 3D: Real-Time Screen Auto-Captioning with 3D Mascot Companion 🤖🐰💬
 
-A high-performance, transparent, interactive **3D Desktop Mascot & Real-Time Screen Auto-Captioning Engine** for Windows powered by **Electron**, **Three.js**, **Web Audio API**, **Local Multimodal Vision AI**, and the **AI Function Director & Neural LLM Engine**.
+A high-performance, transparent, interactive **3D Desktop Mascot & Real-Time Screen Auto-Captioning Engine** for Windows powered by **Electron**, **Three.js**, **Local Multimodal Vision AI**, and the **AI Function Director & Neural LLM Engine**.
 
-> 📖 **Full User Manual:** For complete guides on Blender viewport navigation, custom 3D model loading, FPS camera flight, physics tossing, stage spotlights, dynamic battery saver mode, sakura rain particle simulation, and 12-language localization, please see **[USER_MANUAL.md](USER_MANUAL.md)**.
+> 📖 **Full User Manual:** For complete guides on Blender viewport navigation, custom 3D model loading, FPS camera flight, physics tossing, dynamic battery saver mode, and 12-language localization, please see **[USER_MANUAL.md](USER_MANUAL.md)**.
 
 ---
 
@@ -13,12 +13,12 @@ graph TD
     User([👤 User / Active Screen]) -->|📸 Real-Time Screen Capture| Vision[👁️ Local Multimodal Vision AI: moondream]
     Vision -->|Scene Description| LLM[🧠 Persona LLM Synthesizer: llama3.2]
     LLM -->|Sequential Subtitle Stream| HUD[🪟 Live Caption HUD Overlay]
-    LLM -->|Speech Bubbles & Reactions| Mascot[🤖 3D Spatial Mascot Companion]
+    LLM -->|Audio Reactions & Lip-Sync| Mascot[🤖 3D Spatial Mascot Companion]
     
     subgraph Core [✨ The Unified Desktop Core]
         Mascot --> P1[🐰 3D WebGL & Physics Engine]
-        Mascot --> P2[🎼 Web Audio Synthesizer & SFX]
-        Mascot --> P3[🌸 3D Instanced Particle Weather]
+        Mascot --> P2[📦 Universal Asset Hub & 3D Ingestion]
+        Mascot --> P3[⚙️ System Controls & 12-Locale Support]
     end
 ```
 
@@ -29,70 +29,23 @@ graph TD
   * `⚡ Fallback Mode` — Seamlessly active offline via the ultra-fast built-in heuristic semantic parser.
 * **Auto-Start Local LLM Daemon**: Automatically launches the local Ollama background service on boot (`127.0.0.1:11434` with `llama3.2`).
 
-### 2. 🧪 Beta Testing & Incubator Labs (Studio Tab)
-* **🪟 Independent Live Caption HUD Window ([caption.html](caption.html))**:
-  * **Ultra-Clean Floating Subtitle Overlay**: Draggable, frameless, transparent, always-on-top HUD window for gaming, streaming, or video subtitles.
-  * **Streaming Green Flash (`.live-dot`)**: High-visibility glowing green pulse in the header indicating active live broadcast status.
-  * **Zero-Clutter Display**: Clean subtitle canvas with inline sequence index (`[1/3]`, `[2/3]`) and subtle `✕` close button.
-  * **Centralized Studio Appearance Controls**: Real-time two-way IPC styling for Background Color tint, Background Opacity slider (`0%` ghost overlay to `100%` solid), Font Color picker, and Font Size slider (`11px` to `36px`).
-  * **Mouse Click-Through Toggle**: Pass all mouse clicks directly through the subtitle HUD to underlying games, videos, or desktop apps.
-
-* **📢 Independent Sponsor & Ad Banner Window ([banner.html](banner.html))**:
-  * **Dedicated Floating Pop-out Window**: Independent frameless overlay for showcasing rotating sponsor banners, streamer announcements, community graphics, or Steam DLC cross-promotions.
-  * **Multi-Image Playlist & Rotation**: Add multiple ad/sponsor images into an automated rotating queue with configurable duration per ad (`1s` to `30s`), visual thumbnail strip with drag/remove management, and hover-to-pause inspection.
-  * **Cinematic GPU Transition Animations**: 5 seamless CSS/GPU transition effects:
-    * `Fade` — Smooth cross-dissolve
-    * `Slide Left` — Horizontal banner scroll
-    * `Slide Up` — Vertical headline slide
-    * `Zoom & Pop` — Energetic scale pop
-    * `3D Card Flip` — Dynamic 3D perspective card flip
-  * **Per-Ad Clickable Destination Links**: Bind unique Steam store (`steam://`), DLC, or web URLs (`https://`) to individual ads in the playlist with safe Electron shell execution.
-  * **Custom Background & Transparency**: Adjustable backing color and opacity slider ($0\%\text{–}100\%$). At $0\%$ opacity, the container borders and shadows disappear, leaving only the floating banner graphic cleanly on the desktop.
-  * **Mouse Click-Through Mode**: Pass mouse events directly through to background games and applications.
-  * **Automatic Settings Persistence**: Banner playlist, duration, transition style, and autoplay states are saved atomically in `SettingsManager.js` across reboots.
-
-* **🧠 2-Stage Vision &rarr; LLM Caption Synthesizer**:
-  * **2-Stage Neural Pipeline**: Captures screen snapshots &rarr; Stage 1 Multimodal Vision (**`moondream`**) perceives natural scene &rarr; Stage 2 Text LLM (**`llama3.2`**) synthesizes punchy subtitle sentences with native multilingual prompt variables.
-  * **11 Commentary Persona Styles**: `🎙️ Live Streamer (Hype)`, `🇹🇼 實況幹話腔 (Taiwan Slang)`, `🔥 玩梗吐槽 (Meme Roaster)`, `🎮 Pro Gamer (Tactical APM)`, `🛡️ 戰術教練 (Tactical Coach)`, `🤣 Funny & Comedy`, `🧐 Serious & Analytical`, `🐾 Cute Pet Companion`, `🌌 Poetic & Artistic`, `🍿 Cinematic Narrator`, and `⚡ Fast Action`.
-  * **12-Language Target Selection**: Explicit native output directives across English, Chinese (Simplified/Traditional), Japanese, Korean, Spanish (EU/LATAM), French, German, Italian, Portuguese, and Russian with built-in zero-English bleed-through guardrails and Traditional Chinese glyph normalizer.
-  * **🔊 Offline Voice Synthesis (TTS) & Mascot Lip-Sync**: Built-in Windows / Electron Web Speech Synthesis engine with automatic localized voice matching (`zh-TW`, `zh-CN`, `ja-JP`, `en-US`), tunable voice pitch (`0.5x` to `2.0x`), speaking speed (`0.6x` to `1.8x`), volume controls, and real-time mascot rhythmic speech animation / lip-sync.
-  * **Sentence Count Variable**: Select from `1` (quick alert) to `6` (extended story) captions.
-  * **Caption Speed / Pacing**: Configure display duration per subtitle sentence (`1.0s` to `8.0s`).
-  * **🔄 Auto-Loop Gaming Mode**: Continuous background capture & synthesis loop (`8s`, `15s`, `25s`, `45s`, `60s`) with **▶ Auto-Play to Subtitle HUD** for completely hands-free live stream commentary.
-  * **Editable Review Text Box**: Inspect, edit, copy, or dispatch generated subtitles directly to the 3D mascot speech bubble or floating caption HUD.
-
-### 3. 📦 Universal Asset Hub & Ingestion (Tab 2)
-* **Central Drag-and-Drop Ingestion**: Universal dropzone supporting 3D Models (`.glb`, `.gltf`, `.fbx`, `.obj`), Textures & Skin Images (`.png`, `.jpg`, `.webp`, `.svg`, `.gif`), and Audio Scores (`.mid`, `.midi`, `.musicxml`, `.xml`).
+### 2. 📦 Universal Asset Hub & Ingestion (Tab 2)
+* **Central Drag-and-Drop Ingestion**: Universal dropzone supporting 3D Models (`.glb`, `.gltf`, `.fbx`, `.obj`) and Textures (`.png`, `.jpg`, `.webp`, `.svg`).
 * **Pooled 3D Snapshot Renderer**: Automatically captures beauty-angle thumbnail snapshots for 3D GLTF models with zero VRAM leaks.
-* **Cross-Tab Ingestion**: Automatically propagates imported assets into Mascot, Texture, Atmosphere, and Music file holder grids.
+* **Cross-Tab Ingestion**: Automatically propagates imported assets into the Mascot file holder grid.
 
-### 4. 🤖 3D Mascot & Model Studio (Tab 3)
+### 3. 🎨 3D Mascot & Studio (Tab 3)
 * **Standardized File Holder Grid**: Instant 1-click selection across procedural 3D models and custom imported GLTF/GLB models:
   * 🤖 **Cyber Android** (`.HUMANOID` • 100% Original IP procedural humanoid with 4 skeletal animation cycles: `Idle Breathing`, `Cheering Wave`, `Victory Dance`, and `Look Around`).
   * 🐰 **Default Bunny** (`.MASCOT` • Procedural cute clay vinyl bunny with physics reactions and toss physics).
-  * 🎌 **Country Flag** (`.CLOTH` • Interactive waving cloth simulation with custom texture mapping).
   * 📦 **Custom 3D Models** (`.GLB` / `.GLTF` • Drop any custom rigged model into the asset hub).
-* **Skeletal Animation Selector**: Live animation clip dropdown with smooth cross-fading, interactive SFX reactions, idle bobbing dynamics, and 3D physics tossing (Hold `D` + Drag).
+* **Skeletal Animation Selector**: Live animation clip dropdown with smooth cross-fading, idle bobbing dynamics, and 3D physics tossing (Hold `D` + Drag).
+* **🧪 Screen Vision AI & Live Overlays (Incubator Labs)**:
+  * **🪟 Independent Live Caption HUD Window ([caption.html](caption.html))**: Draggable, frameless, transparent floating subtitle HUD with customizable styling and click-through mode.
+  * **📢 Independent Sponsor & Ad Banner Window ([banner.html](banner.html))**: Dedicated floating overlay for rotating sponsor banners, stream announcements, and clickable URL links.
+  * **🧠 2-Stage Vision &rarr; LLM Caption Synthesizer**: Multimodal vision (`moondream`) + text synthesis (`llama3.2`) with 11 commentary personas and offline TTS voice matching.
 
-### 5. 🌸 Atmosphere & Ambient Weather (Tab 4)
-* **Single-Draw-Call Instanced Particles**: Single-pass GPU instanced particle systems for 3D cherry blossom petals and crystalline snowfall.
-* **Standardized Weather Grid**:
-  * 🌸 **Sakura Rain** (`.WEATHER` • Spring Blossom Petals)
-  * ❄️ **Winter Snow** (`.WEATHER` • Glistening Crystalline Snowflakes)
-  * 🌸❄️ **Dual Storm** (`.WEATHER` • Mixed Blossom & Snow Storm)
-  * ☀️ **Clear Skies** (`.CLEAR` • Pure Clean View)
-* **Audio-Atmosphere Sync**: Automatically activates weather storms when corresponding ambient music plays.
-
-### 6. 🎨 Texture & Flag Cloth Dynamics (Tab 5)
-* **Harmonic Cloth Wave Simulation**: Procedural waving flag with Verlet integration and real-time wind equations.
-* **PBR Material Presets**: 9 built-in shader styles (Solar Eclipse, Geometric Prism, Zen Harmony, Mythic Dragon, Cyber Neon, Cosmic Nebula, Sakura Blossom, Nordic Aurora, Abyssal Wave) and custom texture image mapping.
-
-### 7. 🎵 Sound & Classical Music Studio (Tab 6)
-* **Universal Instrument Grid**: Standardized selectable cards for Grand Piano (`.MIDI`), Sheet Reader (`.XML`), Snow Wind (`.SYNTH`), Sakura Melody (`.SYNTH`), and Lo-Fi Drum Beat (`.SYNTH`).
-* **Score & Track Library**: Pure Web Audio synthesis of Für Elise, Bach Minuet in G, Ode to Joy, Mozart Twinkle Variations, and imported `.mid` / `.xml` files.
-* **Minimalist Transport**: Streamlined down to **Active Song Banner**, **Loop Toggle**, and **Play Button**.
-
-### 8. ⚙️ System & Preferences Configuration Hub (Tab 7)
+### 4. ⚙️ System & Preferences Configuration Hub (Tab 4)
 * **Centralized Neural LLM Settings**: Provider presets, endpoint URLs, model names, API keys, and connection testing.
 * **Global Parameters**: Window width/height ($30\text{px}$ to $3840\text{px}$), model scale ($0.1\times$ to $5.0\times$), target frame rate ($15\text{–}240\text{ FPS}$), dynamic battery saver, and idle frame rate caps.
 * **100% Zero-Missing 12-Language Localization**: Full translation parity across English, Chinese (Simplified/Traditional), Japanese, Korean, French, German, Spanish (EU/LATAM), Italian, Portuguese, and Russian.
@@ -104,8 +57,8 @@ graph TD
 Traditional desktop software becomes bloated and unusable over time ($O(N^2)$ complexity growth) as every new feature introduces new menus, sliders, and buttons.
 
 This app implements the **Universal File Holder Standard (`.studio-select-card`)**:
-1. **Uniform Visual Contract**: Every selectable asset (Mascot, Cloth Texture, Weather Effect, Musical Instrument, Classical Score, and future SynapseFlow graphs) uses the identical card layout.
-2. **"Tab UI as Complete History"**: The classical tabs represent a stable, loved physical archive. Adding 100 new features introduces **0 new UI complexity**—they are simply ingested as file cards or directed via natural language.
+1. **Uniform Visual Contract**: Every selectable asset (Mascots, Models, and imported 3D assets) uses an identical card layout.
+2. **Minimalism by Design**: Only essential companion and auto-captioning tools are kept active. Adding new assets introduces **0 new UI complexity**—they are simply ingested as file cards or directed via natural language.
 
 ---
 
@@ -125,7 +78,7 @@ flowchart TD
     VisionModel --> OutputFormat[📝 Formatted Output: Scene Description]
     
     ToolDispatch --> AppState[⚡ 1:1 Live DOM & WebGL Execution]
-    OutputFormat --> SubtitleHUD[🪟 Live Caption HUD & Mascot Bubble]
+    OutputFormat --> SubtitleHUD[🪟 Live Caption HUD Overlay]
 ```
 
 ### 1. Built-in Local Text Model (Automatic)
@@ -162,7 +115,7 @@ node ./node_modules/electron/cli.js .
 ```powershell
 node tests/run_tests.mjs
 ```
-*Coverage: SettingsManager, PhysicsEngine, 12-Locale Parity, AppStore, EventBus, GPU VRAM disposal, Preload Security, SoundManager, FlagMeshBuilder, TextureManager, Web Audio Piano, MidiParser, MusicXml, AssetRegistryManager, ScreenVisionService, and Overlay Window Integrity.*
+*Coverage: SettingsManager Defaults & Fallbacks, PhysicsEngine Kinematics, 12-Locale Key Parity, AppStore Reactive State, EventBus Channel Routing, GPUAssetManager VRAM Disposal, Preload Security Bridge, SoundManager Volume Normalization, SceneStageManager Model Fallback Resilience, AI Director Heuristic NLP & Prompt Scenarios, ToolRegistry Guardrails, AssetRegistryManager 3D Ingestion, HumanoidMascotBuilder Skeletal Rigging, ScreenVisionService Multimodal AI, VisionCaptionSynthesizerService Multi-Persona TTS, and Floating HUD Overlays (Subtitles & Sponsor Banner).*
 
 ---
 
@@ -171,7 +124,7 @@ node tests/run_tests.mjs
 To package the standalone Windows binary into the single canonical folder:
 
 ```powershell
-Get-Process | Where-Object { $_.Path -like "*DesktopPet*" } | Stop-Process -Force; node ./node_modules/electron-packager/bin/electron-packager.js . DesktopPet --platform=win32 --arch=x64 --out=build_tmp --overwrite; Copy-Item -Recurse -Force build_tmp\DesktopPet-win32-x64\* DesktopPet-win32-x64\; Copy-Item steam_appid.txt -Destination DesktopPet-win32-x64\; Remove-Item -Recurse -Force build_tmp
+Get-Process | Where-Object { $_.Path -like "*DesktopPet*" } | Stop-Process -Force -ErrorAction SilentlyContinue; node ./node_modules/electron-packager/bin/electron-packager.js . DesktopPet --platform=win32 --arch=x64 --ignore="DesktopPet-win32-x64|build_tmp|tests|\.git" --overwrite; Copy-Item steam_appid.txt -Destination DesktopPet-win32-x64\ -Force
 ```
 
 The output executable is packaged directly at:
@@ -197,35 +150,43 @@ Start-Process "DesktopPet-win32-x64\DesktopPet.exe"
 ├── locales/                      <-- 12 Language translation dictionaries (en, zh, ja, ko, etc.)
 ├── src/
 │   ├── core/                     <-- 3D WebGL, Audio & Physics Engines
-│   │   ├── director/             <-- AI Director tools, domains & telemetry
+│   │   ├── director/             <-- AI Director tools, domains, telemetry & inspector
 │   │   ├── AnimationLoopManager.js
 │   │   ├── AppInitializer.js
-│   │   ├── FlagMeshBuilder.js
 │   │   ├── GPUAssetManager.js
+│   │   ├── HumanoidMascotBuilder.js
 │   │   ├── InteractionManager.js
+│   │   ├── LightingManager.js
 │   │   ├── LLMDirectorEngine.js
+│   │   ├── MascotBuilder.js
 │   │   ├── MascotInteractionHandler.js
-│   │   ├── SakuraRainManager.js
+│   │   ├── ModelLoader.js
+│   │   ├── RenderLoopDelegates.js
 │   │   ├── SceneStageManager.js
-│   │   ├── SnowFallManager.js
 │   │   └── SoundManager.js
 │   ├── managers/                 <-- AppStore, SettingsManager & EventBus
 │   ├── services/                 <-- Neural & Multimodal Services
 │   │   ├── ScreenVisionService.js               <-- Local Multimodal Vision Service
+│   │   ├── SpeechSynthesisService.js            <-- Offline Web Speech TTS Engine & Mascot Lip-Sync
 │   │   └── VisionCaptionSynthesizerService.js   <-- 2-Stage Vision -> LLM Caption Synthesizer
 │   └── ui/                       <-- Studio UI & Viewport Controllers
 │       ├── AIDirectorTabUI.js
 │       ├── AssetHubUI.js
-│       ├── AtmosphereTabUI.js
 │       ├── BannerWindowUI.js                    <-- Floating Sponsor & Ad Banner UI Controller
+│       ├── CameraViewManager.js
 │       ├── FormSyncManager.js
 │       ├── LiveCaptionBetaUI.js                 <-- Floating Live Caption HUD UI Controller
 │       ├── PreviewGenerator.js
 │       ├── ScreenVisionBetaUI.js                <-- Beta Screen Vision UI Controller
-│       ├── SettingsPanelUI.js
+│       ├── SettingsDiagnosticsUI.js
+│       ├── SettingsEventListeners.js
 │       ├── SettingsPanelResizeHandler.js
-│       ├── SoundTabUI.js
-│       ├── TextureTabUI.js
+│       ├── SettingsPanelUI.js
+│       ├── SettingsSaveHandler.js
+│       ├── SettingsUIConfigBuilder.js
+│       ├── SettingsUIDelegates.js
+│       ├── StudioTabManager.js
+│       ├── uiUtils.js
 │       └── VisionCaptionSynthesizerBetaUI.js    <-- Vision -> LLM Synthesizer UI Controller
 ├── banner.html                   <-- Standalone Floating Sponsor & Ad Banner Window
 ├── banner.js                     <-- Banner Window Controller & URL Link Handler

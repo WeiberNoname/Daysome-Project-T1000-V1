@@ -349,13 +349,6 @@ export function setupAIDirectorTabUI(deps) {
         }
 
         if (saveSettingsFile) saveSettingsFile();
-        if (engine.showSpeechBubble) {
-          engine.showSpeechBubble(
-            engine.currentSettings.language === 'zh'
-              ? '好嘞！已为你确认并执行所有建议调整！✨'
-              : 'All set! Confirmed and applied all proposed actions! ✨'
-          );
-        }
         scrollToBottom();
       });
 

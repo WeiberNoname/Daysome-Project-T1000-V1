@@ -6,7 +6,6 @@
  */
 
 import { createProceduralMascot } from '../core/MascotBuilder.js';
-import { createFlagMesh, createPresetFlagTexture, updateFlagWave } from '../core/FlagMeshBuilder.js';
 import { createProceduralHumanoid } from '../core/HumanoidMascotBuilder.js';
 import { ModelThumbnailGenerator } from '../core/ModelThumbnailGenerator.js';
 import { disposeHierarchy } from '../core/GPUAssetManager.js';
@@ -107,7 +106,7 @@ export function populateModelDropdown(ctx) {
   const customModelAssets = window.__assetRegistryManager ? window.__assetRegistryManager.getAssets('model') : [];
   const customModelNames = customModelAssets.map(a => a.name);
 
-  const options = ['procedural', 'humanoid', 'flag', ...discovered];
+  const options = ['procedural', 'humanoid', ...discovered];
   customModelNames.forEach(name => {
     if (!options.includes(name)) {
       options.push(name);
@@ -141,9 +140,6 @@ export function populateModelDropdown(ctx) {
       img.src = matchingAsset.thumbnailUrl;
     } else if (fs.existsSync(previewPath)) {
       img.src = pathToFileURL(previewPath).href + "?t=" + Date.now();
-    } else if (modelKey === 'flag') {
-      img.src = (currentSettings && currentSettings.customTexturePath) ? currentSettings.customTexturePath : createPresetFlagTexture((currentSettings && currentSettings.flagPreset) || 'default');
-      generateMascotPreviewInBackground(ctx, 'flag');
     } else if (modelKey === 'humanoid') {
       generateMascotPreviewInBackground(ctx, 'humanoid');
     } else if (modelKey === 'procedural') {
@@ -176,9 +172,6 @@ export function populateModelDropdown(ctx) {
     } else if (modelKey === 'humanoid') {
       label.textContent = (typeof t === 'function') ? t('model_humanoid', 'Cyber Android 🤖') : 'Cyber Android 🤖';
       subText = 'Procedural Rig';
-    } else if (modelKey === 'flag') {
-      label.textContent = (typeof t === 'function') ? t('model_flag', 'Country Flag 🎌') : 'Country Flag 🎌';
-      subText = 'Interactive Cloth';
     } else {
       label.textContent = formatHumanLabel(modelKey);
       subText = matchingAsset ? `${matchingAsset.category} • ${matchingAsset.sizeFormatted}` : 'Custom 3D Model';
@@ -200,7 +193,7 @@ export function populateModelDropdown(ctx) {
         const cKey = c.getAttribute('data-id');
         if (cSub) {
           if (cKey === 'procedural') cSub.textContent = 'Procedural Mascot';
-          else if (cKey === 'flag') cSub.textContent = 'Interactive Cloth';
+          else if (cKey === 'humanoid') cSub.textContent = 'Procedural Rig';
           else {
             const mAsset = customModelAssets.find(a => a.name === cKey);
             cSub.textContent = mAsset ? `${mAsset.category} • ${mAsset.sizeFormatted}` : 'Custom GLTF';
@@ -244,7 +237,7 @@ export function startBackgroundPreviewGenerator(ctx) {
   }
 
   const discovered = state && state.discoveredModels ? state.discoveredModels : [];
-  const allModels = ['procedural', 'flag', ...discovered];
+  const allModels = ['procedural', 'humanoid', ...discovered];
   const queue = allModels.filter(modelKey => {
     const previewPath = path.join(previewsDir, `${modelKey}.png`);
     return !fs.existsSync(previewPath);
@@ -345,39 +338,6 @@ export function generateMascotPreviewInBackground(ctx, modelKey) {
       }
     } catch (e) {
       console.warn("Failed background capture for humanoid mascot:", e);
-    } finally {
-      disposeHierarchy(previewScene);
-    }
-  } else if (modelKey === 'flag') {
-    const previewScene = new THREE.Scene();
-    const previewCamera = new THREE.PerspectiveCamera(45, 1.0, 0.1, 100);
-    previewCamera.position.set(0, 0.2, 5.2);
-    previewCamera.lookAt(0, 0.2, 0);
-
-    const ambLight = new THREE.AmbientLight(0xffffff, 0.95);
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.4);
-    dirLight.position.set(3, 4, 5);
-    previewScene.add(ambLight);
-    previewScene.add(dirLight);
-
-    const flagResult = createFlagMesh(THREE, previewScene, ctx.currentSettings || {});
-    if (flagResult && flagResult.flagClothMesh) {
-      updateFlagWave(flagResult.flagClothMesh, 0.016, 1.5, 3.5, 0.35);
-    }
-
-    try {
-      renderer.render(previewScene, previewCamera);
-      const dataUrl = renderer.domElement.toDataURL("image/png");
-      const base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
-      fs.writeFileSync(previewPath, base64Data, 'base64');
-      console.log(`Generated canonical preview for: flag`);
-
-      const imgEls = document.querySelectorAll(`.mascot-thumbnail[data-mascot="flag"]`);
-      imgEls.forEach(imgEl => {
-        imgEl.src = pathToFileURL(previewPath).href + "?t=" + Date.now();
-      });
-    } catch (e) {
-      console.warn("Failed background capture for flag mesh:", e);
     } finally {
       disposeHierarchy(previewScene);
     }

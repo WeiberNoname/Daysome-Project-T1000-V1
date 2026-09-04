@@ -7,7 +7,6 @@
 
 import { visionCaptionSynthesizerService } from '../services/VisionCaptionSynthesizerService.js';
 import { speechSynthesisService } from '../services/SpeechSynthesisService.js';
-import { soundManager } from '../core/SoundManager.js';
 import { showSpeechBubble } from '../ui/uiUtils.js';
 
 export class VisionCaptionSynthesizerBetaUI {

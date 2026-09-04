@@ -68,7 +68,7 @@
               <span class="ai-msg-avatar">🤖</span>
               <div class="ai-msg-body">
                 <div class="ai-msg-text" data-i18n="ai_welcome_msg">
-                  Hello! I am your AI Function Director. Tell me what you'd like to adjust (scale, rotation, physics, sakura rain, model, or camera) and I'll execute it for you!
+                  Hello! I am your AI Function Director. Tell me what you'd like to adjust (scale, rotation, physics, model, or camera) and I'll execute it for you!
                 </div>
               </div>
             </div>
@@ -90,7 +90,7 @@
             <span class="studio-card-title" data-i18n="asset_hub_title">📦 Universal Asset Importer</span>
           </div>
 
-          <input type="file" id="asset-hub-file-input" multiple accept=".glb,.gltf,.fbx,.obj,.gif,.png,.jpg,.jpeg,.webp,.svg,.mid,.midi,.musicxml,.xml" style="display: none;">
+          <input type="file" id="asset-hub-file-input" multiple accept=".glb,.gltf,.fbx,.obj,.png,.jpg,.jpeg,.webp,.svg,.gif" style="display: none;">
           <div id="asset-hub-dropzone" class="studio-dropzone">
             <span style="font-size: 1.6em;">📥</span>
             <div style="font-size: 0.95em; font-weight: 600; color: #ffffff; margin-top: 4px;" data-i18n="asset_drop_title">Drag & Drop Any Asset File Here</div>
@@ -111,7 +111,7 @@
         </div>
       </div>
 
-      <!-- Tab 3: Unified Studio (Mascot, Atmosphere, Lighting, Texture, Sound) -->
+      <!-- Tab 3: Unified Studio (Mascot & Screen Vision) -->
       <div id="tab-display" class="studio-tab-content">
         <!-- 1. Mascot & Model Library Card -->
         <div class="studio-card">
@@ -141,214 +141,7 @@
           </div>
         </div>
 
-        <!-- 3. Weather & Atmospheric Ambience Card -->
-        <div class="studio-card">
-          <div class="studio-card-header">
-            <span class="studio-card-title" data-i18n="atmosphere_title">🌸 Weather & Atmospheric Ambience</span>
-            <span id="weather-count-badge" class="studio-badge studio-badge-amber">3 Weathers</span>
-          </div>
 
-          <!-- Atmosphere Weather Selection Grid -->
-          <div id="weather-select-grid" class="studio-select-grid" style="margin-top: 6px;">
-            <!-- Weather Option 1: Clear Day -->
-            <div id="weather-card-clear" class="studio-select-card weather-card selected" data-weather="clear">
-              <div class="studio-select-thumb asset-thumbnail-wrapper" style="background: radial-gradient(circle at center, rgba(56, 189, 248, 0.35) 0%, #141418 70%);">
-                <div style="font-size: 2em; filter: drop-shadow(0 0 8px #38bdf8);">☀️</div>
-                <span class="asset-ext-badge" style="color: #38bdf8; border-color: rgba(56,189,248,0.4); background: rgba(56,189,248,0.15); margin-top: 4px;">.ENV</span>
-              </div>
-              <div class="studio-select-label asset-card-label" data-i18n="weather_clear_title">☀️ Clear Sky</div>
-              <div class="studio-select-sub asset-card-sub" data-i18n="weather_clear_sub">Calm & Serene</div>
-            </div>
-
-            <!-- Weather Option 2: Sakura Blossom Rain -->
-            <div id="weather-card-sakura" class="studio-select-card weather-card" data-weather="sakura">
-              <div class="studio-select-thumb asset-thumbnail-wrapper" style="background: radial-gradient(circle at center, rgba(244, 114, 182, 0.35) 0%, #141418 70%);">
-                <div style="font-size: 2em; filter: drop-shadow(0 0 8px #f472b6);">🌸</div>
-                <span class="asset-ext-badge" style="color: #f472b6; border-color: rgba(244,114,182,0.4); background: rgba(244,114,182,0.15); margin-top: 4px;">.PARTICLE</span>
-              </div>
-              <div class="studio-select-label asset-card-label" data-i18n="weather_sakura_title">🌸 Sakura Rain</div>
-              <div class="studio-select-sub asset-card-sub" data-i18n="weather_sakura_sub">Falling Cherry Petals</div>
-            </div>
-
-            <!-- Weather Option 3: Winter Snowfall -->
-            <div id="weather-card-snow" class="studio-select-card weather-card" data-weather="snow">
-              <div class="studio-select-thumb asset-thumbnail-wrapper" style="background: radial-gradient(circle at center, rgba(147, 197, 253, 0.35) 0%, #141418 70%);">
-                <div style="font-size: 2em; filter: drop-shadow(0 0 8px #93c5fd);">❄️</div>
-                <span class="asset-ext-badge" style="color: #93c5fd; border-color: rgba(147,197,253,0.4); background: rgba(147,197,253,0.15); margin-top: 4px;">.PARTICLE</span>
-              </div>
-              <div class="studio-select-label asset-card-label" data-i18n="weather_snow_title">❄️ Snowfall</div>
-              <div class="studio-select-sub asset-card-sub" data-i18n="weather_snow_sub">Gentle Drifting Snow</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Hidden checkbox triggers for state management compatibility -->
-        <input type="checkbox" id="sakura-rain" style="display: none;">
-        <input type="checkbox" id="snow-fall" style="display: none;">
-
-        <!-- 4. Flag Styles, Textures & Cloth Wave Physics Card -->
-        <div class="studio-card">
-          <div class="studio-card-header">
-            <span class="studio-card-title" data-i18n="texture_presets_title">🎨 Flag Styles & Textures</span>
-            <div style="display: flex; align-items: center; gap: 6px;">
-              <span id="texture-count-badge" class="studio-badge studio-badge-amber">6 Presets</span>
-              <button id="texture-reset-btn" class="studio-btn-ghost" style="padding: 2px 6px; font-size: 9.5px;" data-i18n="texture_reset_btn">🔄 Reset</button>
-            </div>
-          </div>
-
-          <!-- Hidden File Input for Image Loading Compatibility -->
-          <input type="file" id="texture-file-input" accept="image/*" style="display: none;">
-
-          <!-- Flag Styles & Custom Texture Selection Grid -->
-          <div id="texture-select-grid" class="studio-select-grid" style="margin-top: 6px; max-height: 220px;"></div>
-
-          <!-- Real-Time Cloth Wave & Wind -->
-          <div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.1);">
-            <div class="studio-card-title" style="margin-bottom: 6px;" data-i18n="flag_wind_title">💨 Flag Wind Wave Physics</div>
-            
-            <div class="studio-row">
-              <div class="studio-row-label">
-                <label for="flag-wind-speed" class="studio-row-title" data-i18n="flag_wind_speed">Wind Speed</label>
-                <span class="studio-row-sub">Cloth flutter velocity</span>
-              </div>
-              <div class="studio-number-wrapper">
-                <input type="number" id="flag-wind-speed" class="studio-number-input" min="0.5" max="10.0" step="0.5" value="3.5">
-                <span class="studio-unit-suffix">x</span>
-              </div>
-            </div>
-
-            <div class="studio-row">
-              <div class="studio-row-label">
-                <label for="flag-wave-intensity" class="studio-row-title" data-i18n="flag_wave_intensity">Wave Amplitude</label>
-                <span class="studio-row-sub">Cloth displacement height</span>
-              </div>
-              <div class="studio-number-wrapper">
-                <input type="number" id="flag-wave-intensity" class="studio-number-input" min="0.05" max="1.50" step="0.05" value="0.35">
-                <span class="studio-unit-suffix">x</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Texture Mapping & Shader Controls -->
-          <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.1);">
-            <div class="studio-card-title" style="margin-bottom: 6px;" data-i18n="texture_mapping_title">📐 Mapping & Surface Shaders</div>
-            
-            <div class="studio-row">
-              <div class="studio-row-label">
-                <label for="texture-repeat-x" class="studio-row-title" data-i18n="texture_repeat_x">Texture Repeat X</label>
-              </div>
-              <div class="studio-number-wrapper">
-                <input type="number" id="texture-repeat-x" class="studio-number-input" min="1.0" max="6.0" step="0.5" value="1.0">
-                <span class="studio-unit-suffix">x</span>
-              </div>
-            </div>
-
-            <div class="studio-row">
-              <div class="studio-row-label">
-                <label for="texture-repeat-y" class="studio-row-title" data-i18n="texture_repeat_y">Texture Repeat Y</label>
-              </div>
-              <div class="studio-number-wrapper">
-                <input type="number" id="texture-repeat-y" class="studio-number-input" min="1.0" max="6.0" step="0.5" value="1.0">
-                <span class="studio-unit-suffix">x</span>
-              </div>
-            </div>
-
-            <div class="studio-row">
-              <div class="studio-row-label">
-                <label for="texture-roughness" class="studio-row-title" data-i18n="texture_roughness">Surface Roughness</label>
-              </div>
-              <div class="studio-number-wrapper">
-                <input type="number" id="texture-roughness" class="studio-number-input" min="0.0" max="1.0" step="0.05" value="0.50">
-              </div>
-            </div>
-
-            <div class="studio-row">
-              <div class="studio-row-label">
-                <label for="texture-metalness" class="studio-row-title" data-i18n="texture_metalness">Surface Metalness</label>
-              </div>
-              <div class="studio-number-wrapper">
-                <input type="number" id="texture-metalness" class="studio-number-input" min="0.0" max="1.0" step="0.05" value="0.05">
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 6. Procedural Audio & Synthesizers Card -->
-        <div class="studio-card">
-          <div class="studio-card-header">
-            <span class="studio-card-title" data-i18n="sound_title">🎵 Ambient Sound Synthesizers</span>
-            <div style="display: flex; align-items: center; gap: 6px;">
-              <span style="font-size: 0.85em; color: #d1d5db;" data-i18n="sound_master_enable">Master</span>
-              <label class="studio-switch">
-                <input type="checkbox" id="sound-master-enable" checked>
-                <span class="studio-slider-knob"></span>
-              </label>
-            </div>
-          </div>
-
-          <div class="studio-row">
-            <div class="studio-row-label">
-              <label for="sound-master-vol" class="studio-row-title" data-i18n="sound_master_vol">Master Audio Volume</label>
-              <span class="studio-row-sub">Overall synthesizer volume multiplier</span>
-            </div>
-            <div class="studio-number-wrapper">
-              <input type="number" id="sound-master-vol" class="studio-number-input" min="0.0" max="1.0" step="0.05" value="0.80">
-              <span class="studio-unit-suffix">vol</span>
-            </div>
-          </div>
-
-          <!-- Standardized Selectable Sound Synthesizer Grid -->
-          <div id="instrument-select-grid" class="studio-select-grid" style="margin-top: 6px;">
-            <!-- Synth 1: Snow Wind Synth -->
-            <div id="sound-card-snow" class="studio-select-card sound-synth-card instrument-card selected" data-instrument="snow" data-track="snow">
-              <div class="studio-select-thumb asset-thumbnail-wrapper" style="background: radial-gradient(circle at center, rgba(56, 189, 248, 0.35) 0%, #141418 70%);">
-                <div style="font-size: 2em; filter: drop-shadow(0 0 8px #38bdf8);">❄️</div>
-                <span id="badge-sound-snow" class="asset-ext-badge" style="color: #38bdf8; border-color: rgba(56,189,248,0.4); background: rgba(56,189,248,0.15); margin-top: 4px;">.SYNTH</span>
-              </div>
-              <div class="studio-select-label asset-card-label" data-i18n="sound_snow_title">❄️ Snow Wind</div>
-              <div id="sub-sound-snow" class="studio-select-sub asset-card-sub">Winter Ambience</div>
-            </div>
-
-            <!-- Synth 2: Sakura Koto Synth -->
-            <div id="sound-card-sakura" class="studio-select-card sound-synth-card instrument-card" data-instrument="sakura" data-track="sakura">
-              <div class="studio-select-thumb asset-thumbnail-wrapper" style="background: radial-gradient(circle at center, rgba(244, 114, 182, 0.35) 0%, #141418 70%);">
-                <div style="font-size: 2em; filter: drop-shadow(0 0 8px #f472b6);">🌸</div>
-                <span id="badge-sound-sakura" class="asset-ext-badge" style="color: #f472b6; border-color: rgba(244,114,182,0.4); background: rgba(244,114,182,0.15); margin-top: 4px;">.SYNTH</span>
-              </div>
-              <div class="studio-select-label asset-card-label" data-i18n="sound_sakura_title">🌸 Sakura Melody</div>
-              <div id="sub-sound-sakura" class="studio-select-sub asset-card-sub">Spring Bells</div>
-            </div>
-
-            <!-- Synth 3: Lo-Fi Drum Synth -->
-            <div id="sound-card-drum" class="studio-select-card sound-synth-card instrument-card" data-instrument="drum" data-track="drum">
-              <div class="studio-select-thumb asset-thumbnail-wrapper" style="background: radial-gradient(circle at center, rgba(245, 158, 11, 0.35) 0%, #141418 70%);">
-                <div style="font-size: 2em; filter: drop-shadow(0 0 8px #fbbf24);">🥁</div>
-                <span id="badge-sound-drum" class="asset-ext-badge" style="color: #fbbf24; border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.15); margin-top: 4px;">.SYNTH</span>
-              </div>
-              <div class="studio-select-label asset-card-label" data-i18n="sound_drum_title">🥁 Lo-Fi Drum</div>
-              <div id="sub-sound-drum" class="studio-select-sub asset-card-sub">Rhythm Beat</div>
-            </div>
-          </div>
-
-          <!-- Ambient Synth Track Quick Editor -->
-          <div id="sound-track-editor" style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.12);">
-            <div class="studio-card-header" style="margin-bottom: 6px;">
-              <span id="sound-editor-title" class="studio-card-title" style="font-size: 0.92em; color: #38bdf8;">❄️ Selected Synth: Snow Wind</span>
-              <button id="btn-sound-active-play" class="studio-btn-primary" style="padding: 2px 10px; font-size: 0.85em;" data-i18n="sound_play">▶ Play</button>
-            </div>
-
-            <div class="studio-row">
-              <div class="studio-row-label">
-                <label for="sound-active-vol" class="studio-row-title">Synth Volume</label>
-                <span class="studio-row-sub">Channel gain multiplier</span>
-              </div>
-              <div class="studio-number-wrapper">
-                <input type="number" id="sound-active-vol" class="studio-number-input" min="0.0" max="1.0" step="0.05" value="0.70">
-                <span class="studio-unit-suffix">vol</span>
-              </div>
-            </div>
-          </div>
-        </div>
 
         <!-- Beta Testing: Screen Vision AI Card -->
         <div class="studio-card">

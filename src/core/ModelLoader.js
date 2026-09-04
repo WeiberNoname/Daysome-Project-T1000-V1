@@ -48,14 +48,6 @@ export function fallbackToProcedural(ctx) {
   manager.loadProceduralModel();
 }
 
-/**
- * Loads the native 3D Waving Country Flag mesh cleanly.
- * @param {Object} ctx - Context dependencies.
- */
-export function loadFlagModel(ctx) {
-  const manager = getStageManager(ctx);
-  manager.loadFlagModel();
-}
 
 /**
  * Loads the native 3D Procedural Cyber Humanoid Mascot cleanly.

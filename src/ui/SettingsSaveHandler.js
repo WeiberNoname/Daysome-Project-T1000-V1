@@ -11,10 +11,7 @@ export async function handleSaveSettings(deps) {
     currentSettings,
     langSelect,
     changeLanguage,
-    enableStudioLightsCheck,
-    ambientIntensitySlider,
     updateStageLighting,
-    updateSpotlightPosition,
     widthSlider,
     heightSlider,
     scaleSlider,
@@ -61,11 +58,7 @@ export async function handleSaveSettings(deps) {
     if (populateModelDropdown) populateModelDropdown();
   }
 
-  if (enableStudioLightsCheck) currentSettings.enableStudioLights = enableStudioLightsCheck.checked;
-  if (ambientIntensitySlider) currentSettings.ambientIntensity = parseFloat(ambientIntensitySlider.value);
-
   if (updateStageLighting) updateStageLighting();
-  if (updateSpotlightPosition) updateSpotlightPosition();
 
   currentSettings.width = parseInt(widthSlider.value, 10);
   currentSettings.height = parseInt(heightSlider.value, 10);
@@ -98,37 +91,7 @@ export async function handleSaveSettings(deps) {
   currentSettings.settingsLeft = settingsLeftCheck.checked;
   currentSettings.lockPosition = lockPositionCheck.checked;
   currentSettings.viewOnly = viewOnlyCheck.checked;
-  const sakuraRainDom = deps.sakuraRainCheck || document.getElementById('sakura-rain');
-  if (sakuraRainDom) currentSettings.sakuraRain = sakuraRainDom.checked;
-  const snowFallDom = deps.snowFallCheck || document.getElementById('snow-fall');
-  if (snowFallDom) currentSettings.snowFall = snowFallDom.checked;
 
-  const soundMasterEnableDom = deps.soundMasterEnableCheck || document.getElementById('sound-master-enable');
-  if (soundMasterEnableDom) currentSettings.soundMuted = !soundMasterEnableDom.checked;
-  const soundMasterVolDom = deps.soundMasterVolSlider || document.getElementById('sound-master-vol');
-  if (soundMasterVolDom) currentSettings.soundMasterVolume = parseFloat(soundMasterVolDom.value);
-  const soundSnowVolDom = deps.soundSnowVolSlider || document.getElementById('sound-snow-vol');
-  if (soundSnowVolDom) currentSettings.soundSnowVolume = parseFloat(soundSnowVolDom.value);
-  const soundSakuraVolDom = deps.soundSakuraVolSlider || document.getElementById('sound-sakura-vol');
-  if (soundSakuraVolDom) currentSettings.soundSakuraVolume = parseFloat(soundSakuraVolDom.value);
-  const soundDrumVolDom = deps.soundDrumVolSlider || document.getElementById('sound-drum-vol');
-  if (soundDrumVolDom) currentSettings.soundDrumVolume = parseFloat(soundDrumVolDom.value);
-  const soundSnowSyncDom = deps.soundSnowSyncCheck || document.getElementById('sound-snow-sync');
-  if (soundSnowSyncDom) currentSettings.soundSnowSync = soundSnowSyncDom.checked;
-  const soundSakuraSyncDom = deps.soundSakuraSyncCheck || document.getElementById('sound-sakura-sync');
-  if (soundSakuraSyncDom) currentSettings.soundSakuraSync = soundSakuraSyncDom.checked;
-
-  const flagWindSpeedDom = deps.flagWindSpeedSlider || document.getElementById('flag-wind-speed');
-  if (flagWindSpeedDom) currentSettings.flagWindSpeed = parseFloat(flagWindSpeedDom.value);
-  const flagWaveIntensityDom = deps.flagWaveIntensitySlider || document.getElementById('flag-wave-intensity');
-  if (flagWaveIntensityDom) currentSettings.flagWaveIntensity = parseFloat(flagWaveIntensityDom.value);
-  const textureRepeatXDom = deps.textureRepeatXSlider || document.getElementById('texture-repeat-x');
-  if (textureRepeatXDom) currentSettings.textureRepeatX = parseFloat(textureRepeatXDom.value);
-  const textureRepeatYDom = deps.textureRepeatYSlider || document.getElementById('texture-repeat-y');
-  if (textureRepeatYDom) currentSettings.textureRepeatY = parseFloat(textureRepeatYDom.value);
-  const textureRoughnessDom = deps.textureRoughnessSlider || document.getElementById('texture-roughness');
-  if (textureRoughnessDom) currentSettings.textureRoughness = parseFloat(textureRoughnessDom.value);
-  const textureMetalnessDom = deps.textureMetalnessSlider || document.getElementById('texture-metalness');
   const synthVisionModelDom = document.getElementById('beta-synth-vision-model');
   if (synthVisionModelDom) currentSettings.synthVisionModel = synthVisionModelDom.value;
   const synthVisionDetailDom = document.getElementById('beta-synth-vision-detail');
@@ -228,8 +191,6 @@ export async function handleSaveSettings(deps) {
       if (fallbackToProcedural) fallbackToProcedural();
     } else if (newModel === 'humanoid') {
       if (deps.loadHumanoidModel) deps.loadHumanoidModel();
-    } else if (newModel === 'flag') {
-      if (deps.loadFlagModel) deps.loadFlagModel();
     } else {
       const assetsDir = getAssetsPath();
       const fullPath = path.join(assetsDir, newModel);

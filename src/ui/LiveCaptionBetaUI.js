@@ -5,8 +5,6 @@
  * and seamlessly routing Screen Vision reflections into the live caption window.
  */
 
-import { soundManager } from '../core/SoundManager.js';
-
 export class LiveCaptionBetaUI {
   constructor({ currentSettings = {}, saveSettingsFile = null } = {}) {
     this.currentSettings = currentSettings;
