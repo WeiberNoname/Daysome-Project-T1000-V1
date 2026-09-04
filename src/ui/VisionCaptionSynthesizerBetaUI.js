@@ -240,7 +240,6 @@ export class VisionCaptionSynthesizerBetaUI {
       this.btnCopy.addEventListener('click', () => {
         if (this.outputTextarea && this.outputTextarea.value) {
           navigator.clipboard.writeText(this.outputTextarea.value);
-          soundManager.playInteractionSfx();
           this.updateStatus('📋 Captions copied to clipboard!');
         }
       });
@@ -260,7 +259,6 @@ export class VisionCaptionSynthesizerBetaUI {
 
     if (this.btnClear) {
       this.btnClear.addEventListener('click', () => {
-        soundManager.playInteractionSfx();
         this.clearOutput();
       });
     }
@@ -351,8 +349,6 @@ export class VisionCaptionSynthesizerBetaUI {
       this.outputTextarea.value = 'Step 1: Visual scene analysis in progress...\nStep 2: LLM caption synthesis queued...';
     }
 
-    if (!isAuto) soundManager.playInteractionSfx();
-
     const visionModel = this.visionModelSelect ? this.visionModelSelect.value : 'moondream';
     const detail = this.detailSelect ? this.detailSelect.value : 'medium';
     const textModel = this.textModelSelect ? this.textModelSelect.value : 'llama3.2';
@@ -389,8 +385,6 @@ export class VisionCaptionSynthesizerBetaUI {
           this.statusTag.style.color = '#10b981';
           this.statusTag.innerText = `✅ Synthesized ${result.captionsList?.length || 1} caption(s)`;
         }
-
-        if (!isAuto) soundManager.playFanfareSfx();
 
         // Auto-play captions sequentially into floating caption HUD if enabled
         const shouldAutoPlay = this.autoStreamHUDCheckbox ? this.autoStreamHUDCheckbox.checked : (this.currentSettings.synthAutoPlayHUD !== false);
@@ -453,7 +447,6 @@ export class VisionCaptionSynthesizerBetaUI {
     const api = window.electronAPI;
 
     this.isStreamingSequence = true;
-    soundManager.playInteractionSfx();
 
     if (this.btnStreamSeq) {
       this.btnStreamSeq.innerText = `⏹️ Streaming (1/${list.length})...`;
@@ -534,7 +527,6 @@ export class VisionCaptionSynthesizerBetaUI {
       sampleText = "안녕하세요! 실시간 음성 더빙이 활성화되었습니다.";
     }
 
-    soundManager.playInteractionSfx();
     this.updateStatus(`🔊 Playing voice test preview (${lang})...`);
     speechSynthesisService.speak(sampleText, {
       language: lang,
@@ -559,7 +551,6 @@ export class VisionCaptionSynthesizerBetaUI {
         model: this.textModelSelect ? this.textModelSelect.value : 'LLM Synth',
         source: 'SYNTHESIZER'
       });
-      soundManager.playInteractionSfx();
       this.updateStatus('🪟 Single caption sent to floating window!');
     }
   }
@@ -570,7 +561,6 @@ export class VisionCaptionSynthesizerBetaUI {
     const firstCaption = cleanText.split('\n\n')[0] || cleanText;
 
     showSpeechBubble(firstCaption, 5000);
-    soundManager.playFanfareSfx();
 
     const isTTSEnabled = this.ttsEnableCheckbox ? this.ttsEnableCheckbox.checked : !!this.currentSettings.synthTTSEnabled;
     if (isTTSEnabled) {

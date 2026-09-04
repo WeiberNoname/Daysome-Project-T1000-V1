@@ -324,12 +324,6 @@ export function setupAIDirectorTabUI(deps) {
       btnDismiss.innerText = `✕ Dismiss`;
 
       btnConfirm.addEventListener('click', () => {
-        if (typeof soundManager !== 'undefined' && soundManager.playFanfareSfx) {
-          soundManager.playFanfareSfx();
-        } else if (typeof soundManager !== 'undefined' && soundManager.playInteractionSfx) {
-          soundManager.playInteractionSfx();
-        }
-
         const executed = engine.executeProposal(proposal);
         btnConfirm.disabled = true;
         btnConfirm.innerHTML = `✅ All Actions Applied`;

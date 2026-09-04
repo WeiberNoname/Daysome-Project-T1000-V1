@@ -50,7 +50,6 @@ export class LiveCaptionBetaUI {
 
     if (this.btnLaunch) {
       this.btnLaunch.addEventListener('click', () => {
-        soundManager.playInteractionSfx();
         const api = window.electronAPI;
         if (api && typeof api.toggleLiveCaptionWindow === 'function') {
           api.toggleLiveCaptionWindow();
@@ -63,14 +62,12 @@ export class LiveCaptionBetaUI {
 
     if (this.btnTest) {
       this.btnTest.addEventListener('click', () => {
-        soundManager.playFanfareSfx();
         this.broadcastSampleCaption();
       });
     }
 
     if (this.btnClear) {
       this.btnClear.addEventListener('click', () => {
-        soundManager.playInteractionSfx();
         this.clearCaptionWindow();
       });
     }
