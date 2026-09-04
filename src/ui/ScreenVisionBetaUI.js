@@ -77,7 +77,6 @@ export class ScreenVisionBetaUI {
         this.currentSettings.screenVisionAutoLoop = isEnabled;
         if (isEnabled) {
           this.startAutoLoop();
-          soundManager.playFanfareSfx();
         } else {
           this.stopAutoLoop();
         }
@@ -172,8 +171,6 @@ export class ScreenVisionBetaUI {
         if (this.latencyTag) {
           this.latencyTag.innerText = `${result.durationMs}ms`;
         }
-
-        if (!isAuto) soundManager.playFanfareSfx();
 
         // Broadcast vision commentary to Live Caption HUD if enabled
         if (result.text) {

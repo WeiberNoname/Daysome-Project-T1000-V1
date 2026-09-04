@@ -151,7 +151,20 @@ export class SoundManager {
     this.stopSakura();
     this.stopDrum();
   }
+
+  // --- Defensive No-Op SFX Stubs ---
+  playInteractionSfx() {}
+  playFanfareSfx() {}
+  playBounceSfx() {}
+  playSuperchatChime() {}
+  playAirhornSfx() {}
+  playMemeBoing() {}
 }
 
 // Global Singleton Instance
 export const soundManager = new SoundManager();
+
+// Defensive Global Attachment for Complete Crash Immunity
+if (typeof window !== 'undefined') {
+  window.soundManager = soundManager;
+}
