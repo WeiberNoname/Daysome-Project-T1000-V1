@@ -105,12 +105,9 @@ export async function initializeApp(deps) {
   scene.add(gridHelper);
   state.gridHelper = gridHelper;
 
-  // Setup Stage & Spotlight Lighting
+  // Setup Stage Lighting
   if (callbacks.updateXYZVisibility) callbacks.updateXYZVisibility();
   if (callbacks.updateStageLighting) callbacks.updateStageLighting();
-  if (callbacks.updateSpotlightPosition) callbacks.updateSpotlightPosition();
-  if (callbacks.initSakuraRain) callbacks.initSakuraRain();
-  if (callbacks.initSnowFall) callbacks.initSnowFall();
 
   // Auto-detect custom asset or load procedural mascot
   if (callbacks.detectAndLoadAsset) callbacks.detectAndLoadAsset();
@@ -124,8 +121,7 @@ export async function initializeApp(deps) {
     if (callbacks.updateGearPosition) callbacks.updateGearPosition();
   }
 
-  // Initialize 3D Preview Viewport Engine
-  if (callbacks.initPreviewViewport) callbacks.initPreviewViewport();
+  // Initialize 3D Preview Generator
   if (callbacks.startBackgroundPreviewGenerator) callbacks.startBackgroundPreviewGenerator();
 
   // Initialize Sound Engine & Sync Active Atmosphere

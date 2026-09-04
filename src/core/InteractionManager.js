@@ -46,17 +46,6 @@ export function setupInteraction(ctx) {
       }
     }
 
-    const bubble = document.getElementById('speech-bubble');
-    if (bubble) {
-      if (isViewOnlyActive) {
-        bubble.style.opacity = '0.0';
-        bubble.style.transition = 'opacity 0.2s ease';
-      } else {
-        bubble.style.opacity = '1.0';
-        bubble.style.transition = 'opacity 0.2s ease';
-      }
-    }
-
     document.body.classList.toggle('mouse-over-mascot', state.isMouseOverUI || state.isSettingsOpen);
 
     const effectiveHover = state.isMouseOverCharacter && !isViewOnlyActive;

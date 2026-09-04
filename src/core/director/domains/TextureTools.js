@@ -48,29 +48,19 @@ export const TextureTools = {
         }
         if (args.flagWindSpeed !== undefined) {
           s.flagWindSpeed = args.flagWindSpeed;
-          ctx.syncUI('flag-wind-speed', args.flagWindSpeed);
-          const valEl = typeof document !== 'undefined' ? document.getElementById('val-flag-wind-speed') : null;
-          if (valEl) valEl.innerText = args.flagWindSpeed.toFixed(1);
           actions.push(`Wind Speed: ${args.flagWindSpeed}x`);
         }
         if (args.flagWaveIntensity !== undefined) {
           s.flagWaveIntensity = args.flagWaveIntensity;
-          ctx.syncUI('flag-wave-intensity', args.flagWaveIntensity);
-          const valEl = typeof document !== 'undefined' ? document.getElementById('val-flag-wave-intensity') : null;
-          if (valEl) valEl.innerText = args.flagWaveIntensity.toFixed(2);
           actions.push(`Wave Amp: ${args.flagWaveIntensity}x`);
         }
         if (args.textureRoughness !== undefined) {
           s.textureRoughness = args.textureRoughness;
-          ctx.syncUI('texture-roughness', args.textureRoughness);
-          const valEl = typeof document !== 'undefined' ? document.getElementById('val-texture-roughness') : null;
-          if (valEl) valEl.innerText = args.textureRoughness.toFixed(2);
+          actions.push(`Roughness: ${args.textureRoughness}`);
         }
         if (args.textureMetalness !== undefined) {
           s.textureMetalness = args.textureMetalness;
-          ctx.syncUI('texture-metalness', args.textureMetalness);
-          const valEl = typeof document !== 'undefined' ? document.getElementById('val-texture-metalness') : null;
-          if (valEl) valEl.innerText = args.textureMetalness.toFixed(2);
+          actions.push(`Metalness: ${args.textureMetalness}`);
         }
 
         if (ctx.callbacks.updateTextureShader) ctx.callbacks.updateTextureShader();

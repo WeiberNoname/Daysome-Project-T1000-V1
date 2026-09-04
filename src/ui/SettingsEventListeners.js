@@ -7,7 +7,6 @@
 import { setupDiagnosticsUI } from './SettingsDiagnosticsUI.js';
 import { setupSettingsPanelResize } from './SettingsPanelResizeHandler.js';
 import { soundManager } from '../core/SoundManager.js';
-import { setSelectedSpotlightIndex } from './SpotlightCardsUI.js';
 
 export function setupSettingsUI(deps) {
   const {
@@ -15,14 +14,12 @@ export function setupSettingsUI(deps) {
     ipcRenderer,
     t,
     showSpeechBubble,
-    updateSpotlightPosition,
     updateStageLighting,
     saveSettingsFile,
     syncSlidersUI,
     populateModelDropdown,
     populateAnimationDropdown,
     forceRefreshAllPreviews,
-    renderSpotlightCardsUI,
     setupStudioTabs,
     handleSaveSettings,
     resetCameraAndPosition,
@@ -73,43 +70,7 @@ export function setupSettingsUI(deps) {
   const fontScaleSlider = document.getElementById('font-scale');
   const valFontScale = document.getElementById('val-font-scale');
 
-  const enableStudioLightsCheck = document.getElementById('enable-studio-lights');
-  const ambientIntensitySlider = document.getElementById('ambient-intensity');
-  const valAmbientIntensity = document.getElementById('val-ambient-intensity');
-  const btnDarkStage = document.getElementById('btn-dark-stage');
-  const btnDualConcert = document.getElementById('btn-dual-concert');
-  const addSpotlightBtn = document.getElementById('add-spotlight-btn');
-
   if (setupStudioTabs) setupStudioTabs();
-
-  if (addSpotlightBtn) {
-    addSpotlightBtn.addEventListener('click', () => {
-      if (!Array.isArray(currentSettings.spotlights)) currentSettings.spotlights = [];
-      if (currentSettings.spotlights.length >= 10) {
-        if (showSpeechBubble) showSpeechBubble(t('max_spotlights_reached'), 2000);
-        return;
-      }
-      const nextNum = currentSettings.spotlights.length + 1;
-      const defaultColors = ['#ffffff', '#ffb703', '#00f0ff', '#ff007f', '#a855f7', '#22c55e', '#ef4444', '#3b82f6', '#eab308', '#ec4899'];
-      const nextColor = defaultColors[(nextNum - 1) % defaultColors.length];
-      const defaultAngles = [45, -135, -45, 135, 0, 90, -90, 180, 60, -120];
-      const nextAngleH = defaultAngles[(nextNum - 1) % defaultAngles.length];
-
-      currentSettings.spotlights.push({
-        id: nextNum,
-        enabled: true,
-        angleH: nextAngleH,
-        angleV: 55,
-        cone: 35,
-        intensity: 2.0,
-        color: nextColor
-      });
-      setSelectedSpotlightIndex(currentSettings.spotlights.length - 1);
-      if (renderSpotlightCardsUI) renderSpotlightCardsUI();
-      if (updateSpotlightPosition) updateSpotlightPosition();
-      if (saveSettingsFile) saveSettingsFile();
-    });
-  }
 
   const refreshPreviewsBtn = document.getElementById('refresh-previews-btn');
   if (refreshPreviewsBtn) {
@@ -183,8 +144,6 @@ export function setupSettingsUI(deps) {
         if (deps.fallbackToProcedural) deps.fallbackToProcedural();
       } else if (newModel === 'humanoid') {
         if (deps.loadHumanoidModel) deps.loadHumanoidModel();
-      } else if (newModel === 'flag') {
-        if (deps.loadFlagModel) deps.loadFlagModel();
       } else if (deps.loadCustomModel) {
         const regAsset = window.__assetRegistryManager ? window.__assetRegistryManager.getAssets('model').find(a => a.name === newModel || a.id === newModel) : null;
         if (regAsset && (regAsset.objectUrl || regAsset.file)) {
@@ -238,69 +197,6 @@ export function setupSettingsUI(deps) {
     });
   }
 
-  if (enableStudioLightsCheck) {
-    enableStudioLightsCheck.addEventListener('change', () => {
-      currentSettings.enableStudioLights = enableStudioLightsCheck.checked;
-      if (updateStageLighting) updateStageLighting();
-    });
-  }
-  if (ambientIntensitySlider && valAmbientIntensity) {
-    ambientIntensitySlider.addEventListener('input', () => {
-      currentSettings.ambientIntensity = parseFloat(ambientIntensitySlider.value);
-      valAmbientIntensity.innerText = parseFloat(ambientIntensitySlider.value).toFixed(2);
-      if (updateStageLighting) updateStageLighting();
-    });
-  }
-
-  const sakuraRainCheck = document.getElementById('sakura-rain');
-  if (sakuraRainCheck) {
-    sakuraRainCheck.addEventListener('change', () => {
-      currentSettings.sakuraRain = sakuraRainCheck.checked;
-      soundManager.syncAtmosphere(currentSettings);
-      if (saveSettingsFile) saveSettingsFile();
-    });
-  }
-
-  const snowFallCheck = document.getElementById('snow-fall');
-  if (snowFallCheck) {
-    snowFallCheck.addEventListener('change', () => {
-      currentSettings.snowFall = snowFallCheck.checked;
-      soundManager.syncAtmosphere(currentSettings);
-      if (saveSettingsFile) saveSettingsFile();
-    });
-  }
-
-  const activatePreset = (intensity, spotlights, bubbleText, duration) => {
-    currentSettings.enableStudioLights = true;
-    currentSettings.ambientIntensity = intensity;
-    currentSettings.spotlights = spotlights;
-    if (syncSlidersUI) syncSlidersUI();
-    if (saveSettingsFile) saveSettingsFile();
-    if (showSpeechBubble) showSpeechBubble(bubbleText, duration);
-  };
-
-  if (btnDarkStage) {
-    btnDarkStage.addEventListener('click', () => activatePreset(
-      0.05,
-      Array.isArray(currentSettings.spotlights) && currentSettings.spotlights.length > 0
-        ? currentSettings.spotlights.map(s => ({ ...s, enabled: true }))
-        : [{ id: 1, enabled: true, angleH: 45, angleV: 60, cone: 35, intensity: 2.5, color: '#ffffff' }],
-      "🎭 Dark Stage Mode Activated!",
-      2000
-    ));
-  }
-  if (btnDualConcert) {
-    btnDualConcert.addEventListener('click', () => activatePreset(
-      0.10,
-      [
-        { id: 1, enabled: true, angleH: 45, angleV: 55, cone: 35, intensity: 2.5, color: '#ffb703' },
-        { id: 2, enabled: true, angleH: -135, angleV: 45, cone: 30, intensity: 2.2, color: '#00f0ff' }
-      ],
-      "🎸 Concert Dual Spotlight Activated!",
-      2200
-    ));
-  }
-
   if (fontScaleSlider) {
     fontScaleSlider.addEventListener('input', () => {
       const scale = parseFloat(fontScaleSlider.value);
@@ -314,7 +210,6 @@ export function setupSettingsUI(deps) {
   const closeSettings = () => {
     state.isSettingsOpen = false;
     if (panel) panel.classList.add('hidden');
-    if (updateSpotlightPosition) updateSpotlightPosition();
     soundManager.syncAtmosphere(currentSettings);
     ipcRenderer.send('set-ignore-mouse', true);
   };

@@ -5,7 +5,6 @@
  */
 
 import { updatePerformanceMonitor } from '../ui/PerformanceMonitorUI.js';
-import { updateFlagWave } from './FlagMeshBuilder.js';
 
 export function updateAnimationFrame(deps) {
   const {
@@ -27,9 +26,6 @@ export function updateAnimationFrame(deps) {
     axesHelper,
     renderer,
     scene,
-    sakuraRainManager,
-    snowFallManager,
-    renderPreviewViewport,
     updateFPSCamera
   } = deps;
 
@@ -38,32 +34,13 @@ export function updateAnimationFrame(deps) {
     mixer.update(delta);
   }
 
-  // 1.2 Update Waving Flag Cloth Physics if active
-  if (innerModelGroup && innerModelGroup.userData && innerModelGroup.userData.flagClothMesh) {
-    updateFlagWave(
-      innerModelGroup.userData.flagClothMesh,
-      delta,
-      elapsed,
-      currentSettings.flagWindSpeed || 3.5,
-      currentSettings.flagWaveIntensity || 0.35
-    );
-  }
-
   // 1.3 Update Procedural Humanoid Skeletal Animation if active
   if (innerModelGroup && innerModelGroup.userData && innerModelGroup.userData.humanoidController) {
     const animName = currentSettings.activeAnimation || 'Idle';
     innerModelGroup.userData.humanoidController.updateAnimation(elapsed, animName);
   }
 
-  // 1.5 Update 3D Atmosphere Effects (Sakura Petals & Snow Fall)
-  if (sakuraRainManager) {
-    sakuraRainManager.setEnabled(currentSettings.sakuraRain !== false);
-    sakuraRainManager.update(delta, elapsed);
-  }
-  if (snowFallManager) {
-    snowFallManager.setEnabled(currentSettings.snowFall === true);
-    snowFallManager.update(delta, elapsed);
-  }
+  // Ambient weather particles removed per minimalism preferences
 
   // 2. Handle continuous axis spinning if enabled
   if (innerModelGroup) {
@@ -169,9 +146,6 @@ export function updateAnimationFrame(deps) {
   // 6. Render WebGL Scene
   if (renderer && scene && camera) {
     renderer.render(scene, camera);
-  }
-  if (renderPreviewViewport) {
-    renderPreviewViewport();
   }
 
   // 7. Update Performance & Motion Magnitude Monitor (Motion tab)

@@ -8,7 +8,6 @@ export class ToolRegistry {
   constructor(deps = {}) {
     this.currentSettings = deps.currentSettings || {};
     this.saveSettingsFile = deps.saveSettingsFile || (() => {});
-    this.showSpeechBubble = deps.showSpeechBubble || null;
     this.callbacks = deps.callbacks || {};
 
     this.tools = new Map();
@@ -145,10 +144,7 @@ export class ToolRegistry {
       // 5. Persist atomically
       context.saveSettings();
 
-      // 6. Mascot Speech Reaction
-      if (this.showSpeechBubble && actionResult) {
-        this.showSpeechBubble(`AI Action:\n${actionResult} ✨`, 3000);
-      }
+      // 6. Mascot Speech Reaction (removed non-essential text notification on mascot 3D display)
 
       return {
         success: true,

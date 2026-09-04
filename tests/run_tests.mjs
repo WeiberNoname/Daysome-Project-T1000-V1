@@ -24,7 +24,7 @@ assert.strictEqual(defaults.height, 350, 'Default height should be 350');
 assert.strictEqual(defaults.targetFps, 60, 'Default targetFps should be 60');
 assert.strictEqual(defaults.language, 'en', 'Default language should be en');
 assert.strictEqual(defaults.activeModel, 'procedural', 'Default activeModel should be procedural');
-assert.strictEqual(defaults.sakuraRain, true, 'Default sakuraRain should be true');
+assert.strictEqual(defaults.sakuraRain, false, 'Default sakuraRain should be false');
 assert.strictEqual(defaults.snowFall, false, 'Default snowFall should be false');
 assert.strictEqual(defaults.dynamicBatterySaver, false, 'Default dynamicBatterySaver should be false');
 assert.strictEqual(defaults.screenVisionAutoLoop, false, 'Default screenVisionAutoLoop should be false');
@@ -364,72 +364,42 @@ import('../src/core/SoundManager.js').then(({ SoundManager }) => {
 
   console.log('✅ SoundManager unit tests PASSED.');
 
-  // Test 8: FlagMeshBuilder and Wave Simulation
-  console.log('▶ Testing FlagMeshBuilder presets and cloth wave math...');
-  import('../src/core/FlagMeshBuilder.js').then(({ createPresetFlagTexture, updateFlagWave }) => {
-    const eclipseTex = createPresetFlagTexture('eclipse');
-    assert.ok(eclipseTex && eclipseTex.startsWith('data:image/png;base64,'), 'Eclipse preset should return base64 PNG data URL');
-
-    const prismTex = createPresetFlagTexture('prism');
-    assert.ok(prismTex && prismTex.startsWith('data:image/png;base64,'), 'Prism preset should return base64 PNG data URL');
-
-    const zenTex = createPresetFlagTexture('zen');
-    assert.ok(zenTex && zenTex.startsWith('data:image/png;base64,'), 'Zen preset should return base64 PNG data URL');
-
-    const defaultTex = createPresetFlagTexture('default');
-    assert.ok(defaultTex && defaultTex.startsWith('data:image/png;base64,'), 'Default preset should return base64 PNG data URL');
-
-    const dragonTex = createPresetFlagTexture('dragon');
-    assert.ok(dragonTex && dragonTex.startsWith('data:image/png;base64,'), 'Dragon preset should return base64 PNG data URL');
-
-    const cyberTex = createPresetFlagTexture('cyber');
-    assert.ok(cyberTex && cyberTex.startsWith('data:image/png;base64,'), 'Cyber preset should return base64 PNG data URL');
-
-    const galaxyTex = createPresetFlagTexture('galaxy');
-    assert.ok(galaxyTex && galaxyTex.startsWith('data:image/png;base64,'), 'Galaxy preset should return base64 PNG data URL');
-
-    const sakuraTex = createPresetFlagTexture('sakura');
-    assert.ok(sakuraTex && sakuraTex.startsWith('data:image/png;base64,'), 'Sakura preset should return base64 PNG data URL');
-
-    const auroraTex = createPresetFlagTexture('aurora');
-    assert.ok(auroraTex && auroraTex.startsWith('data:image/png;base64,'), 'Aurora preset should return base64 PNG data URL');
-
-    const oceanTex = createPresetFlagTexture('ocean');
-    assert.ok(oceanTex && oceanTex.startsWith('data:image/png;base64,'), 'Ocean preset should return base64 PNG data URL');
-
-    // Test wave physics math on mock subdivided geometry
-    const vertCount = 100;
-    const initialPositions = new Float32Array(vertCount * 3);
-    for (let i = 0; i < vertCount; i++) {
-      initialPositions[i * 3] = (i % 10) * 0.2; // x
-      initialPositions[i * 3 + 1] = Math.floor(i / 10) * 0.15; // y
-      initialPositions[i * 3 + 2] = 0; // z
-    }
-    const currentPositions = new Float32Array(initialPositions);
-
-    const mockClothMesh = {
-      geometry: {
-        userData: {
-          initialPositions: initialPositions
-        },
-        attributes: {
-          position: {
-            array: currentPositions,
-            needsUpdate: false
-          }
-        },
-        computeVertexNormals: () => { mockClothMesh.geometry.normalsComputed = true; }
+  // Test 8: SceneStageManager & Model Fallback Resilience
+  console.log('▶ Testing SceneStageManager & model fallback resilience...');
+  {
+    let proceduralLoaded = false;
+    let humanoidLoaded = false;
+    const mockManager = new SceneStageManager({
+      THREE: {
+        Group: class { constructor() { this.children = []; this.userData = {}; } add(c) { this.children.push(c); } remove() {} }
+      },
+      currentSettings: { activeModel: 'flag' },
+      stateAccessors: {
+        getCharacterGroup: () => null,
+        setCharacterGroup: () => {},
+        getInnerModelGroup: () => null,
+        setInnerModelGroup: () => {},
+        getCollisionProxy: () => null,
+        setCollisionProxy: () => {}
+      },
+      callbacks: {
+        createMascot: () => { proceduralLoaded = true; },
+        generateModelPreview: () => {}
       }
-    };
+    });
 
-    updateFlagWave(mockClothMesh, 0.016, 1.0, 4.0, 0.4);
-    assert.strictEqual(mockClothMesh.geometry.attributes.position.needsUpdate, true, 'position attribute should mark needsUpdate=true');
-    assert.strictEqual(mockClothMesh.geometry.normalsComputed, true, 'computeVertexNormals should be invoked');
-    
-    // Far end of flag (x > 0) should have modulated Z displacement
-    assert.notStrictEqual(currentPositions[currentPositions.length - 1], 0, 'Flag tail Z coordinate should be billowed by wind');
+    // Test legacy flag fallback to procedural
+    mockManager.detectAndLoadAsset();
+    assert.strictEqual(proceduralLoaded, true, 'Legacy flag model preference should safely fall back to procedural mascot');
 
-    console.log('✅ FlagMeshBuilder & wave physics unit tests PASSED.');
+    // Test humanoid routing
+    mockManager.currentSettings.activeModel = 'humanoid';
+    mockManager.loadHumanoidModel = () => { humanoidLoaded = true; };
+    mockManager.detectAndLoadAsset();
+    assert.strictEqual(humanoidLoaded, true, 'Humanoid preference should invoke loadHumanoidModel');
+
+    console.log('✅ SceneStageManager & model fallback resilience tests PASSED.');
+  }
 
     // Test 9: SettingsManager with Texture & Flag Keys
     console.log('▶ Testing SettingsManager texture & flag key defaults and serialization...');
@@ -1031,7 +1001,6 @@ import('../src/core/SoundManager.js').then(({ SoundManager }) => {
               });
             });
           });
-        });
 
 
 

@@ -18,7 +18,6 @@ export function triggerInteraction(deps) {
   } = deps;
 
   soundManager.resumeAudioContext();
-  soundManager.playInteractionSfx();
 
   if (animationState.type === 'interact') return;
 

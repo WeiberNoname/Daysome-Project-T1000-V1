@@ -34,33 +34,16 @@ export function updateGearPosition(settings) {
 
 /**
  * Displays a speech bubble notification above the pet.
+ * Safely suppressed: unessential text notifications on the mascot 3D display are disabled.
  * @param {string} text - Message text to display.
  * @param {number} duration - Duration in milliseconds before fading out (default: 2000ms).
  */
 export function showSpeechBubble(text, duration = 2000) {
-  let bubble = document.getElementById('speech-bubble');
-  if (!bubble) {
-    bubble = document.createElement('div');
-    bubble.id = 'speech-bubble';
-    bubble.className = 'speech-bubble hidden';
-    document.body.appendChild(bubble);
+  // Safe no-op to prevent unessential text from rendering on the 3D mascot display
+  const bubble = document.getElementById('speech-bubble');
+  if (bubble) {
+    bubble.remove();
   }
-
-  bubble.innerText = text;
-  bubble.classList.remove('hidden');
-  bubble.style.opacity = '1.0';
-  bubble.style.transition = 'opacity 0.2s ease';
-
-  if (bubble.fadeTimeout) {
-    clearTimeout(bubble.fadeTimeout);
-  }
-
-  bubble.fadeTimeout = setTimeout(() => {
-    bubble.style.opacity = '0.0';
-    setTimeout(() => {
-      bubble.classList.add('hidden');
-    }, 200);
-  }, duration);
 }
 
 /**

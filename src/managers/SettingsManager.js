@@ -21,7 +21,7 @@ export class SettingsManager {
       settingsLeft: false,
       lockPosition: false,
       viewOnly: false,
-      sakuraRain: true,
+      sakuraRain: false,
       snowFall: false,
       enablePhysics: false,
       physicsGravity: 9.8,
@@ -46,8 +46,8 @@ export class SettingsManager {
       soundSnowVolume: 0.7,
       soundSakuraVolume: 0.7,
       soundDrumVolume: 0.7,
-      soundSnowSync: true,
-      soundSakuraSync: true,
+      soundSnowSync: false,
+      soundSakuraSync: false,
       customTexturePath: '',
       flagWindSpeed: 3.5,
       flagWaveIntensity: 0.35,
@@ -179,14 +179,14 @@ activeAnimation=default
 clickCount=0
 fontSizeScale=1.5
 targetFps=60
-sakuraRain=true
+sakuraRain=false
 soundMuted=false
 soundMasterVolume=0.8
 soundSnowVolume=0.7
 soundSakuraVolume=0.7
 soundDrumVolume=0.7
-soundSnowSync=true
-soundSakuraSync=true
+soundSnowSync=false
+soundSakuraSync=false
 language=en`;
 
     if (!filePath) {
@@ -398,7 +398,7 @@ mouseOptimize=${currentSettings.mouseOptimize}
 settingsLeft=${currentSettings.settingsLeft}
 lockPosition=${currentSettings.lockPosition}
 viewOnly=${currentSettings.viewOnly}
-sakuraRain=${currentSettings.sakuraRain !== false}
+sakuraRain=${currentSettings.sakuraRain === true}
 snowFall=${currentSettings.snowFall === true}
 enablePhysics=${currentSettings.enablePhysics}
 physicsGravity=${currentSettings.physicsGravity}
